@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Torque & Lever Arm Master Lab // The Axiom Lab</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            labBg: '#05070c',
+            labCard: '#090e18',
+            labSurface: '#0e1626',
+            labBorder: '#18243b',
+            cyanGlow: '#00ffcc',
+            pinkGlow: '#ff0055',
+            amberGlow: '#ffcc00',
+            matrixGreen: '#00ff66',
+            purpleGlow: '#b026ff'
+          },
+          fontFamily: {
+            mono: ['"Fira Code"', 'monospace'],
+            sans: ['"Inter"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .grid-bg {
+      background-size: 28px 28px;
+      background-image: 
+        linear-gradient(to right, rgba(24, 36, 59, 0.45) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(24, 36, 59, 0.45) 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="bg-labBg text-slate-100 font-sans p-4 antialiased min-h-screen flex flex-col items-center justify-center">
+
+  <div class="max-w-5xl w-full border border-labBorder bg-labCard rounded-2xl p-5 shadow-2xl">
+    
+    <!-- Title HUD -->
+    <div class="flex flex-wrap items-center justify-between pb-3 border-b border-labBorder gap-2 font-mono text-xs mb-3">
+      <div class="flex items-center space-x-2">
+        <span class="w-3 h-3 rounded-full bg-matrixGreen animate-pulse"></span>
+        <span class="text-white font-bold tracking-widest text-sm sm:text-base">TORQUE LAB // LINE OF ACTION & LEVER ARM ($r_\perp$)</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="px-2.5 py-1 rounded bg-amberGlow/10 text-amberGlow border border-amberGlow/30 font-semibold text-xs font-mono">
+          &tau; = r<sub>&perp;</sub> &times; F = r &middot; F &middot; sin(&theta;)
+        </span>
+      </div>
+    </div>
+
+    <!-- Canvas Viewport -->
+    <div class="relative w-full rounded-xl overflow-hidden border border-labBorder bg-[#060a12] grid-bg">
+      <canvas id="torqueCanvas" width="960" height="480" class="w-full h-auto block"></canvas>
+
+      <!-- Live Mathematical Telemetry -->
+      <div class="absolute bottom-3 left-3 bg-slate-950/90 border border-labBorder p-3 rounded-lg font-mono text-xs backdrop-blur-md max-w-md pointer-events-none">
+        <div class="text-cyanGlow font-bold mb-1">&#9670; VECTOR DECOMPOSITION & TORQUE</div>
+        <div class="text-slate-300">Position Vector (|r|): <span id="rTelemetry" class="text-cyanGlow font-bold">2.40 m</span></div>
+        <div class="text-slate-300">Applied Force (|F|): <span id="fTelemetry" class="text-pinkGlow font-bold">40.0 N</span></div>
+        <div class="text-slate-300">Effective Lever Arm (r<sub>&perp;</sub> = r&middot;sin&theta;): <span id="rPerpTelemetry" class="text-matrixGreen font-bold">2.40 m</span></div>
+        <div id="torqueValDisplay" class="text-amberGlow mt-1.5 font-bold text-sm">Net Torque &tau; = +96.0 N&middot;m</div>
+      </div>
+
+      <!-- Right Hand Thumb Vector Indicator Overlay -->
+      <div class="absolute top-3 right-3 bg-slate-950/85 border border-labBorder px-3 py-2 rounded font-mono text-xs text-slate-300 flex items-center space-x-3">
+        <div class="flex flex-col text-right">
+          <span class="text-[10px] text-slate-400">VECTOR DIRECTION (&tau;):</span>
+          <span id="thumbVectorText" class="text-matrixGreen font-bold">&odot; OUT OF PAGE (+z)</span>
+        </div>
+        <div id="thumbVectorIcon" class="w-7 h-7 rounded-full border border-matrixGreen/50 flex items-center justify-center text-matrixGreen text-base font-bold bg-matrixGreen/10">
+          &bull;
+        </div>
+      </div>
+    </div>
+
+    <!-- Classroom Interactive Dials -->
+    <div class="mt-4 grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-labSurface/70 border border-labBorder font-mono text-xs">
+      
+      <!-- Distance Slider (r) -->
+      <div class="flex flex-col space-y-1.5">
+        <div class="flex justify-between">
+          <span class="text-cyanGlow font-bold">Lever Distance (r)</span>
+          <span id="rVal" class="text-cyanGlow font-bold">2.4 m</span>
+        </div>
+        <input type="range" min="0.6" max="3.4" step="0.1" value="2.4" id="rSlider" class="accent-cyanGlow cursor-pointer">
+      </div>
+
+      <!-- Angle Theta Slider -->
+      <div class="flex flex-col space-y-1.5">
+        <div class="flex justify-between">
+          <span class="text-amberGlow font-bold">Force Angle (&theta;)</span>
+          <span id="thetaVal" class="text-amberGlow font-bold">90&deg;</span>
+        </div>
+        <input type="range" min="0" max="180" step="5" value="90" id="thetaSlider" class="accent-amberGlow cursor-pointer">
+      </div>
+
+      <!-- Motion Speed Control (Slow Motion) -->
+      <div class="flex flex-col space-y-1.5">
+        <div class="flex justify-between">
+          <span class="text-matrixGreen font-bold">Rotation Speed Scale</span>
+          <span id="speedVal" class="text-matrixGreen font-bold">0.3x (Slow)</span>
+        </div>
+        <input type="range" min="0.05" max="0.8" step="0.05" value="0.25" id="speedSlider" class="accent-matrixGreen cursor-pointer">
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col justify-end space-y-1.5">
+        <button id="btnPush" class="w-full py-2 bg-pinkGlow text-white font-bold rounded hover:bg-pink-600 transition-all shadow-md shadow-pinkGlow/30 active:scale-95">
+          &#9654; PUSH / ROTATE WRENCH
+        </button>
+        <button onclick="resetWrench()" class="w-full py-1.5 bg-labBg border border-labBorder text-slate-300 rounded hover:border-cyanGlow">
+          RESET TO HORIZONTAL
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Pedagogical Teaching Notes for Class -->
+    <div class="mt-3 p-3 rounded-lg bg-labBg border border-labBorder/70 text-xs text-slate-300 font-sans flex items-start space-x-2 leading-relaxed">
+      <span class="text-amberGlow font-bold font-mono shrink-0">TEACHING TIP:</span>
+      <span>
+        Bachhon ko screen par glowing <strong>Green Line ($r_\perp$)</strong> dikhayein. Jaise hi aap $\theta$ ko $90^\circ$ se kam ya zyada karenge, bache dekhenge ki Force ki line of action pivot ke paas aane lagti hai aur $r_\perp$ chhota ho jaata hai. Jab $\theta = 0^\circ$ ya $180^\circ$ hota hai, to Force seedha pivot ke center se pass hota hai ($r_\perp = 0$), isliye koi torque paida nahi hota!
+      </span>
+    </div>
+
+  </div>
+
+  <script>
+    const canvas = document.getElementById('torqueCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // Physical System Parameters
+    let r_meters = 2.4;
+    let F_mag = 40.0;
+    let theta_deg = 90.0;
+    let timeScale = 0.25;
+
+    let armAngle = 0;      // Current wrench orientation angle (radians)
+    let omega = 0;         // Angular velocity (rad/s)
+    let isPushing = false;
+
+    // DOM Elements
+    const rSlider = document.getElementById('rSlider');
+    const thetaSlider = document.getElementById('thetaSlider');
+    const speedSlider = document.getElementById('speedSlider');
+    const rVal = document.getElementById('rVal');
+    const thetaVal = document.getElementById('thetaVal');
+    const speedVal = document.getElementById('speedVal');
+
+    const rTelemetry = document.getElementById('rTelemetry');
+    const fTelemetry = document.getElementById('fTelemetry');
+    const rPerpTelemetry = document.getElementById('rPerpTelemetry');
+    const torqueValDisplay = document.getElementById('torqueValDisplay');
+    const thumbVectorText = document.getElementById('thumbVectorText');
+    const thumbVectorIcon = document.getElementById('thumbVectorIcon');
+    const btnPush = document.getElementById('btnPush');
+
+    rSlider.addEventListener('input', (e) => {
+      r_meters = parseFloat(e.target.value);
+      rVal.innerText = `${r_meters.toFixed(1)} m`;
+    });
+
+    thetaSlider.addEventListener('input', (e) => {
+      theta_deg = parseFloat(e.target.value);
+      thetaVal.innerText = `${theta_deg.toFixed(0)}°`;
+    });
+
+    speedSlider.addEventListener('input', (e) => {
+      timeScale = parseFloat(e.target.value);
+      speedVal.innerText = `${timeScale.toFixed(2)}x (${timeScale <= 0.3 ? 'Slow' : 'Fast'})`;
+    });
+
+    // Hold or click push button
+    btnPush.addEventListener('mousedown', () => { isPushing = true; });
+    window.addEventListener('mouseup', () => { isPushing = false; });
+    btnPush.addEventListener('touchstart', () => { isPushing = true; });
+    window.addEventListener('touchend', () => { isPushing = false; });
+
+    function resetWrench() {
+      armAngle = 0;
+      omega = 0;
+      isPushing = false;
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const radTheta = theta_deg * Math.PI / 180;
+      const sinTheta = Math.sin(radTheta);
+      const cosTheta = Math.cos(radTheta);
+      
+      const r_perp = r_meters * sinTheta;
+      const torque = r_meters * F_mag * sinTheta;
+
+      // Smooth Angular Physics (Controlled Slow Speed)
+      // I is proportional to m * r^2
+      const inertia = 35.0 + 8.0 * (r_meters * r_meters);
+      const alpha = torque / inertia;
+
+      if (isPushing) {
+        omega += alpha * 0.04 * timeScale;
+      }
+
+      // Smooth realistic damping (fluid friction)
+      omega *= (0.978 + (1 - timeScale) * 0.015);
+      armAngle += omega * timeScale;
+
+      // Telemetry update
+      rTelemetry.innerText = `${r_meters.toFixed(2)} m`;
+      fTelemetry.innerText = `${F_mag.toFixed(0)} N`;
+      rPerpTelemetry.innerText = `${r_perp.toFixed(2)} m (r·sinθ)`;
+      
+      const torqueSign = torque >= 0 ? '+' : '';
+      torqueValDisplay.innerHTML = `Net Torque &tau; = r<sub>&perp;</sub> &times; F = <span class="text-amberGlow font-bold">${torqueSign}${torque.toFixed(1)} N&middot;m</span> (${Math.abs(torque) < 0.5 ? 'Zero Net Torque' : (torque > 0 ? 'Counter-Clockwise' : 'Clockwise')})`;
+
+      // Right Hand Thumb Rule Indicators
+      if (Math.abs(torque) < 0.5) {
+        thumbVectorText.innerText = "NO AXIAL TORQUE";
+        thumbVectorText.className = "text-slate-500 font-bold";
+        thumbVectorIcon.innerHTML = "&minus;";
+        thumbVectorIcon.className = "w-7 h-7 rounded-full border border-slate-700 flex items-center justify-center text-slate-500 text-sm font-bold bg-slate-900";
+      } else if (torque > 0) {
+        thumbVectorText.innerText = "⊙ OUT OF PAGE (+z)";
+        thumbVectorText.className = "text-matrixGreen font-bold";
+        thumbVectorIcon.innerHTML = "&bull;";
+        thumbVectorIcon.className = "w-7 h-7 rounded-full border border-matrixGreen/60 flex items-center justify-center text-matrixGreen text-xl font-bold bg-matrixGreen/10";
+      } else {
+        thumbVectorText.innerText = "⊗ INTO PAGE (-z)";
+        thumbVectorText.className = "text-pinkGlow font-bold";
+        thumbVectorIcon.innerHTML = "&times;";
+        thumbVectorIcon.className = "w-7 h-7 rounded-full border border-pinkGlow/60 flex items-center justify-center text-pinkGlow text-sm font-bold bg-pinkGlow/10";
+      }
+
+      const pivotX = 380;
+      const pivotY = 240;
+      const pixelScale = 85;
+
+      ctx.save();
+      ctx.translate(pivotX, pivotY);
+      ctx.rotate(-armAngle); // Negative for CCW positive convention
+
+      const armPixelLength = r_meters * pixelScale;
+
+      // 1. Draw Sleek Heavy Metallic Wrench
+      ctx.fillStyle = '#111827';
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 3;
+
+      // Handle shaft
+      ctx.beginPath();
+      ctx.roundRect(0, -13, armPixelLength + 16, 26, [3, 8, 8, 3]);
+      ctx.fill();
+      ctx.stroke();
+
+      // Ergonomic ridges
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 2;
+      for (let x = 45; x < armPixelLength; x += 18) {
+        ctx.beginPath();
+        ctx.moveTo(x, -9);
+        ctx.lineTo(x, 9);
+        ctx.stroke();
+      }
+
+      // 2. Position Vector r (Cyan)
+      ctx.strokeStyle = '#00ffcc';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(armPixelLength, 0);
+      ctx.stroke();
+
+      // Arrowhead for r
+      ctx.fillStyle = '#00ffcc';
+      ctx.beginPath();
+      ctx.moveTo(armPixelLength, 0);
+      ctx.lineTo(armPixelLength - 10, -5);
+      ctx.lineTo(armPixelLength - 10, 5);
+      ctx.fill();
+
+      // Label r
+      ctx.font = 'bold 12px "Fira Code"';
+      ctx.fillText(`r = ${r_meters.toFixed(1)}m`, armPixelLength / 2 - 25, -20);
+
+      // Force Application Point Dot
+      ctx.beginPath();
+      ctx.arc(armPixelLength, 0, 6, 0, Math.PI * 2);
+      ctx.fillStyle = '#ff0055';
+      ctx.fill();
+
+      // Force Vector Calculations
+      const fLength = 110;
+      const fx = fLength * cosTheta;
+      const fy = -fLength * sinTheta;
+
+      // 3. Line of Action Projection (Forward & Backward Dotted Line)
+      ctx.save();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([5, 5]);
+      ctx.beginPath();
+      ctx.moveTo(armPixelLength - fx * 2.5, -fy * 2.5);
+      ctx.lineTo(armPixelLength + fx * 2.5, fy * 2.5);
+      ctx.stroke();
+      ctx.restore();
+
+      // 4. Perpendicular Lever Arm ($r_\perp = r \sin\theta$) Dropped from Pivot
+      if (Math.abs(sinTheta) > 0.05) {
+        const perpDistPixels = armPixelLength * sinTheta;
+        const normAngle = -Math.PI / 2 + radTheta;
+        const perpX = perpDistPixels * Math.cos(normAngle);
+        const perpY = perpDistPixels * Math.sin(normAngle);
+
+        ctx.strokeStyle = '#00ff66';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.lineTo(perpX, perpY);
+        ctx.stroke();
+
+        // Right angle square indicator on line of action
+        ctx.strokeStyle = '#00ff66';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(perpX - 6, perpY - 6, 8, 8);
+
+        ctx.fillStyle = '#00ff66';
+        ctx.font = 'bold 11px "Fira Code"';
+        ctx.fillText(`r_⊥ = ${(r_perp).toFixed(2)}m`, perpX / 2 - 25, perpY / 2 - 10);
+      }
+
+      // 5. Draw Main Force Vector F (Pink with Glow)
+      ctx.strokeStyle = '#ff0055';
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      ctx.moveTo(armPixelLength, 0);
+      ctx.lineTo(armPixelLength + fx, fy);
+      ctx.stroke();
+
+      // Arrowhead for Force
+      const fAng = Math.atan2(fy, fx);
+      ctx.fillStyle = '#ff0055';
+      ctx.beginPath();
+      ctx.moveTo(armPixelLength + fx, fy);
+      ctx.lineTo(armPixelLength + fx - 14 * Math.cos(fAng - 0.35), fy - 14 * Math.sin(fAng - 0.35));
+      ctx.lineTo(armPixelLength + fx - 14 * Math.cos(fAng + 0.35), fy - 14 * Math.sin(fAng + 0.35));
+      ctx.fill();
+
+      ctx.fillStyle = '#ff0055';
+      ctx.font = 'bold 12px "Fira Code"';
+      ctx.fillText(`F = 40N`, armPixelLength + fx + 8, fy);
+
+      // 6. Angle Arc θ
+      if (theta_deg > 5 && theta_deg < 175) {
+        ctx.strokeStyle = '#ffcc00';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(armPixelLength, 0, 36, 0, -radTheta, true);
+        ctx.stroke();
+        ctx.fillStyle = '#ffcc00';
+        ctx.font = 'bold 11px "Fira Code"';
+        ctx.fillText(`θ=${theta_deg}°`, armPixelLength + 40, -14);
+      }
+
+      // 7. Central Pivot Bolt (Interactive Hex Nut)
+      ctx.fillStyle = '#090e18';
+      ctx.strokeStyle = '#00ffcc';
+      ctx.lineWidth = 3.5;
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const ha = (i * Math.PI) / 3;
+        const hx = 26 * Math.cos(ha);
+        const hy = 26 * Math.sin(ha);
+        if (i === 0) ctx.moveTo(hx, hy); else ctx.lineTo(hx, hy);
+      }
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+
+      // Inner Screw Threads
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, 14, 0, Math.PI * 2);
+      ctx.stroke();
+
+      ctx.fillStyle = '#00ffcc';
+      ctx.font = '10px "Fira Code"';
+      ctx.fillText("PIVOT", -15, 42);
+
+      ctx.restore();
+
+      // Gentle Rotational Trail / Flow Arcs
+      if (Math.abs(omega) > 0.005) {
+        ctx.save();
+        ctx.strokeStyle = torque > 0 ? 'rgba(0, 255, 102, 0.4)' : 'rgba(255, 0, 85, 0.4)';
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([6, 6]);
+        ctx.beginPath();
+        ctx.arc(pivotX, pivotY, 65, -armAngle, -armAngle + (torque > 0 ? 0.9 : -0.9), torque <= 0);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    draw();
+  </script>
+</body>
+</html>
