@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Displacement Current & Ampere-Maxwell Lab // The Axiom Lab</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  
+  <!-- MathJax for rendering LaTeX formulas cleanly -->
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] },
+      svg: { fontCache: 'global' }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            labBg: '#05070c',
+            labCard: '#090e18',
+            labSurface: '#0e1626',
+            labBorder: '#18243b',
+            cyanGlow: '#00ffcc',
+            pinkGlow: '#ff0055',
+            amberGlow: '#ffcc00',
+            matrixGreen: '#00ff66',
+            purpleGlow: '#b026ff'
+          },
+          fontFamily: {
+            mono: ['"Fira Code"', 'monospace'],
+            sans: ['"Inter"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .grid-bg {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(24, 36, 59, 0.4) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(24, 36, 59, 0.4) 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="bg-labBg text-slate-100 font-sans p-4 antialiased min-h-screen flex flex-col items-center justify-center">
+
+  <div class="max-w-5xl w-full border border-labBorder bg-labCard rounded-2xl p-5 shadow-2xl">
+    
+    <!-- Title HUD -->
+    <div class="flex flex-wrap items-center justify-between pb-3 border-b border-labBorder gap-2 font-mono text-xs mb-3">
+      <div class="flex items-center space-x-2">
+        <span class="w-3 h-3 rounded-full bg-cyanGlow animate-ping"></span>
+        <span class="text-white font-bold tracking-widest text-sm sm:text-base">AMPERE-MAXWELL LAW // DISPLACEMENT CURRENT</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="px-2.5 py-1 rounded bg-pinkGlow/10 text-pinkGlow border border-pinkGlow/30 font-semibold text-xs font-mono">
+          &oint; B &bull; dl = &mu;&#8320; (I<sub>c</sub> + I<sub>d</sub>)
+        </span>
+      </div>
+    </div>
+
+    <!-- Canvas Viewport -->
+    <div class="relative w-full rounded-xl overflow-hidden border border-labBorder bg-[#070b12] grid-bg">
+      <canvas id="emCanvas" width="960" height="480" class="w-full h-auto block"></canvas>
+
+      <!-- Live Vector & Mathematical Telemetry -->
+      <div class="absolute bottom-3 left-3 bg-slate-950/90 border border-labBorder p-3 rounded-lg font-mono text-xs backdrop-blur-md max-w-md pointer-events-none">
+        <div class="text-amberGlow font-bold mb-1">&#9670; CONTINUITY THEOREM</div>
+        <div class="text-slate-300">Conduction Current: <span id="icTelemetry" class="text-matrixGreen font-bold">1.25 A</span></div>
+        <div class="text-slate-300">
+          Displacement Current (I<sub>d</sub> = &epsilon;&#8320; &middot; d&Phi;<sub>E</sub>/dt): 
+          <span id="idTelemetry" class="text-cyanGlow font-bold">1.25 A</span>
+        </div>
+        <div id="statusTelemetry" class="text-pinkGlow mt-1 font-semibold">Continuous Total Flux: I<sub>c</sub> = I<sub>d</sub></div>
+      </div>
+
+      <!-- Amperian Loop Selection Overlay -->
+      <div class="absolute top-3 right-3 bg-slate-950/80 border border-labBorder px-3 py-1.5 rounded font-mono text-xs text-slate-300 flex items-center space-x-2">
+        <span>Active Loop:</span>
+        <span id="loopLabel" class="text-cyanGlow font-bold">Surface S₂ (Inside Plates)</span>
+      </div>
+    </div>
+
+    <!-- Classroom Controls -->
+    <div class="mt-4 grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-labSurface/70 border border-labBorder font-mono text-xs">
+      
+      <!-- Source Frequency / Rate -->
+      <div class="flex flex-col space-y-1.5">
+        <div class="flex justify-between">
+          <span class="text-cyanGlow font-bold">AC Frequency (&omega;)</span>
+          <span id="freqVal" class="text-cyanGlow font-bold">1.0 Hz</span>
+        </div>
+        <input type="range" min="0.2" max="3.0" step="0.2" value="1.0" id="freqSlider" class="accent-cyanGlow cursor-pointer">
+      </div>
+
+      <!-- Plate Voltage Slider -->
+      <div class="flex flex-col space-y-1.5">
+        <div class="flex justify-between">
+          <span class="text-pinkGlow font-bold">Peak Voltage (V&#8320;)</span>
+          <span id="voltVal" class="text-pinkGlow font-bold">100 V</span>
+        </div>
+        <input type="range" min="20" max="200" step="10" value="100" id="voltSlider" class="accent-pinkGlow cursor-pointer">
+      </div>
+
+      <!-- Surface Loop Switcher -->
+      <div class="flex flex-col space-y-1.5">
+        <span class="text-slate-300 font-bold">Amperian Surface</span>
+        <select id="surfaceSelect" class="bg-labBg border border-labBorder p-1.5 rounded text-amberGlow font-semibold focus:outline-none focus:border-amberGlow">
+          <option value="gap">Inside Gap: S₂ (Only I_d exists)</option>
+          <option value="wire">Outside Gap: S₁ (Only I_c exists)</option>
+          <option value="both">Both Simultaneously (I_c = I_d)</option>
+        </select>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center space-x-2">
+        <button id="btnToggleB" class="flex-1 py-2 bg-labBg border border-labBorder text-amberGlow font-bold rounded hover:border-amberGlow transition-all">HIDE B-FIELD</button>
+        <button id="btnPause" class="py-2 px-3 bg-labBg border border-labBorder text-slate-200 font-bold rounded hover:border-cyanGlow hover:text-cyanGlow">PAUSE</button>
+      </div>
+
+    </div>
+
+    <!-- Pedagogical Explanation Note for Class -->
+    <div class="mt-3 p-3 rounded-lg bg-labBg border border-labBorder/70 text-xs text-slate-300 font-sans flex items-start space-x-2 leading-relaxed">
+      <span class="text-matrixGreen font-bold font-mono shrink-0">PEDAGOGICAL CORE:</span>
+      <span>
+        Ampere ke purane niyam (&oint; B &bull; dl = &mu;&#8320; I<sub>c</sub>) ke mutabiq capacitor plates ke beech koi physical conduction current nahi tha (I<sub>c</sub> = 0), isliye wahan magnetic field zero honi chahiye thi. Lekin Maxwell ne discover kiya ki plates ke beech samay ke sath badalta hua electric field (dE/dt &ne; 0) ek <strong>Displacement Current (I<sub>d</sub>)</strong> produce karta hai, jiska maan theek wire ke conduction current (I<sub>c</sub>) ke barabar hota hai aur circuit mein continuity maintain rehti hai.
+      </span>
+    </div>
+
+  </div>
+
+  <script>
+    const canvas = document.getElementById('emCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let freq = 1.0;
+    let peakV = 100;
+    let surfaceMode = 'gap';
+    let showBField = true;
+    let isRunning = true;
+    let time = 0;
+
+    const freqSlider = document.getElementById('freqSlider');
+    const voltSlider = document.getElementById('voltSlider');
+    const freqVal = document.getElementById('freqVal');
+    const voltVal = document.getElementById('voltVal');
+    const surfaceSelect = document.getElementById('surfaceSelect');
+    const loopLabel = document.getElementById('loopLabel');
+    const btnToggleB = document.getElementById('btnToggleB');
+    const btnPause = document.getElementById('btnPause');
+    const icTelemetry = document.getElementById('icTelemetry');
+    const idTelemetry = document.getElementById('idTelemetry');
+
+    freqSlider.addEventListener('input', (e) => {
+      freq = parseFloat(e.target.value);
+      freqVal.innerText = `${freq.toFixed(1)} Hz`;
+    });
+
+    voltSlider.addEventListener('input', (e) => {
+      peakV = parseFloat(e.target.value);
+      voltVal.innerText = `${peakV.toFixed(0)} V`;
+    });
+
+    surfaceSelect.addEventListener('change', (e) => {
+      surfaceMode = e.target.value;
+      if (surfaceMode === 'gap') loopLabel.innerText = "Surface S₂ (Inside Plates)";
+      else if (surfaceMode === 'wire') loopLabel.innerText = "Surface S₁ (Around Wire)";
+      else loopLabel.innerText = "Both Surfaces S₁ & S₂";
+    });
+
+    btnToggleB.addEventListener('click', () => {
+      showBField = !showBField;
+      btnToggleB.innerText = showBField ? "HIDE B-FIELD" : "SHOW B-FIELD";
+      btnToggleB.className = showBField 
+        ? "flex-1 py-2 bg-labBg border border-labBorder text-amberGlow font-bold rounded hover:border-amberGlow"
+        : "flex-1 py-2 bg-amberGlow text-black font-bold rounded";
+    });
+
+    btnPause.addEventListener('click', () => {
+      isRunning = !isRunning;
+      btnPause.innerText = isRunning ? "PAUSE" : "RESUME";
+    });
+
+    const electrons = Array.from({ length: 18 }, (_, i) => ({ xOffset: i * 36 }));
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (isRunning) time += 0.03 * freq;
+
+      const currentCycle = Math.cos(time);
+      const currentVal = (Math.abs(currentCycle) * (peakV / 80)).toFixed(2);
+
+      icTelemetry.innerText = `${currentVal} A`;
+      idTelemetry.innerText = `${currentVal} A`;
+
+      const centerY = 240;
+      const plate1X = 400;
+      const plate2X = 560;
+      const plateH = 220;
+      const plateW = 12;
+
+      // 1. External Wires
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 5;
+
+      ctx.beginPath();
+      ctx.moveTo(80, centerY);
+      ctx.lineTo(plate1X, centerY);
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.moveTo(plate2X + plateW, centerY);
+      ctx.lineTo(880, centerY);
+      ctx.stroke();
+
+      // 2. Moving Conduction Electrons (Ic)
+      electrons.forEach(el => {
+        if (isRunning) el.xOffset += currentCycle * 1.8;
+        if (el.xOffset > 280) el.xOffset = 0;
+        if (el.xOffset < 0) el.xOffset = 280;
+
+        ctx.fillStyle = '#00ff66';
+        ctx.beginPath();
+        ctx.arc(100 + el.xOffset, centerY, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(plate2X + plateW + el.xOffset, centerY, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Conduction Labels
+      ctx.fillStyle = '#00ff66';
+      ctx.font = 'bold 12px "Fira Code"';
+      ctx.fillText("I_c (Conduction)", 190, centerY - 18);
+      ctx.fillText("I_c (Conduction)", 680, centerY - 18);
+
+      // Ic Direction Arrow
+      ctx.strokeStyle = '#00ff66';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      const dir = Math.sign(currentCycle) || 1;
+      ctx.moveTo(210 - dir * 15, centerY - 8);
+      ctx.lineTo(210 + dir * 15, centerY - 8);
+      ctx.lineTo(210 + dir * 8, centerY - 14);
+      ctx.stroke();
+
+      // 3. Capacitor Plates
+      ctx.fillStyle = currentCycle >= 0 ? '#ff0055' : '#00ffcc';
+      ctx.fillRect(plate1X, centerY - plateH / 2, plateW, plateH);
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(plate1X, centerY - plateH / 2, plateW, plateH);
+
+      ctx.fillStyle = currentCycle >= 0 ? '#00ffcc' : '#ff0055';
+      ctx.fillRect(plate2X, centerY - plateH / 2, plateW, plateH);
+      ctx.strokeRect(plate2X, centerY - plateH / 2, plateW, plateH);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 14px "Fira Code"';
+      for (let y = centerY - plateH / 2 + 25; y < centerY + plateH / 2; y += 35) {
+        ctx.fillText(currentCycle >= 0 ? "+" : "-", plate1X - 16, y);
+        ctx.fillText(currentCycle >= 0 ? "-" : "+", plate2X + plateW + 8, y);
+      }
+
+      // 4. Electric Field Lines in Gap (E-field)
+      const numLines = 7;
+      const spacing = plateH / (numLines + 1);
+      ctx.strokeStyle = `rgba(0, 255, 204, ${Math.min(1, Math.abs(currentCycle) + 0.2)})`;
+      ctx.lineWidth = 2;
+
+      for (let i = 1; i <= numLines; i++) {
+        const lineY = (centerY - plateH / 2) + i * spacing;
+        ctx.beginPath();
+        if (currentCycle >= 0) {
+          ctx.moveTo(plate1X + plateW, lineY);
+          ctx.lineTo(plate2X, lineY);
+        } else {
+          ctx.moveTo(plate2X, lineY);
+          ctx.lineTo(plate1X + plateW, lineY);
+        }
+        ctx.stroke();
+
+        const arrowX = (plate1X + plate2X) / 2;
+        ctx.beginPath();
+        const arrowDir = currentCycle >= 0 ? 1 : -1;
+        ctx.moveTo(arrowX - arrowDir * 6, lineY - 4);
+        ctx.lineTo(arrowX + arrowDir * 6, lineY);
+        ctx.lineTo(arrowX - arrowDir * 6, lineY + 4);
+        ctx.fillStyle = '#00ffcc';
+        ctx.fill();
+      }
+
+      // Clean Canvas Labels
+      ctx.fillStyle = '#00ffcc';
+      ctx.font = 'bold 12px "Fira Code"';
+      ctx.textAlign = 'center';
+      ctx.fillText("dE/dt \u2260 0 (Changing Field)", (plate1X + plate2X) / 2 + 6, centerY - plateH / 2 - 12);
+      ctx.fillText("I_d = \u03B5\u2080 (d\u03A6_E/dt)", (plate1X + plate2X) / 2 + 6, centerY + plateH / 2 + 24);
+
+      // 5. Induced Magnetic Field Loops
+      if (showBField) {
+        const midX = (plate1X + plate2X) / 2;
+        const radiusY = 55;
+        const radiusX = 28;
+
+        if (surfaceMode === 'gap' || surfaceMode === 'both') {
+          ctx.save();
+          ctx.beginPath();
+          ctx.ellipse(midX, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
+          ctx.strokeStyle = '#ffcc00';
+          ctx.lineWidth = 2.5;
+          ctx.setLineDash([5, 5]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = '#ffcc00';
+          ctx.font = '11px "Fira Code"';
+          ctx.fillText("Induced \u222E B\u00B7dl", midX, centerY + radiusY + 16);
+          ctx.restore();
+        }
+
+        if (surfaceMode === 'wire' || surfaceMode === 'both') {
+          ctx.save();
+          ctx.beginPath();
+          ctx.ellipse(240, centerY, radiusX, radiusY, 0, 0, Math.PI * 2);
+          ctx.strokeStyle = '#ffcc00';
+          ctx.lineWidth = 2.5;
+          ctx.setLineDash([5, 5]);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = '#ffcc00';
+          ctx.font = '11px "Fira Code"';
+          ctx.fillText("Conduction \u222E B\u00B7dl", 240, centerY + radiusY + 16);
+          ctx.restore();
+        }
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    draw();
+  </script>
+</body>
+</html>
