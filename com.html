@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Centre of Mass Lab // The Axiom Lab</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            labBg: '#05070c',
+            labCard: '#090e18',
+            labSurface: '#0e1626',
+            labBorder: '#18243b',
+            cyanGlow: '#00ffcc',
+            pinkGlow: '#ff0055',
+            amberGlow: '#ffcc00',
+            matrixGreen: '#00ff66',
+            purpleGlow: '#b026ff'
+          },
+          fontFamily: {
+            mono: ['"Fira Code"', 'monospace'],
+            sans: ['"Inter"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .grid-bg {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(24, 36, 59, 0.4) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(24, 36, 59, 0.4) 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="bg-labBg text-slate-100 font-sans p-4 antialiased min-h-screen flex flex-col items-center justify-center">
+
+  <div class="max-w-5xl w-full border border-labBorder bg-labCard rounded-2xl p-5 shadow-2xl">
+    
+    <!-- Title HUD -->
+    <div class="flex flex-wrap items-center justify-between pb-3 border-b border-labBorder gap-2 font-mono text-xs mb-3">
+      <div class="flex items-center space-x-2">
+        <span class="w-3 h-3 rounded-full bg-matrixGreen animate-pulse"></span>
+        <span class="text-white font-bold tracking-widest text-sm sm:text-base">CENTRE OF MASS // INVARIANCE DEMONSTRATOR</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="px-2 py-0.5 rounded bg-cyanGlow/10 text-cyanGlow border border-cyanGlow/30 font-semibold text-[11px]">F_ext = 0 &bull; a_cm = 0</span>
+      </div>
+    </div>
+
+    <!-- Canvas Viewport -->
+    <div class="relative w-full rounded-xl overflow-hidden border border-labBorder bg-[#070b12] grid-bg">
+      <canvas id="comCanvas" width="960" height="480" class="w-full h-auto block"></canvas>
+
+      <!-- Live Vector & Mathematical Telemetry -->
+      <div class="absolute bottom-3 left-3 bg-slate-950/85 border border-labBorder p-3 rounded-lg font-mono text-[11px] backdrop-blur-md max-w-sm pointer-events-none">
+        <div class="text-matrixGreen font-bold mb-1">&#9670; DYNAMIC COM FORMULATION</div>
+        <div class="text-slate-300">$\vec{R}_{cm} = \frac{m_1\vec{r}_1 + m_2\vec{r}_2}{m_1 + m_2}$</div>
+        <div id="telemetryData" class="text-cyanGlow mt-1 font-semibold">Shift: &Delta;R_cm = 0.00 m (Internal Forces Only)</div>
+      </div>
+
+      <!-- Mode Selector Badge -->
+      <div class="absolute top-3 left-3 bg-slate-950/80 border border-labBorder px-3 py-1 rounded font-mono text-xs text-amberGlow">
+        Mode: <span id="modeDisplay" class="font-bold text-white">Rotating Binary Dumbbell</span>
+      </div>
+    </div>
+
+    <!-- Classroom Controls -->
+    <div class="mt-4 grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-labSurface/70 border border-labBorder font-mono text-xs">
+      
+      <!-- Mass 1 Slider -->
+      <div class="flex flex-col space-y-1.5">
+        <div class="flex justify-between">
+          <span class="text-pinkGlow font-bold">Mass 1 (m&#8321;)</span>
+          <span id="m1Val" class="text-pinkGlow font-bold">3.0 kg</span>
+        </div>
+        <input type="range" min="1" max="10" step="0.5" value="3" id="m1Slider" class="accent-pinkGlow cursor-pointer">
+      </div>
+
+      <!-- Mass 2 Slider -->
+      <div class="flex flex-col space-y-1.5">
+        <div class="flex justify-between">
+          <span class="text-cyanGlow font-bold">Mass 2 (m&#8322;)</span>
+          <span id="m2Val" class="text-cyanGlow font-bold">6.0 kg</span>
+        </div>
+        <input type="range" min="1" max="10" step="0.5" value="6" id="m2Slider" class="accent-cyanGlow cursor-pointer">
+      </div>
+
+      <!-- Mode Selector -->
+      <div class="flex flex-col space-y-1.5">
+        <span class="text-slate-300 font-bold">Classroom Scenario</span>
+        <select id="scenarioSelect" class="bg-labBg border border-labBorder p-1.5 rounded text-amberGlow font-semibold focus:outline-none focus:border-amberGlow">
+          <option value="rotate">1. Rotating Dumbbell (Circular Trails)</option>
+          <option value="drift">2. Linear Drift & Internal Repulsion</option>
+          <option value="spring">3. Mutual Spring Oscillation</option>
+        </select>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center space-x-2">
+        <button id="btnPause" class="flex-1 py-2 bg-labBg border border-labBorder text-slate-200 font-bold rounded hover:border-cyanGlow hover:text-cyanGlow transition-all">PAUSE</button>
+        <button id="btnClear" class="py-2 px-3 bg-labBg border border-labBorder text-slate-400 font-semibold rounded hover:text-white">CLEAR TRAILS</button>
+      </div>
+
+    </div>
+
+    <!-- Pedagogical Explanation Note for Class -->
+    <div class="mt-3 p-3 rounded-lg bg-labBg border border-labBorder/70 text-[12px] text-slate-400 font-sans flex items-start space-x-2">
+      <span class="text-amberGlow font-bold font-mono">TEACHING TIP:</span>
+      <span>Bachhon ko dikhayein ki Mass $m_1$ aur $m_2$ chahe kitni bhi complex movement karein (spiral ya oscillation), jo beech ka <strong>Green Crosshair (Centre of Mass)</strong> hai, wo hamesha ek steady constant velocity ya stationary point par rehta hai kyunki koi external force nahi hai ($\vec{F}_{ext} = 0 \implies \vec{a}_{cm} = 0$). Mass badhane par COM bhari mass ki taraf shift hota hai ($r_1/r_2 = m_2/m_1$).</span>
+    </div>
+
+  </div>
+
+  <script>
+    const canvas = document.getElementById('comCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // System Parameters
+    let m1 = 3.0;
+    let m2 = 6.0;
+    let mode = 'rotate';
+    let isRunning = true;
+
+    // Kinematic Variables
+    let time = 0;
+    let trail1 = [];
+    let trail2 = [];
+    let trailCOM = [];
+
+    // Base coordinates
+    let cmPos = { x: 480, y: 240 };
+    let cmVel = { x: 1.2, y: 0 }; // Uniform horizontal motion for realism
+
+    // DOM Elements
+    const m1Slider = document.getElementById('m1Slider');
+    const m2Slider = document.getElementById('m2Slider');
+    const m1Val = document.getElementById('m1Val');
+    const m2Val = document.getElementById('m2Val');
+    const scenarioSelect = document.getElementById('scenarioSelect');
+    const modeDisplay = document.getElementById('modeDisplay');
+    const btnPause = document.getElementById('btnPause');
+    const btnClear = document.getElementById('btnClear');
+    const telemetry = document.getElementById('telemetryData');
+
+    m1Slider.addEventListener('input', (e) => {
+      m1 = parseFloat(e.target.value);
+      m1Val.innerText = `${m1.toFixed(1)} kg`;
+    });
+
+    m2Slider.addEventListener('input', (e) => {
+      m2 = parseFloat(e.target.value);
+      m2Val.innerText = `${m2.toFixed(1)} kg`;
+    });
+
+    scenarioSelect.addEventListener('change', (e) => {
+      mode = e.target.value;
+      clearTrails();
+      cmPos.x = 240;
+      cmPos.y = 240;
+      if (mode === 'rotate') modeDisplay.innerText = "Rotating Binary Dumbbell";
+      if (mode === 'drift') modeDisplay.innerText = "Linear Drift & Internal Repulsion";
+      if (mode === 'spring') modeDisplay.innerText = "Mutual Spring Oscillation";
+    });
+
+    btnPause.addEventListener('click', () => {
+      isRunning = !isRunning;
+      btnPause.innerText = isRunning ? 'PAUSE' : 'RESUME';
+      btnPause.className = isRunning 
+        ? 'flex-1 py-2 bg-labBg border border-labBorder text-slate-200 font-bold rounded hover:border-cyanGlow hover:text-cyanGlow transition-all'
+        : 'flex-1 py-2 bg-pinkGlow text-white font-bold rounded shadow-lg shadow-pinkGlow/30';
+    });
+
+    btnClear.addEventListener('click', clearTrails);
+
+    function clearTrails() {
+      trail1 = [];
+      trail2 = [];
+      trailCOM = [];
+    }
+
+    function updatePhysics() {
+      if (!isRunning) return;
+
+      time += 0.035;
+
+      // Constant velocity COM drift across screen
+      cmPos.x += cmVel.x;
+      if (cmPos.x > canvas.width - 120) cmVel.x = -1.2;
+      if (cmPos.x < 120) cmVel.x = 1.2;
+
+      let r1 = 0, r2 = 0;
+      let p1 = { x: 0, y: 0 }, p2 = { x: 0, y: 0 };
+
+      // Invariance condition: m1 * r1 = m2 * r2  =>  r1 + r2 = L
+      const totalMass = m1 + m2;
+
+      if (mode === 'rotate') {
+        const L = 220; // Separation
+        r1 = (m2 / totalMass) * L;
+        r2 = (m1 / totalMass) * L;
+        const theta = time * 1.8;
+
+        p1.x = cmPos.x - r1 * Math.cos(theta);
+        p1.y = cmPos.y - r1 * Math.sin(theta);
+
+        p2.x = cmPos.x + r2 * Math.cos(theta);
+        p2.y = cmPos.y + r2 * Math.sin(theta);
+      } 
+      else if (mode === 'drift') {
+        const L = 160 + Math.sin(time * 2) * 80;
+        r1 = (m2 / totalMass) * L;
+        r2 = (m1 / totalMass) * L;
+
+        p1.x = cmPos.x - r1;
+        p1.y = cmPos.y - Math.cos(time * 3) * 40;
+
+        p2.x = cmPos.x + r2;
+        p2.y = cmPos.y + (m1 / m2) * Math.cos(time * 3) * 40; // COM y stays zero
+      }
+      else if (mode === 'spring') {
+        const L = 200 + Math.sin(time * 3.5) * 90; // Harmonic contraction
+        r1 = (m2 / totalMass) * L;
+        r2 = (m1 / totalMass) * L;
+
+        p1.x = cmPos.x - r1;
+        p1.y = cmPos.y;
+
+        p2.x = cmPos.x + r2;
+        p2.y = cmPos.y;
+      }
+
+      // Record Trails
+      trail1.push({ ...p1 });
+      trail2.push({ ...p2 });
+      trailCOM.push({ ...cmPos });
+
+      if (trail1.length > 90) trail1.shift();
+      if (trail2.length > 90) trail2.shift();
+      if (trailCOM.length > 90) trailCOM.shift();
+
+      telemetry.innerHTML = `r&#8321; (from COM): <span class="text-pinkGlow font-bold">${r1.toFixed(1)} px</span> | r&#8322; (from COM): <span class="text-cyanGlow font-bold">${r2.toFixed(1)} px</span> | Ratio r&#8321;/r&#8322; = m&#8322;/m&#8321; = <span class="text-amberGlow font-bold">${(m2/m1).toFixed(2)}</span>`;
+
+      return { p1, p2, r1, r2 };
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const positions = updatePhysics();
+      if (!positions && trail1.length === 0) return;
+
+      const p1 = positions ? positions.p1 : trail1[trail1.length - 1];
+      const p2 = positions ? positions.p2 : trail2[trail2.length - 1];
+
+      // 1. Draw Trails
+      drawTrail(trail1, 'rgba(255, 0, 85, 0.45)');
+      drawTrail(trail2, 'rgba(0, 255, 204, 0.45)');
+      drawTrail(trailCOM, 'rgba(0, 255, 102, 0.85)', true);
+
+      // 2. Draw Connecting Rod / Spring
+      ctx.beginPath();
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.strokeStyle = '#1e293b';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      if (mode === 'spring') {
+        // Draw zigzag spring
+        drawSpring(p1, p2);
+      }
+
+      // 3. Draw Mass 1 (Pink)
+      const rad1 = 12 + Math.sqrt(m1) * 6;
+      ctx.beginPath();
+      ctx.arc(p1.x, p1.y, rad1, 0, Math.PI * 2);
+      ctx.fillStyle = '#ff0055';
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 12px "Fira Code"';
+      ctx.textAlign = 'center';
+      ctx.fillText(`m₁ (${m1}k)`, p1.x, p1.y - rad1 - 6);
+
+      // 4. Draw Mass 2 (Cyan)
+      const rad2 = 12 + Math.sqrt(m2) * 6;
+      ctx.beginPath();
+      ctx.arc(p2.x, p2.y, rad2, 0, Math.PI * 2);
+      ctx.fillStyle = '#00ffcc';
+      ctx.fill();
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.fillText(`m₂ (${m2}k)`, p2.x, p2.y - rad2 - 6);
+
+      // 5. Draw COM (Green Crosshair)
+      ctx.strokeStyle = '#00ff66';
+      ctx.lineWidth = 2.5;
+
+      // Crosshair lines
+      ctx.beginPath();
+      ctx.moveTo(cmPos.x - 14, cmPos.y);
+      ctx.lineTo(cmPos.x + 14, cmPos.y);
+      ctx.moveTo(cmPos.x, cmPos.y - 14);
+      ctx.lineTo(cmPos.x, cmPos.y + 14);
+      ctx.stroke();
+
+      // Crosshair ring
+      ctx.beginPath();
+      ctx.arc(cmPos.x, cmPos.y, 8, 0, Math.PI * 2);
+      ctx.strokeStyle = '#00ff66';
+      ctx.stroke();
+
+      ctx.fillStyle = '#00ff66';
+      ctx.font = 'bold 12px "Fira Code"';
+      ctx.fillText("C.O.M. (F_ext=0)", cmPos.x, cmPos.y + 24);
+
+      requestAnimationFrame(draw);
+    }
+
+    function drawTrail(arr, color, isDashed = false) {
+      if (arr.length < 2) return;
+      ctx.beginPath();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = isDashed ? 2 : 1.5;
+      if (isDashed) ctx.setLineDash([4, 4]);
+      else ctx.setLineDash([]);
+
+      for (let i = 0; i < arr.length; i++) {
+        if (i === 0) ctx.moveTo(arr[i].x, arr[i].y);
+        else ctx.lineTo(arr[i].x, arr[i].y);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+
+    function drawSpring(p1, p2) {
+      const coils = 12;
+      const dx = p2.x - p1.x;
+      const dy = p2.y - p1.y;
+      const dist = Math.hypot(dx, dy);
+      const angle = Math.atan2(dy, dx);
+
+      ctx.save();
+      ctx.translate(p1.x, p1.y);
+      ctx.rotate(angle);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+
+      const seg = dist / coils;
+      for (let i = 1; i < coils; i++) {
+        const yOffset = (i % 2 === 0 ? 1 : -1) * 12;
+        ctx.lineTo(i * seg, yOffset);
+      }
+      ctx.lineTo(dist, 0);
+      ctx.strokeStyle = '#38bdf8';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    draw();
+  </script>
+</body>
+</html>
