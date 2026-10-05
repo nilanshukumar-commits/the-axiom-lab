@@ -721,5 +721,108 @@
     setupWedgeControls();
     renderMain();
   </script>
+  <!-- ================= TOON AVATAR WIDGET START ================= -->
+<div id="toonAvatarWidget" class="fixed bottom-4 right-4 z-50 flex items-end space-x-3 pointer-events-auto">
+  <!-- Speech Bubble -->
+  <div id="speechBubble" class="hidden max-w-xs bg-slate-900 border border-cyan-400 text-slate-100 font-mono text-xs p-3 rounded-xl shadow-2xl mb-12 relative backdrop-blur-md">
+    <span id="speechText">Hello! Let's understand Torque from first principles.</span>
+    <div class="absolute -bottom-2 right-6 w-3 h-3 bg-slate-900 border-r border-b border-cyan-400 transform rotate-45"></div>
+  </div>
+
+  <!-- Animated Character SVG -->
+  <div class="cursor-pointer group flex flex-col items-center" onclick="testAvatarSpeak()">
+    <svg id="toonCharacter" width="100" height="120" viewBox="0 0 120 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Body / Lab Coat -->
+      <path d="M30 110 C30 85 90 85 90 110 L95 140 L25 140 Z" fill="#0e1626" stroke="#00ffcc" stroke-width="2.5"/>
+      <path d="M48 95 L60 115 L72 95" stroke="#ff0055" stroke-width="2"/>
+      
+      <!-- Head -->
+      <circle cx="60" cy="55" r="32" fill="#ffd1b3" stroke="#18243b" stroke-width="2"/>
+      
+      <!-- Hair (Toon Stylized) -->
+      <path d="M28 50 C25 25 50 15 65 18 C80 15 95 28 92 50 C85 30 75 26 60 26 C45 26 35 32 28 50 Z" fill="#1e293b"/>
+      
+      <!-- Professor Glasses -->
+      <rect x="36" y="46" width="18" height="14" rx="3" stroke="#00ffcc" stroke-width="2.5" fill="rgba(0,255,204,0.15)"/>
+      <rect x="66" y="46" width="18" height="14" rx="3" stroke="#00ffcc" stroke-width="2.5" fill="rgba(0,255,204,0.15)"/>
+      <line x1="54" y1="53" x2="66" y2="53" stroke="#00ffcc" stroke-width="2"/>
+
+      <!-- Eyes (Blinking Animation Target) -->
+      <circle id="eyeL" cx="45" cy="53" r="2.5" fill="#000"/>
+      <circle id="eyeR" cx="75" cy="53" r="2.5" fill="#000"/>
+
+      <!-- Mouth (Lip-Sync Dynamic Target) -->
+      <ellipse id="toonMouth" cx="60" cy="74" rx="6" ry="2" fill="#991b1b"/>
+    </svg>
+    <span class="text-[10px] font-mono text-cyan-300 bg-slate-950/90 px-2 py-0.5 rounded border border-cyan-400/40 -mt-2">CLICK TO TALK</span>
+  </div>
+</div>
+
+<script>
+  let mouthInterval = null;
+
+  function setMouth(open) {
+    const mouth = document.getElementById('toonMouth');
+    if (!mouth) return;
+    if (open) {
+      mouth.setAttribute('rx', '7');
+      mouth.setAttribute('ry', '5');
+    } else {
+      mouth.setAttribute('rx', '6');
+      mouth.setAttribute('ry', '1.5');
+    }
+  }
+
+  // Blinking loop (Aankhein blink karengi)
+  setInterval(() => {
+    const eL = document.getElementById('eyeL');
+    const eR = document.getElementById('eyeR');
+    if (!eL || !eR) return;
+    eL.setAttribute('r', '0.2'); 
+    eR.setAttribute('r', '0.2');
+    setTimeout(() => { 
+      eL.setAttribute('r', '2.5'); 
+      eR.setAttribute('r', '2.5'); 
+    }, 180);
+  }, 3500);
+
+  // Bolne ka function
+  function avatarSpeak(text) {
+    const bubble = document.getElementById('speechBubble');
+    const bubbleText = document.getElementById('speechText');
+    if (bubble && bubbleText) {
+      bubble.classList.remove('hidden');
+      bubbleText.innerText = text;
+    }
+
+    if (!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.95;
+    utterance.pitch = 1.0;
+
+    utterance.onstart = () => {
+      mouthInterval = setInterval(() => {
+        setMouth(Math.random() > 0.4);
+      }, 130);
+    };
+
+    utterance.onend = () => {
+      clearInterval(mouthInterval);
+      setMouth(false);
+      setTimeout(() => {
+        if (bubble) bubble.classList.add('hidden');
+      }, 3000);
+    };
+
+    window.speechSynthesis.speak(utterance);
+  }
+
+  function testAvatarSpeak() {
+    avatarSpeak("Dekhiye, jab hum force ka angle change karte hain, toh perpendicular distance badal jata hai. Isi se torque change hota hai!");
+  }
+</script>
+<!-- ================== TOON AVATAR WIDGET END ================== -->
 </body>
 </html>
