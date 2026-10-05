@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visualizing Displacement Current // The Axiom Lab</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            labBg: '#05070c',
+            labCard: '#090e18',
+            labSurface: '#0e1626',
+            labBorder: '#18243b',
+            cyanGlow: '#00ffcc',
+            pinkGlow: '#ff0055',
+            amberGlow: '#ffcc00',
+            matrixGreen: '#00ff66',
+            electricBlue: '#38bdf8'
+          },
+          fontFamily: {
+            mono: ['"Fira Code"', 'monospace'],
+            sans: ['"Inter"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .grid-bg {
+      background-size: 28px 28px;
+      background-image: 
+        linear-gradient(to right, rgba(24, 36, 59, 0.45) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(24, 36, 59, 0.45) 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="bg-labBg text-slate-100 font-sans p-4 antialiased min-h-screen flex flex-col items-center justify-center">
+
+  <div class="max-w-5xl w-full border border-labBorder bg-labCard rounded-2xl p-5 shadow-2xl">
+    
+    <!-- Title HUD -->
+    <div class="flex flex-wrap items-center justify-between pb-3 border-b border-labBorder gap-2 font-mono text-xs mb-3">
+      <div class="flex items-center space-x-2">
+        <span class="w-3 h-3 rounded-full bg-pinkGlow animate-ping"></span>
+        <span class="text-white font-bold tracking-widest text-sm sm:text-base">DISPLACEMENT CURRENT // VISUAL PROOF</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="px-2.5 py-1 rounded bg-cyanGlow/10 text-cyanGlow border border-cyanGlow/30 font-semibold text-xs font-mono">
+          I<sub>d</sub> = &epsilon;<sub>0</sub> (d&Phi;<sub>E</sub> / dt)
+        </span>
+      </div>
+    </div>
+
+    <!-- Canvas Viewport -->
+    <div class="relative w-full rounded-xl overflow-hidden border border-labBorder bg-[#060911] grid-bg">
+      <canvas id="conceptCanvas" width="960" height="480" class="w-full h-auto block"></canvas>
+
+      <!-- Live Dynamic Status Overlay -->
+      <div class="absolute bottom-3 left-3 bg-slate-950/90 border border-labBorder p-3 rounded-lg font-mono text-xs backdrop-blur-md max-w-md pointer-events-none">
+        <div class="text-amberGlow font-bold mb-1">&#9670; LIVE EXPERIMENTAL STATE</div>
+        <div class="text-slate-300">Conduction Current in Wire: <span id="icText" class="text-matrixGreen font-bold">1.50 A</span></div>
+        <div class="text-slate-300">Rate of Electric Flux (d&Phi;<sub>E</sub>/dt): <span id="fluxText" class="text-cyanGlow font-bold">Growing</span></div>
+        <div id="paradoxAlert" class="text-pinkGlow font-bold mt-1">Normal Ampere's Law Fails across Surface S₂!</div>
+      </div>
+
+      <!-- Surface Tag Indicator -->
+      <div class="absolute top-3 right-3 bg-slate-950/85 border border-labBorder px-3 py-1.5 rounded font-mono text-xs text-slate-300">
+        Active View: <span id="stepTag" class="text-cyanGlow font-bold">Step 1: The Ampere Paradox</span>
+      </div>
+    </div>
+
+    <!-- Interactive Step Buttons (Slide-by-Slide Teaching) -->
+    <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-xs">
+      <button onclick="setStep(1)" id="btnStep1" class="py-2.5 px-3 rounded border border-cyanGlow bg-cyanGlow/10 text-cyanGlow font-bold transition-all text-center">
+        STEP 1: The Paradox (Loop S₁ vs S₂)
+      </button>
+      <button onclick="setStep(2)" id="btnStep2" class="py-2.5 px-3 rounded border border-labBorder bg-labSurface text-slate-400 font-semibold hover:border-amberGlow hover:text-amberGlow transition-all text-center">
+        STEP 2: Maxwell's Fix (Changing E-Field)
+      </button>
+      <button onclick="setStep(3)" id="btnStep3" class="py-2.5 px-3 rounded border border-labBorder bg-labSurface text-slate-400 font-semibold hover:border-pinkGlow hover:text-pinkGlow transition-all text-center">
+        STEP 3: The Induced B-Field Ring
+      </button>
+    </div>
+
+    <!-- Live Controls Bar -->
+    <div class="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-4 p-3 rounded-xl bg-labSurface/60 border border-labBorder font-mono text-xs items-center">
+      <div class="flex flex-col space-y-1">
+        <div class="flex justify-between">
+          <span class="text-slate-400">Charging Current (I<sub>c</sub>)</span>
+          <span id="rateVal" class="text-matrixGreen font-bold">Medium</span>
+        </div>
+        <input type="range" min="0.5" max="2.5" step="0.5" value="1.5" id="speedSlider" class="accent-matrixGreen cursor-pointer">
+      </div>
+
+      <div class="flex items-center space-x-2">
+        <button id="btnPause" class="flex-1 py-2 bg-labBg border border-labBorder text-slate-200 font-bold rounded hover:border-cyanGlow">PAUSE</button>
+        <button onclick="resetCycle()" class="py-2 px-3 bg-labBg border border-labBorder text-slate-400 rounded hover:text-white">RESTART CHARGE</button>
+      </div>
+
+      <div class="text-[11px] text-slate-400 leading-tight">
+        <span class="text-matrixGreen font-bold">&bull; Green dots:</span> Free electrons in wire<br>
+        <span class="text-cyanGlow font-bold">&bull; Cyan lines:</span> Electric Field lines E(t)<br>
+        <span class="text-amberGlow font-bold">&bull; Yellow ring:</span> Induced Magnetic Field B
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const canvas = document.getElementById('conceptCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let step = 1;
+    let isRunning = true;
+    let speed = 1.5;
+    let chargeProgress = 0; // 0 to 1
+    let t = 0;
+
+    const icText = document.getElementById('icText');
+    const fluxText = document.getElementById('fluxText');
+    const paradoxAlert = document.getElementById('paradoxAlert');
+    const stepTag = document.getElementById('stepTag');
+    const speedSlider = document.getElementById('speedSlider');
+    const btnPause = document.getElementById('btnPause');
+
+    speedSlider.addEventListener('input', (e) => {
+      speed = parseFloat(e.target.value);
+    });
+
+    btnPause.addEventListener('click', () => {
+      isRunning = !isRunning;
+      btnPause.innerText = isRunning ? "PAUSE" : "RESUME";
+    });
+
+    function setStep(s) {
+      step = s;
+      document.getElementById('btnStep1').className = 'py-2.5 px-3 rounded border border-labBorder bg-labSurface text-slate-400 font-semibold hover:border-cyanGlow transition-all text-center';
+      document.getElementById('btnStep2').className = 'py-2.5 px-3 rounded border border-labBorder bg-labSurface text-slate-400 font-semibold hover:border-amberGlow transition-all text-center';
+      document.getElementById('btnStep3').className = 'py-2.5 px-3 rounded border border-labBorder bg-labSurface text-slate-400 font-semibold hover:border-pinkGlow transition-all text-center';
+
+      if (step === 1) {
+        document.getElementById('btnStep1').className = 'py-2.5 px-3 rounded border border-cyanGlow bg-cyanGlow/10 text-cyanGlow font-bold transition-all text-center';
+        stepTag.innerText = 'Step 1: The Ampere Paradox';
+        paradoxAlert.innerText = "Ampere's Law: Loop S₁ has current, but Pot-surface S₂ has 0!";
+        paradoxAlert.className = "text-pinkGlow font-bold mt-1";
+      } else if (step === 2) {
+        document.getElementById('btnStep2').className = 'py-2.5 px-3 rounded border border-amberGlow bg-amberGlow/10 text-amberGlow font-bold transition-all text-center';
+        stepTag.innerText = "Step 2: Maxwell's Fix (Electric Flux)";
+        paradoxAlert.innerText = "Electric field is GROWING! dΦ_E/dt acts as virtual current I_d.";
+        paradoxAlert.className = "text-amberGlow font-bold mt-1";
+      } else {
+        document.getElementById('btnStep3').className = 'py-2.5 px-3 rounded border border-pinkGlow bg-pinkGlow/10 text-pinkGlow font-bold transition-all text-center';
+        stepTag.innerText = 'Step 3: The Induced B-Field Ring';
+        paradoxAlert.innerText = "Complete Ampere-Maxwell Law: ∮ B·dl = μ₀(I_c + I_d) verified!";
+        paradoxAlert.className = "text-matrixGreen font-bold mt-1";
+      }
+    }
+
+    function resetCycle() {
+      chargeProgress = 0;
+    }
+
+    // Moving electrons along wire
+    const electronCount = 14;
+    const electrons = Array.from({ length: electronCount }, (_, i) => ({ x: 80 + i * 22 }));
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (isRunning) {
+        t += 0.03 * speed;
+        chargeProgress += 0.0035 * speed;
+        if (chargeProgress > 1) chargeProgress = 0; // Loop charging cycle
+      }
+
+      const centerY = 240;
+      const plate1X = 410;
+      const plate2X = 570;
+      const plateH = 240;
+      const plateW = 14;
+
+      // 1. External Wires
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(60, centerY); ctx.lineTo(plate1X, centerY);
+      ctx.moveTo(plate2X + plateW, centerY); ctx.lineTo(900, centerY);
+      ctx.stroke();
+
+      // Flowing electrons
+      if (isRunning) {
+        electrons.forEach(el => {
+          el.x += 1.6 * speed;
+          if (el.x > plate1X - 8) el.x = 80;
+        });
+      }
+
+      ctx.fillStyle = '#00ff66';
+      electrons.forEach(el => {
+        ctx.beginPath();
+        ctx.arc(el.x, centerY, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Right side outgoing electrons
+        ctx.beginPath();
+        ctx.arc(el.x + 470, centerY, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Conduction Current Label
+      ctx.fillStyle = '#00ff66';
+      ctx.font = 'bold 12px "Fira Code"';
+      ctx.fillText("I_c (Conduction Current)", 150, centerY - 20);
+      ctx.fillText("I_c (Conduction Current)", 680, centerY - 20);
+
+      // 2. Capacitor Plates
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(plate1X, centerY - plateH / 2, plateW, plateH);
+      ctx.fillRect(plate2X, centerY - plateH / 2, plateW, plateH);
+      ctx.strokeStyle = '#64748b';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(plate1X, centerY - plateH / 2, plateW, plateH);
+      ctx.strokeRect(plate2X, centerY - plateH / 2, plateW, plateH);
+
+      // Accumulated Charges on plates (+ and -)
+      const chargeCount = Math.floor(chargeProgress * 8) + 1;
+      const spacing = plateH / (chargeCount + 1);
+
+      ctx.font = 'bold 14px "Fira Code"';
+      for (let i = 1; i <= chargeCount; i++) {
+        const cy = (centerY - plateH / 2) + i * spacing;
+        ctx.fillStyle = '#ff0055';
+        ctx.fillText("+", plate1X - 16, cy);
+        ctx.fillStyle = '#00ffcc';
+        ctx.fillText("-", plate2X + plateW + 8, cy);
+      }
+
+      // Plate charge label Q(t)
+      ctx.fillStyle = '#ff0055';
+      ctx.font = 'bold 11px "Fira Code"';
+      ctx.fillText(`+Q(t)`, plate1X - 5, centerY - plateH / 2 - 12);
+      ctx.fillStyle = '#00ffcc';
+      ctx.fillText(`-Q(t)`, plate2X - 5, centerY - plateH / 2 - 12);
+
+      // -------------------------------------------------------------
+      // STEP 1 VISUALS: The Tiffin Box / Bag Surface Paradox
+      // -------------------------------------------------------------
+      if (step === 1) {
+        // Flat circular mouth S1 cutting wire
+        ctx.save();
+        ctx.strokeStyle = '#00ffcc';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.ellipse(280, centerY, 16, 50, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(0, 255, 204, 0.15)';
+        ctx.fill();
+
+        ctx.fillStyle = '#00ffcc';
+        ctx.font = 'bold 11px "Fira Code"';
+        ctx.fillText("Loop S₁: Pierced by Wire", 220, centerY - 65);
+        ctx.fillText("∮ B·dl = μ₀ I_c ≠ 0", 235, centerY + 70);
+
+        // Bulging bag surface S2 going inside capacitor gap
+        ctx.strokeStyle = '#ff0055';
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([5, 4]);
+        ctx.beginPath();
+        ctx.moveTo(280, centerY - 50);
+        ctx.bezierCurveTo(340, centerY - 70, 480, centerY - 70, 490, centerY - 40);
+        ctx.lineTo(490, centerY + 40);
+        ctx.bezierCurveTo(480, centerY + 70, 340, centerY + 70, 280, centerY + 50);
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(255, 0, 85, 0.08)';
+        ctx.fill();
+        ctx.setLineDash([]);
+
+        ctx.fillStyle = '#ff0055';
+        ctx.fillText("Bag Surface S₂ (Passes in Gap)", 380, centerY - 85);
+        ctx.fillText("No wire touches S₂!  ∴ I_piercing = 0 ??", 360, centerY + 95);
+        ctx.restore();
+      }
+
+      // -------------------------------------------------------------
+      // STEP 2 VISUALS: Electric Field Flux Lines (dE/dt)
+      // -------------------------------------------------------------
+      if (step >= 2) {
+        const lines = 7;
+        const lineSpacing = plateH / (lines + 1);
+        const alpha = Math.min(1, 0.2 + chargeProgress * 0.8);
+
+        ctx.strokeStyle = `rgba(0, 255, 204, ${alpha})`;
+        ctx.lineWidth = 2.5;
+
+        for (let i = 1; i <= lines; i++) {
+          const ly = (centerY - plateH / 2) + i * lineSpacing;
+          ctx.beginPath();
+          ctx.moveTo(plate1X + plateW, ly);
+          ctx.lineTo(plate2X, ly);
+          ctx.stroke();
+
+          // Arrowheads showing direction of E-field
+          ctx.beginPath();
+          ctx.moveTo(plate2X - 10, ly - 4);
+          ctx.lineTo(plate2X, ly);
+          ctx.lineTo(plate2X - 10, ly + 4);
+          ctx.fillStyle = `rgba(0, 255, 204, ${alpha})`;
+          ctx.fill();
+        }
+
+        // Animated Flux Expansion Waves
+        const waveX = plate1X + plateW + ((t * 60) % (plate2X - plate1X - plateW));
+        ctx.strokeStyle = 'rgba(255, 204, 0, 0.6)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(waveX, centerY - 80);
+        ctx.lineTo(waveX, centerY + 80);
+        ctx.stroke();
+
+        ctx.fillStyle = '#00ffcc';
+        ctx.font = 'bold 12px "Fira Code"';
+        ctx.fillText("Electric Field E(t) = Q(t) / (ε₀ A)", 400, centerY - plateH / 2 - 28);
+        ctx.fillStyle = '#ffcc00';
+        ctx.fillText("Flux Rate: dΦ_E / dt > 0", 435, centerY + plateH / 2 + 25);
+      }
+
+      // -------------------------------------------------------------
+      // STEP 3 VISUALS: Induced Magnetic Ring In Gap
+      // -------------------------------------------------------------
+      if (step === 3) {
+        const midGapX = (plate1X + plate2X) / 2;
+        const ry = 65;
+        const rx = 26;
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.ellipse(midGapX, centerY, rx, ry, 0, 0, Math.PI * 2);
+        ctx.strokeStyle = '#ffcc00';
+        ctx.lineWidth = 3.5;
+        ctx.shadowColor = '#ffcc00';
+        ctx.shadowBlur = 12;
+        ctx.stroke();
+
+        // Direction Arrows on Induced B-Ring
+        ctx.fillStyle = '#ffcc00';
+        ctx.beginPath();
+        ctx.moveTo(midGapX - rx - 4, centerY - 6);
+        ctx.lineTo(midGapX - rx + 4, centerY - 6);
+        ctx.lineTo(midGapX - rx, centerY + 6);
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.moveTo(midGapX + rx - 4, centerY + 6);
+        ctx.lineTo(midGapX + rx + 4, centerY + 6);
+        ctx.lineTo(midGapX + rx, centerY - 6);
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+        ctx.font = 'bold 12px "Fira Code"';
+        ctx.fillText("INDUCED B-RING (No Wire!)", midGapX - 85, centerY - ry - 14);
+        ctx.fillStyle = '#00ff66';
+        ctx.fillText("∮ B·dl = μ₀ · I_d", midGapX - 55, centerY + ry + 22);
+        ctx.restore();
+      }
+
+      // Update HUD
+      icText.innerText = `${(speed * (1 - chargeProgress * 0.3)).toFixed(2)} A`;
+      fluxText.innerText = step === 1 ? "Ignored in Old Law" : `${(speed * 1.1).toFixed(2)} V·m/s (Active)`;
+
+      requestAnimationFrame(draw);
+    }
+
+    draw();
+  </script>
+</body>
+</html>
