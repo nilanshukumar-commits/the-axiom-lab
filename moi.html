@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moment of Inertia Lab // The Axiom Lab</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            labBg: '#05070c',
+            labCard: '#090e18',
+            labSurface: '#0e1626',
+            labBorder: '#18243b',
+            cyanGlow: '#00ffcc',
+            pinkGlow: '#ff0055',
+            amberGlow: '#ffcc00',
+            matrixGreen: '#00ff66'
+          },
+          fontFamily: {
+            mono: ['"Fira Code"', 'monospace'],
+            sans: ['"Inter"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .grid-bg {
+      background-size: 28px 28px;
+      background-image: 
+        linear-gradient(to right, rgba(24, 36, 59, 0.45) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(24, 36, 59, 0.45) 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="bg-labBg text-slate-100 font-sans p-4 antialiased min-h-screen flex flex-col items-center justify-center">
+
+  <div class="max-w-5xl w-full border border-labBorder bg-labCard rounded-2xl p-5 shadow-2xl">
+    
+    <!-- Title HUD -->
+    <div class="flex flex-wrap items-center justify-between pb-3 border-b border-labBorder gap-2 font-mono text-xs mb-3">
+      <div class="flex items-center space-x-2">
+        <span class="w-3 h-3 rounded-full bg-cyanGlow animate-ping"></span>
+        <span class="text-white font-bold tracking-widest text-sm sm:text-base">MOMENT OF INERTIA (I = &Sigma; m&middot;r&sup2;)</span>
+      </div>
+      <div class="flex items-center space-x-2">
+        <span class="px-2.5 py-1 rounded bg-amberGlow/10 text-amberGlow border border-amberGlow/30 font-semibold text-xs font-mono">
+          &tau; = I &middot; &alpha; &implies; &alpha; = &tau; / I
+        </span>
+      </div>
+    </div>
+
+    <!-- Canvas Viewport -->
+    <div class="relative w-full rounded-xl overflow-hidden border border-labBorder bg-[#060a12] grid-bg">
+      <canvas id="moiCanvas" width="960" height="460" class="w-full h-auto block"></canvas>
+
+      <!-- Live Mathematical Telemetry -->
+      <div class="absolute bottom-3 left-3 bg-slate-950/90 border border-labBorder p-3 rounded-lg font-mono text-xs backdrop-blur-md max-w-md pointer-events-none">
+        <div class="text-amberGlow font-bold mb-1">&#9670; INERTIA TELEMETRY</div>
+        <div class="text-slate-300">Point Masses: <span id="mTelemetry" class="text-pinkGlow font-bold">2 &times; 2.0 kg</span></div>
+        <div class="text-slate-300">Radial Distance (r): <span id="rTelemetry" class="text-cyanGlow font-bold">1.50 m</span></div>
+        <div class="text-slate-300">Moment of Inertia (I = 2mr&sup2;): <span id="iTelemetry" class="text-matrixGreen font-bold">9.00 kg&middot;m&sup2;</span></div>
+        <div class="text-slate-300">Applied Torque (&tau;): <span id="tauTelemetry" class="text-amberGlow font-bold">18.0 N&middot;m</span></div>
+        <div id="alphaTelemetry" class="text-pinkGlow mt-1 font-bold text-sm">Angular Accel &alpha; = 2.00 rad/s&sup2;</div>
+      </div>
+
+      <!-- Comparison Tag -->
+      <div class="absolute top-3 right-3 bg-slate-950/85 border border-labBorder px-3 py-1.5 rounded font-mono text-xs text-slate-300">
+        Status: <span id="rotStatus" class="text-cyanGlow font-bold">Spinning Freely</span>
+      </div>
+    </div>
+
+    <!-- Interactive Sliders -->
+    <div class="mt-4 grid grid-cols-1 sm:grid-cols-4 gap-4 p-4 rounded-xl bg-labSurface/70 border border-labBorder font-mono text-xs">
+      
+      <!-- Distance Slider (r) -->
+      <div class="flex flex-col space-y-1.5">
+        <div class="flex justify-between">
+          <span class="text-cyanGlow font-bold">Mass Distance (r)</span>
+          <span id="rVal" class="text-cyanGlow font-bold">1.5 m</span>
+        </div>
+        <input type="range" min="0.4" max="2.6" step="0.1" value="1.5" id="rSlider" class="accent-cyanGlow cursor-pointer">
+      </div>
+
+      <!-- Point Mass Slider (m) -->
+      <div class="flex flex-col space-y-1.5">
+        <div class="flex justify-between">
+          <span class="text-pinkGlow font-bold">Each Mass (m)</span>
+          <span id="mVal" class="text-pinkGlow font-bold">2.0 kg</span>
+        </div>
+        <input type="range" min="0.5" max="5.0" step="0.5" value="2.0" id="mSlider" class="accent-pinkGlow cursor-pointer">
+      </div>
+
+      <!-- Torque Slider -->
+      <div class="flex flex-col space-y-1.5">
+        <div class="flex justify-between">
+          <span class="text-amberGlow font-bold">Applied Torque (&tau;)</span>
+          <span id="tauVal" class="text-amberGlow font-bold">18 N&middot;m</span>
+        </div>
+        <input type="range" min="5" max="40" step="1" value="18" id="tauSlider" class="accent-amberGlow cursor-pointer">
+      </div>
+
+      <!-- Action Buttons -->
+<div class="flex flex-col justify-end space-y-1.5">
+  <button id="btnTorque" class="w-full py-2 bg-pinkGlow text-white font-bold rounded hover:bg-pink-600 transition-all shadow-md active:scale-95">
+    &#9654; APPLY TORQUE IMPULSE
+  </button>
+  <button onclick="resetSystem()" class="w-full py-1.5 bg-labBg border border-labBorder text-slate-300 rounded hover:border-cyanGlow">
+    STOP / RESET
+  </button>
+</div>
+</div> <!-- 1. YAHAN GRID KHATAM HO GAYA -->
+
+<!-- Teaching Notes (Ab ye full width par aayega) -->
+<div class="mt-3 p-3.5 rounded-lg bg-labBg border border-labBorder/70 text-xs text-slate-300 font-sans flex items-start space-x-2 leading-relaxed w-full">
+  <span class="text-cyanGlow font-bold font-mono shrink-0">KEY OBSERVATION:</span>
+  <span class="flex-1">
+    Radius slider (<b>r</b>) ko kam karke masses ko axis ke paas layein. 
+    <b>I = 2mr<sup>2</sup></b> hone ke kaaran Moment of Inertia quadratically kam ho jata hai aur system tezi se accelerate karta hai 
+    (<b>&alpha; = &tau; / I</b>). Jab masses door jate hain, toh wahi torque unhe rotate karne mein fail ho jata hai!
+  </span>
+</div>
+
+</div> <!-- 2. YAHAN MAIN CARD KHATAM HO GAYA -->
+
+<script>
+    const canvas = document.getElementById('moiCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let r_meters = 1.5;
+    let mass = 2.0;
+    let appliedTorque = 18.0;
+
+    let angle = 0;
+    let omega = 0;
+    let isTorqueActive = false;
+
+    // DOM Controls
+    const rSlider = document.getElementById('rSlider');
+    const mSlider = document.getElementById('mSlider');
+    const tauSlider = document.getElementById('tauSlider');
+    const rVal = document.getElementById('rVal');
+    const mVal = document.getElementById('mVal');
+    const tauVal = document.getElementById('tauVal');
+
+    const mTelemetry = document.getElementById('mTelemetry');
+    const rTelemetry = document.getElementById('rTelemetry');
+    const iTelemetry = document.getElementById('iTelemetry');
+    const tauTelemetry = document.getElementById('tauTelemetry');
+    const alphaTelemetry = document.getElementById('alphaTelemetry');
+    const btnTorque = document.getElementById('btnTorque');
+
+    rSlider.addEventListener('input', (e) => {
+      r_meters = parseFloat(e.target.value);
+      rVal.innerText = `${r_meters.toFixed(1)} m`;
+    });
+
+    mSlider.addEventListener('input', (e) => {
+      mass = parseFloat(e.target.value);
+      mVal.innerText = `${mass.toFixed(1)} kg`;
+    });
+
+    tauSlider.addEventListener('input', (e) => {
+      appliedTorque = parseFloat(e.target.value);
+      tauVal.innerText = `${appliedTorque.toFixed(0)} N·m`;
+    });
+
+    btnTorque.addEventListener('mousedown', () => { isTorqueActive = true; });
+    window.addEventListener('mouseup', () => { isTorqueActive = false; });
+    btnTorque.addEventListener('touchstart', () => { isTorqueActive = true; });
+    window.addEventListener('touchend', () => { isTorqueActive = false; });
+
+    function resetSystem() {
+      angle = 0;
+      omega = 0;
+      isTorqueActive = false;
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Moment of inertia for two point masses + central rod
+      const I_masses = 2 * mass * (r_meters * r_meters);
+      const I_rod = 0.5; // Minimal rod inertia
+      const I_total = I_masses + I_rod;
+
+      const alpha = appliedTorque / I_total;
+
+      if (isTorqueActive) {
+        omega += alpha * 0.02;
+      }
+      omega *= 0.992; // Damping
+      angle += omega * 0.02;
+
+      // Telemetry
+      mTelemetry.innerText = `2 × ${mass.toFixed(1)} kg`;
+      rTelemetry.innerText = `${r_meters.toFixed(2)} m`;
+      iTelemetry.innerText = `${I_total.toFixed(2)} kg·m²`;
+      tauTelemetry.innerText = `${appliedTorque.toFixed(1)} N·m`;
+      alphaTelemetry.innerText = `Angular Accel α = ${(alpha).toFixed(2)} rad/s²`;
+
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      const pxScale = 110;
+      const rPx = r_meters * pxScale;
+
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(angle);
+
+      // 1. Dumbbell Connecting Rod
+      ctx.strokeStyle = '#334155';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(-rPx - 20, 0);
+      ctx.lineTo(rPx + 20, 0);
+      ctx.stroke();
+
+      // Measurement Dotted Line
+      ctx.strokeStyle = '#00ffcc';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(0, -18);
+      ctx.lineTo(rPx, -18);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = '#00ffcc';
+      ctx.font = 'bold 11px monospace';
+      ctx.fillText(`r = ${r_meters.toFixed(1)}m`, rPx / 2 - 25, -25);
+
+      // 2. Masses
+      const ballRadius = 12 + Math.sqrt(mass) * 8;
+
+      // Mass 1 (+r)
+      ctx.beginPath();
+      ctx.arc(rPx, 0, ballRadius, 0, Math.PI * 2);
+      ctx.fillStyle = '#ff0055';
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.fillText(`${mass}kg`, rPx, 4);
+
+      // Mass 2 (-r)
+      ctx.beginPath();
+      ctx.arc(-rPx, 0, ballRadius, 0, Math.PI * 2);
+      ctx.fillStyle = '#ff0055';
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillText(`${mass}kg`, -rPx, 4);
+
+      // 3. Central Rotation Axis (Pivot)
+      ctx.beginPath();
+      ctx.arc(0, 0, 16, 0, Math.PI * 2);
+      ctx.fillStyle = '#090e18';
+      ctx.fill();
+      ctx.strokeStyle = '#00ffcc';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(0, 0, 4, 0, Math.PI * 2);
+      ctx.fillStyle = '#00ffcc';
+      ctx.fill();
+
+      ctx.restore();
+
+      // Outer Axis Marker
+      ctx.fillStyle = '#00ffcc';
+      ctx.font = 'bold 11px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText("AXIS OF ROTATION", cx, cy - 35);
+
+      // Torque Arrow
+      if (isTorqueActive) {
+        ctx.strokeStyle = '#ffcc00';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 70, 0, 1.2 * Math.PI);
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffcc00';
+        ctx.fillText("APPLIED TORQUE (τ)", cx, cy + 90);
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    draw();
+  </script>
+</body>
+</html>
