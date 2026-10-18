@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="hi" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Axiom Lab | Chapter 3: True Market Structure & The Fractal Algorithm</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            obsidian: '#07090e',
+            terminalBg: '#0b0f17',
+            surface: '#121824',
+            surfaceBorder: '#1e293b',
+            accentCyan: '#06b6d4',
+            accentEmerald: '#10b981',
+            accentRose: '#f43f5e',
+            accentAmber: '#f59e0b',
+            accentViolet: '#8b5cf6',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #07090e; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+
+    .glass-panel {
+      background: rgba(18, 24, 36, 0.82);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(30, 41, 59, 0.85);
+    }
+    .glow-cyan { box-shadow: 0 0 30px -6px rgba(6, 182, 212, 0.3); }
+    .glow-emerald { box-shadow: 0 0 30px -6px rgba(16, 185, 129, 0.3); }
+    .glow-rose { box-shadow: 0 0 30px -6px rgba(244, 63, 94, 0.35); }
+    .glow-amber { box-shadow: 0 0 30px -6px rgba(245, 158, 11, 0.3); }
+
+    .grid-bg {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(30, 41, 59, 0.25) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(30, 41, 59, 0.25) 1px, transparent 1px);
+    }
+  </style>
+</head>
+
+<body class="bg-obsidian text-slate-200 font-sans min-h-screen selection:bg-accentCyan selection:text-black">
+
+  <!-- Scroll Progress Indicator -->
+  <div id="scrollProgress" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-accentCyan via-accentEmerald to-accentViolet z-50 transition-all duration-75 w-0"></div>
+
+  <!-- Header / Navigation Bar -->
+  <header class="sticky top-0 z-40 glass-panel border-b border-surfaceBorder px-4 sm:px-8 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-accentCyan via-accentEmerald to-accentViolet flex items-center justify-center font-mono font-black text-black text-base shadow-lg shadow-accentCyan/20">
+        Δ
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="font-mono text-xs text-accentCyan tracking-widest font-bold uppercase">The Axiom Lab</span>
+          <span class="px-1.5 py-0.5 text-[10px] font-mono rounded bg-accentCyan/15 text-accentCyan border border-accentCyan/30">Ch. 03 Structure Engine</span>
+        </div>
+        <h1 class="text-xs sm:text-sm font-semibold tracking-wide text-slate-100 hidden sm:block">True Market Structure & Fractal Algorithm</h1>
+      </div>
+    </div>
+
+    <!-- Chapter Navigation -->
+    <nav class="hidden lg:flex items-center gap-5 text-xs font-mono text-slate-400">
+      <a href="index.html" class="hover:text-accentCyan transition-colors flex items-center gap-1 text-slate-300">
+        <span>01. Matrix</span>
+      </a>
+      <a href="chapter2.html" class="hover:text-accentCyan transition-colors flex items-center gap-1 text-slate-300">
+        <span>02. Neurobiology</span>
+      </a>
+      <a href="#fractal-sync" class="text-accentCyan font-bold flex items-center gap-1 border-b border-accentCyan pb-0.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-accentCyan animate-pulse"></span> 03. True Structure
+      </a>
+      <a href="#bos-sandbox" class="hover:text-accentEmerald transition-colors">BOS vs Sweep</a>
+      <a href="#pullback-lab" class="hover:text-accentAmber transition-colors">Valid Pullback</a>
+      <a href="#choch-sim" class="hover:text-accentRose transition-colors">CHoCH Lab</a>
+      <span class="text-slate-600 cursor-not-allowed">04. Liquidity & OB (Soon)</span>
+    </nav>
+
+    <!-- Utility & Audio Controls -->
+    <div class="flex items-center gap-2">
+      <button id="soundToggle" onclick="toggleAudio()" class="px-2.5 py-1.5 rounded-lg border border-surfaceBorder bg-surface text-slate-300 hover:text-accentCyan transition-colors text-xs font-mono flex items-center gap-1.5">
+        <svg id="soundIcon" class="w-3.5 h-3.5 text-accentCyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+        </svg>
+        <span id="soundLabel">STRUCT SFX: ON</span>
+      </button>
+
+      <a href="chapter2.html" class="px-2.5 py-1.5 rounded-lg border border-surfaceBorder bg-surface text-slate-300 hover:text-accentCyan transition-colors text-xs font-mono flex items-center gap-1" title="Go to Chapter 2">
+        <span>← Ch.02</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
+
+    <!-- Hero / Conceptual Overview -->
+    <section class="relative pt-4 pb-2">
+      <div class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-accentCyan/10 via-obsidian to-obsidian"></div>
+
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accentCyan/10 border border-accentCyan/30 text-accentCyan text-xs font-mono mb-4">
+        <span class="w-2 h-2 rounded-full bg-accentCyan animate-ping"></span>
+        SMC CORE FOUNDATION // MODULE 03
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-8 space-y-4">
+          <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+            True Market Structure & <span class="text-transparent bg-clip-text bg-gradient-to-r from-accentCyan via-accentEmerald to-accentViolet">The Fractal Algorithm</span>
+          </h1>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+            मार्केट कोई बेतरतीब (Random) या अराजक स्थान नहीं है; यह एक <strong>Fractal Liquidity Engine</strong> द्वारा संचालित होता है। रिटेल ट्रेडर्स ट्रेंडलाइन और डबल टॉप जैसी मनगढ़ंत रेखाओं में उलझे रहते हैं, जबकि स्मार्ट मनी केवल तीन प्राथमिक तत्वों पर काम करती है: <strong class="text-accentCyan">Valid Swing Highs/Lows</strong>, <strong class="text-accentEmerald">Break of Structure (BOS)</strong>, और <strong class="text-accentRose">Liquidity Sweep</strong>।
+          </p>
+
+          <blockquote class="border-l-2 border-accentCyan pl-4 py-1.5 text-slate-400 italic text-xs sm:text-sm bg-surface/50 rounded-r font-mono">
+            "जब तक कैंडल की फुल बॉडी स्विंग के पार क्लोज न हो, तब तक कोई स्ट्रक्चरल ब्रेक नहीं होता। विक (Wick) केवल लिक्विडिटी ग्रैब का प्रमाण है।"
+            <span class="block text-accentCyan font-mono not-italic text-xs mt-1">— Institutional Orderflow Axiom</span>
+          </blockquote>
+
+          <div class="flex flex-wrap gap-2 pt-2">
+            <span class="px-2.5 py-1 text-xs rounded bg-surface border border-surfaceBorder text-slate-300 font-mono">Valid Pullback Mechanics</span>
+            <span class="px-2.5 py-1 text-xs rounded bg-surface border border-surfaceBorder text-slate-300 font-mono">Body Close BOS</span>
+            <span class="px-2.5 py-1 text-xs rounded bg-surface border border-surfaceBorder text-slate-300 font-mono">Wick Sweep Purge</span>
+            <span class="px-2.5 py-1 text-xs rounded bg-surface border border-surfaceBorder text-slate-300 font-mono">Internal vs External CHoCH</span>
+            <span class="px-2.5 py-1 text-xs rounded bg-surface border border-surfaceBorder text-slate-300 font-mono">Multi-Timeframe Fractal Mapping</span>
+          </div>
+        </div>
+
+        <!-- Metric / Rule Cards -->
+        <div class="lg:col-span-4 grid grid-cols-2 gap-3">
+          <div class="glass-panel p-4 rounded-xl border border-surfaceBorder">
+            <span class="text-[10px] font-mono text-accentCyan uppercase tracking-wider block">BOS Threshold</span>
+            <span class="text-2xl sm:text-3xl font-mono font-bold text-white mt-1 block">100%</span>
+            <span class="text-[11px] text-slate-400 mt-1 block leading-tight">Full Candle Body Close Above Level</span>
+          </div>
+
+          <div class="glass-panel p-4 rounded-xl border border-surfaceBorder">
+            <span class="text-[10px] font-mono text-accentRose uppercase tracking-wider block">Sweep Reverse Odds</span>
+            <span class="text-2xl sm:text-3xl font-mono font-bold text-white mt-1 block">84.2%</span>
+            <span class="text-[11px] text-slate-400 mt-1 block leading-tight">Reversal rate after liquidity grab</span>
+          </div>
+
+          <div class="glass-panel p-4 rounded-xl border border-surfaceBorder">
+            <span class="text-[10px] font-mono text-accentEmerald uppercase tracking-wider block">Fractal Scaling</span>
+            <span class="text-2xl sm:text-3xl font-mono font-bold text-white mt-1 block">16:1</span>
+            <span class="text-[11px] text-slate-400 mt-1 block leading-tight">Ratio of 4H to 15m to 1m decomposition</span>
+          </div>
+
+          <div class="glass-panel p-4 rounded-xl border border-surfaceBorder">
+            <span class="text-[10px] font-mono text-accentAmber uppercase tracking-wider block">Execution Edge</span>
+            <span class="text-2xl sm:text-3xl font-mono font-bold text-white mt-1 block">1:4.5+</span>
+            <span class="text-[11px] text-slate-400 mt-1 block leading-tight">Asymmetric RRR via LTF entries</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lab 1: Multi-Timeframe Fractal Synchronizer -->
+    <section id="fractal-sync" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-surfaceBorder pb-3">
+        <div>
+          <span class="text-xs font-mono text-accentCyan uppercase">Interactive Lab 3.1</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-white">Multi-Timeframe Fractal Synchronizer (HTF to LTF)</h2>
+        </div>
+        <p class="text-xs text-slate-400 font-mono">Observe how 1 HTF Candle unpacks into structural market legs and micro-executions</p>
+      </div>
+
+      <div class="glass-panel p-6 rounded-2xl border border-surfaceBorder space-y-6">
+        <!-- Timeframe Selector Tabs & Playback -->
+        <div class="flex flex-wrap items-center justify-between gap-4 bg-terminalBg p-4 rounded-xl border border-surfaceBorder">
+          <div class="flex flex-wrap gap-2">
+            <button onclick="setTimeframeMode('4h')" id="tfBtn-4h" class="px-4 py-1.5 rounded-lg text-xs font-mono border border-accentCyan bg-accentCyan/20 text-accentCyan font-bold transition-all">
+              4H Macro Impulse (Direction)
+            </button>
+            <button onclick="setTimeframeMode('15m')" id="tfBtn-15m" class="px-4 py-1.5 rounded-lg text-xs font-mono border border-surfaceBorder bg-surface text-slate-400 hover:text-white transition-all">
+              15M Structure & IDM (Strategy)
+            </button>
+            <button onclick="setTimeframeMode('1m')" id="tfBtn-1m" class="px-4 py-1.5 rounded-lg text-xs font-mono border border-surfaceBorder bg-surface text-slate-400 hover:text-white transition-all">
+              1M Micro Execution & FVG (Entry)
+            </button>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-slate-400">Timeframe Zoom:</span>
+            <button onclick="cycleTimeframe()" class="px-3 py-1.5 text-xs font-mono rounded-lg bg-surface border border-surfaceBorder hover:border-accentCyan text-slate-200 transition-all flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-accentCyan" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"/></svg>
+              Step Zoom In
+            </button>
+          </div>
+        </div>
+
+        <!-- Visual Canvas Display -->
+        <div class="relative w-full h-[400px] bg-obsidian rounded-xl overflow-hidden border border-surfaceBorder grid-bg">
+          <canvas id="fractalCanvas" class="w-full h-full block"></canvas>
+
+          <!-- Dynamic Informational Floating Overlay -->
+          <div id="fractalOverlayBadge" class="absolute top-4 left-4 p-3.5 rounded-xl glass-panel border border-accentCyan/40 text-xs font-mono space-y-1.5 max-w-sm pointer-events-none">
+            <div class="flex items-center gap-2">
+              <span id="tfDot" class="w-2.5 h-2.5 rounded-full bg-accentCyan animate-pulse"></span>
+              <span id="tfTitle" class="font-bold text-accentCyan">TIER 1: 4-HOUR MACRO IMPULSE</span>
+            </div>
+            <p id="tfDesc" class="text-[11px] text-slate-300 leading-relaxed">
+              एक अकेली 4H बुलिश कैंडल। रिटेल ट्रेडर इसे सिर्फ एक हरी लकीर देखता है, लेकिन संस्थागत एल्गोरिद्म इसके अंदर कई आंतरिक स्विंग्स छुपा कर रखता है।
+            </p>
+          </div>
+
+          <!-- Price Level Labels on Right -->
+          <div class="absolute right-3 top-3 text-[10px] font-mono text-slate-500 space-y-1 text-right pointer-events-none">
+            <div class="text-accentCyan">₹25,100 (4H Swing High)</div>
+            <div class="text-accentAmber">₹24,850 (15m Inducement IDM)</div>
+            <div class="text-accentEmerald">₹24,620 (15m Order Block / FVG)</div>
+            <div class="text-slate-400">₹24,500 (4H Swing Low Base)</div>
+          </div>
+        </div>
+
+        <!-- Institutional Multi-Timeframe Alignment Formula -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-mono">
+          <div class="p-3.5 rounded-xl bg-terminalBg border border-surfaceBorder space-y-1">
+            <span class="text-accentCyan font-bold uppercase block text-[10px]">Tier 1: Macro Direction (4H / 1D)</span>
+            <p class="text-slate-300 text-[11px]">टारगेट ज़ोन और ओवरऑल लिक्विडिटी पूल (BSL / SSL) तय करता है। कभी इसके विपरीत बड़े ट्रेड न लें।</p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-terminalBg border border-surfaceBorder space-y-1">
+            <span class="text-accentAmber font-bold uppercase block text-[10px]">Tier 2: Structure & IDM (15M / 1H)</span>
+            <p class="text-slate-300 text-[11px]">वैलिड BOS और Inducement को मार्क करता है। यह निर्धारित करता है कि रिटेल ट्रेडर्स कहाँ ट्रैप हो रहे हैं।</p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-terminalBg border border-surfaceBorder space-y-1">
+            <span class="text-accentEmerald font-bold uppercase block text-[10px]">Tier 3: Execution & Trigger (1M / 3M)</span>
+            <p class="text-slate-300 text-[11px]">माइक्रो CHoCH और FVG टैप पर शार्प एंट्री। स्टॉप-लॉस केवल 8-12 पॉइंट और RRR न्यूनतम 1:4.5+।</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lab 2: BOS vs. Liquidity Sweep Sandbox -->
+    <section id="bos-sandbox" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-surfaceBorder pb-3">
+        <div>
+          <span class="text-xs font-mono text-accentEmerald uppercase">Interactive Lab 3.2</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-white">BOS vs. Liquidity Sweep Sandbox</h2>
+        </div>
+        <p class="text-xs text-slate-400 font-mono">Drag the candle close and wick to test institutional algorithmic verdict</p>
+      </div>
+
+      <div class="glass-panel p-6 rounded-2xl border border-surfaceBorder grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- Interactive Controls -->
+        <div class="lg:col-span-5 space-y-5">
+          <div class="space-y-1">
+            <span class="text-xs font-mono text-accentCyan uppercase font-semibold">The Core Rule of Engagement</span>
+            <h3 class="text-sm sm:text-base font-bold text-white">Body Close Above Level vs. Wick Only Rejection</h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              नीचे दिए गए स्लाइडर्स से कैंडल के क्लोजिंग प्राइस और अपर विक (Wick) की ऊंचाई बदलें। देखें कि एल्गोरिद्म इसे कैसे क्लासिफाई करता है:
+            </p>
+          </div>
+
+          <div class="space-y-4 bg-terminalBg p-4 rounded-xl border border-surfaceBorder font-mono text-xs">
+            <div class="space-y-1.5">
+              <div class="flex justify-between">
+                <span class="text-slate-300">Candle Close Relative to Resistance:</span>
+                <span id="closeValDisplay" class="font-bold text-accentEmerald">+15 pts (Above Level)</span>
+              </div>
+              <input type="range" id="candleCloseSlider" min="-30" max="40" step="1" value="15" oninput="updateCandleSandbox()" class="w-full accent-accentCyan cursor-pointer">
+              <div class="flex justify-between text-[10px] text-slate-500">
+                <span>-30 pts (Body Below)</span>
+                <span>0 pts (At Line)</span>
+                <span>+40 pts (Strong Body Break)</span>
+              </div>
+            </div>
+
+            <div class="space-y-1.5">
+              <div class="flex justify-between">
+                <span class="text-slate-300">Upper Wick Peak (High):</span>
+                <span id="wickValDisplay" class="font-bold text-accentAmber">+35 pts (Deep Sweep)</span>
+              </div>
+              <input type="range" id="candleWickSlider" min="5" max="65" step="1" value="35" oninput="updateCandleSandbox()" class="w-full accent-accentAmber cursor-pointer">
+              <div class="flex justify-between text-[10px] text-slate-500">
+                <span>+5 pts (Shallow Wick)</span>
+                <span>+35 pts (Normal)</span>
+                <span>+65 pts (Massive Purge)</span>
+              </div>
+            </div>
+
+            <div class="space-y-1.5">
+              <div class="flex justify-between">
+                <span class="text-slate-300">Volume Quality:</span>
+                <span id="volValDisplay" class="font-bold text-accentCyan">High Institutional Volume</span>
+              </div>
+              <select id="volSelect" onchange="updateCandleSandbox()" class="w-full p-2 rounded bg-surface border border-surfaceBorder text-slate-200 text-xs">
+                <option value="high">Above Average (Institutional Expansion)</option>
+                <option value="low">Sub-Baseline (Divergent / Fake Exhaustion)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Dynamic Institutional Verdict Card -->
+          <div id="verdictBox" class="p-4 rounded-xl border transition-all text-xs font-mono space-y-1.5 glow-emerald bg-accentEmerald/10 border-accentEmerald text-accentEmerald">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+
+        <!-- Sandbox Interactive Canvas -->
+        <div class="lg:col-span-7 space-y-3">
+          <div class="relative w-full h-[360px] bg-obsidian rounded-xl border border-surfaceBorder overflow-hidden p-2 grid-bg">
+            <canvas id="sandboxCanvas" class="w-full h-full block"></canvas>
+            
+            <div class="absolute top-3 left-3 text-[10px] font-mono text-slate-400 bg-surface/80 px-2 py-1 rounded border border-surfaceBorder">
+              LIVE STRUCTURAL SENSOR v3.1
+            </div>
+          </div>
+
+          <div class="flex items-center justify-between text-[11px] font-mono text-slate-400 px-2">
+            <span>Critical Resistance Reference: <strong class="text-white">₹25,000.00</strong></span>
+            <span>Algorithmic Confidence: <strong id="confScore" class="text-accentEmerald">98.5%</strong></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lab 3: Valid Pullback & Swing Validation Lab -->
+    <section id="pullback-lab" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-surfaceBorder pb-3">
+        <div>
+          <span class="text-xs font-mono text-accentAmber uppercase">Interactive Lab 3.3</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-white">The Valid Pullback & Swing Identification Lab</h2>
+        </div>
+        <p class="text-xs text-slate-400 font-mono">Test your eyes: Click the candles that confirm a true institutional pullback</p>
+      </div>
+
+      <div class="glass-panel p-6 rounded-2xl border border-surfaceBorder grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div class="lg:col-span-5 space-y-4">
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            जब तक प्राइस पिछली कैंडल के <strong>Low (बुलिश ट्रेंड में)</strong> या <strong>High (बेयरिश ट्रेंड में)</strong> को स्वीप या ब्रेक नहीं करती, तब तक मार्केट केवल एक सिंगल लेग (Single Leg) में होता है।
+          </p>
+          <div class="p-3.5 rounded-xl bg-terminalBg border border-surfaceBorder text-xs font-mono space-y-2">
+            <div class="text-accentEmerald font-bold">Rule 1: Previous Candle High/Low Sweep Required</div>
+            <p class="text-slate-400 text-[11px]">अगर कैंडल 3 पिछली कैंडल 2 के अंदर ही सिमट गई (Inside Bar), तो यह कोई नया स्विंग नहीं है। यह सिर्फ आंतरिक शोर (Internal Noise) है।</p>
+          </div>
+
+          <div class="space-y-3 bg-terminalBg p-4 rounded-xl border border-surfaceBorder">
+            <div class="flex justify-between items-center text-xs font-mono">
+              <span class="text-slate-300">Pullback Challenge Score:</span>
+              <span id="pullbackScore" class="font-bold text-accentCyan">0 / 3 Verified</span>
+            </div>
+            <p id="puzzleInstruction" class="text-xs text-accentAmber font-mono">
+              चार्ट पर उस कैंडल (कैंडल A, B, C, या D) पर क्लिक करें जिसने वास्तव में पिछले कैंडल का Low स्वीप करके एक <strong>Valid Pullback</strong> बनाया है।
+            </p>
+            <div class="flex gap-2">
+              <button onclick="resetPullbackPuzzle()" class="px-3 py-1.5 rounded-lg border border-surfaceBorder bg-surface text-slate-300 hover:text-white text-xs font-mono transition-all">
+                Reset Puzzle
+              </button>
+            </div>
+          </div>
+
+          <div id="pullbackFeedback" class="hidden p-3.5 rounded-xl border text-xs font-mono leading-relaxed"></div>
+        </div>
+
+        <!-- Pullback Puzzle Canvas -->
+        <div class="lg:col-span-7 space-y-2">
+          <div class="relative w-full h-[320px] bg-obsidian rounded-xl border border-surfaceBorder overflow-hidden p-2 grid-bg cursor-pointer" onclick="handlePullbackCanvasClick(event)">
+            <canvas id="pullbackCanvas" class="w-full h-full block"></canvas>
+            <div class="absolute bottom-3 left-3 text-[10px] font-mono text-slate-400 bg-surface/80 px-2 py-1 rounded border border-surfaceBorder">
+              CLICK CANDLES LABELED [A, B, C, D]
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lab 4: Change of Character (CHoCH) Interactive Reversal Simulator -->
+    <section id="choch-sim" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-surfaceBorder pb-3">
+        <div>
+          <span class="text-xs font-mono text-accentRose uppercase">Interactive Lab 3.4</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-white">Change of Character (CHoCH) & Inducement Simulator</h2>
+        </div>
+        <p class="text-xs text-slate-400 font-mono">Understand why retail gets trapped on the first pullback (IDM) vs the true structural CHoCH</p>
+      </div>
+
+      <div class="glass-panel p-6 rounded-2xl border border-surfaceBorder space-y-6">
+        <!-- Interactive Player Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-4 bg-terminalBg p-4 rounded-xl border border-surfaceBorder">
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="stepChochSim(0)" id="chochStepBtn-0" class="px-3 py-1.5 rounded-lg text-xs font-mono border border-accentCyan bg-accentCyan/20 text-accentCyan font-semibold transition-all">
+              1. Bullish Trend (HH/HL)
+            </button>
+            <button onclick="stepChochSim(1)" id="chochStepBtn-1" class="px-3 py-1.5 rounded-lg text-xs font-mono border border-surfaceBorder bg-surface text-slate-400 hover:text-white transition-all">
+              2. Inducement Bait (IDM)
+            </button>
+            <button onclick="stepChochSim(2)" id="chochStepBtn-2" class="px-3 py-1.5 rounded-lg text-xs font-mono border border-surfaceBorder bg-surface text-slate-400 hover:text-white transition-all">
+              3. True Major CHoCH Break
+            </button>
+            <button onclick="stepChochSim(3)" id="chochStepBtn-3" class="px-3 py-1.5 rounded-lg text-xs font-mono border border-surfaceBorder bg-surface text-slate-400 hover:text-white transition-all">
+              4. Bearish Orderflow Mitigation
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="playChochAuto()" id="chochPlayBtn" class="px-3.5 py-1.5 rounded-lg text-xs font-mono bg-accentEmerald/20 border border-accentEmerald text-accentEmerald hover:bg-accentEmerald hover:text-black transition-all flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/></svg>
+              Auto Sequence
+            </button>
+            <button onclick="resetChochSim()" class="px-3 py-1.5 rounded-lg text-xs font-mono bg-surface border border-surfaceBorder text-slate-400 hover:text-white transition-all">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <div class="lg:col-span-8 relative h-[360px] bg-obsidian rounded-xl overflow-hidden border border-surfaceBorder grid-bg">
+            <canvas id="chochCanvas" class="w-full h-full block"></canvas>
+            
+            <div id="chochBadge" class="absolute top-4 left-4 p-3 rounded-lg glass-panel border border-accentCyan/40 text-xs font-mono space-y-1">
+              <span id="chochBadgePhase" class="text-accentCyan font-bold">STAGE 1: HEALTHY BULLISH STRUCTURE</span>
+              <p id="chochBadgeDesc" class="text-[11px] text-slate-300 max-w-xs">मार्केट लगातार हायर हाई (HH) और हायर लो (HL) बना रहा है। हर नया हाई फुल बॉडी के साथ BOS कन्फर्म कर रहा है।</p>
+            </div>
+          </div>
+
+          <div class="lg:col-span-4 space-y-4">
+            <div class="p-4 rounded-xl bg-terminalBg border border-surfaceBorder space-y-2 font-mono text-xs">
+              <span class="text-accentAmber font-bold uppercase block text-[10px]">What is Inducement (IDM)?</span>
+              <p class="text-slate-300 text-[11px] leading-relaxed">
+                जब मार्केट नया हाई बनाने के बाद पहला रीसेंट लो तोड़ता है, तो रिटेल ट्रेडर्स चिल्लाते हैं: <em class="text-accentRose">"CHoCH आ गया, ट्रेंड बदल गया!"</em>
+              </p>
+              <p class="text-slate-400 text-[11px] leading-relaxed">
+                लेकिन वह असली स्ट्रक्चरल लो नहीं, बल्कि केवल <strong>Inducement (IDM)</strong> होता है। स्मार्ट मनी इस पहले लो को तोड़कर रिटेल को सेल करवाती है और फिर उनके स्टॉप-लॉस खाकर ऊपर चली जाती है।
+              </p>
+            </div>
+
+            <div class="p-4 rounded-xl bg-terminalBg border border-surfaceBorder space-y-2 font-mono text-xs">
+              <span class="text-accentRose font-bold uppercase block text-[10px]">The Golden Law of True CHoCH</span>
+              <p class="text-slate-300 text-[11px] leading-relaxed">
+                असली CHoCH तब होता है जब वह <strong>Major Structural Swing Low</strong> टूटता है जिसने सबसे ऊंचे हाई (Highest High) को जन्म दिया था।
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lab 5: Pre-Flight Structural Audit Checklist & Principles -->
+    <section class="glass-panel p-6 sm:p-8 rounded-2xl border border-surfaceBorder space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-surfaceBorder pb-4">
+        <div>
+          <span class="text-xs font-mono text-accentViolet uppercase tracking-widest">Execution Safeguards</span>
+          <h2 class="text-xl font-bold text-white mt-0.5">Pre-Flight Structural Audit (Daily Checklist)</h2>
+        </div>
+        <button onclick="copyStructuralRules()" id="copyRulesBtn" class="px-3.5 py-1.5 rounded-lg border border-surfaceBorder bg-surface hover:text-accentCyan text-xs font-mono text-slate-300 transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+          <span id="copyRulesTxt">Copy Structure Rules</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div class="lg:col-span-7 space-y-3 font-mono text-xs">
+          <label class="flex items-start gap-3 p-3 rounded-xl bg-terminalBg border border-surfaceBorder cursor-pointer hover:border-slate-500 transition-all">
+            <input type="checkbox" onchange="updateAuditStatus()" class="struct-check mt-0.5 rounded bg-surface border-surfaceBorder text-accentCyan focus:ring-0">
+            <span class="text-slate-300 leading-relaxed">
+              1. <strong>BOS Body Close:</strong> क्या स्विंग हाई या लो के पार कैंडल की वास्तविक बॉडी (Full Body) बंद हुई है? (केवल विक नहीं)
+            </span>
+          </label>
+
+          <label class="flex items-start gap-3 p-3 rounded-xl bg-terminalBg border border-surfaceBorder cursor-pointer hover:border-slate-500 transition-all">
+            <input type="checkbox" onchange="updateAuditStatus()" class="struct-check mt-0.5 rounded bg-surface border-surfaceBorder text-accentCyan focus:ring-0">
+            <span class="text-slate-300 leading-relaxed">
+              2. <strong>Valid Pullback Confirmed:</strong> क्या स्विंग बनने से पहले पिछली रीसेंट कैंडल का हाई या लो वास्तव में स्वीप हुआ था?
+            </span>
+          </label>
+
+          <label class="flex items-start gap-3 p-3 rounded-xl bg-terminalBg border border-surfaceBorder cursor-pointer hover:border-slate-500 transition-all">
+            <input type="checkbox" onchange="updateAuditStatus()" class="struct-check mt-0.5 rounded bg-surface border-surfaceBorder text-accentCyan focus:ring-0">
+            <span class="text-slate-300 leading-relaxed">
+              3. <strong>Inducement (IDM) Taken:</strong> क्या प्राइस ने पहले आंतरिक माइनर लो को लिक्विडेट करके पर्याप्त फ्यूल इकट्ठा कर लिया है?
+            </span>
+          </label>
+
+          <label class="flex items-start gap-3 p-3 rounded-xl bg-terminalBg border border-surfaceBorder cursor-pointer hover:border-slate-500 transition-all">
+            <input type="checkbox" onchange="updateAuditStatus()" class="struct-check mt-0.5 rounded bg-surface border-surfaceBorder text-accentCyan focus:ring-0">
+            <span class="text-slate-300 leading-relaxed">
+              4. <strong>Multi-Timeframe Alignment:</strong> क्या 1-मिनट का CHoCH किसी 4-घंटे या 15-मिनट के प्रमुख अन-मिटिगेटेड ज़ोन पर बनने के बाद आया है?
+            </span>
+          </label>
+        </div>
+
+        <div class="lg:col-span-5 bg-terminalBg p-5 rounded-xl border border-surfaceBorder space-y-3 font-mono text-center">
+          <span class="text-[10px] uppercase text-slate-400 tracking-wider block">Structural Execution Readiness</span>
+          <div id="auditResultBox" class="p-4 rounded-xl bg-obsidian border border-surfaceBorder text-xs text-accentRose font-bold">
+            BLOCKED: Complete All 4 Structural Verifications (0/4)
+          </div>
+          <p class="text-[11px] text-slate-400 text-left leading-relaxed">
+            जब चारों पैरामीटर ग्रीन हो जाएं, केवल तभी स्टॉप-लॉस और ऑर्डर साइजिंग कैलकुलेट करें। एक भी नियम मिस होने का मतलब है कि आप स्मार्ट मनी नहीं, बल्कि खुदरा एग्जिट लिक्विडिटी बन रहे हैं।
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-surfaceBorder py-8 text-center text-xs font-mono text-slate-500 space-y-2">
+    <p>THE AXIOM LAB &bull; SMART MONEY CONCEPTS & NEURO-PSYCHOLOGY OPEN ARCHITECTURE</p>
+    <p class="text-[11px] text-slate-600">Chapter 3: True Market Structure & The Fractal Algorithm. Fully Deployable on GitHub Pages.</p>
+  </footer>
+
+  <!-- Web Audio API Synthesizer Script -->
+  <script>
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playTone(freq, type = 'sine', duration = 0.15, vol = 0.08) {
+      if (!soundEnabled) return;
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function playStructuralBOSSound() {
+      if (!soundEnabled) return;
+      playTone(523.25, 'triangle', 0.12, 0.1);
+      setTimeout(() => playTone(659.25, 'triangle', 0.15, 0.09), 80);
+      setTimeout(() => playTone(783.99, 'sine', 0.25, 0.08), 160);
+    }
+
+    function playSweepAlarm() {
+      if (!soundEnabled) return;
+      playTone(320, 'sawtooth', 0.15, 0.1);
+      setTimeout(() => playTone(220, 'sawtooth', 0.25, 0.12), 120);
+    }
+
+    function toggleAudio() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('soundLabel').innerText = soundEnabled ? 'STRUCT SFX: ON' : 'STRUCT SFX: OFF';
+      document.getElementById('soundToggle').classList.toggle('text-accentCyan', soundEnabled);
+      if (soundEnabled) playTone(640, 'sine', 0.12);
+    }
+
+    // Scroll Progress Bar
+    window.addEventListener('scroll', () => {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById('scrollProgress').style.width = scrolled + '%';
+    });
+
+    // ==========================================
+    // MODULE 3.1: FRACTAL SYNCHRONIZER
+    // ==========================================
+    const fractalCanvas = document.getElementById('fractalCanvas');
+    const fCtx = fractalCanvas.getContext('2d');
+    let currentTimeframe = '4h'; // '4h', '15m', '1m'
+
+    function resizeFractalCanvas() {
+      const rect = fractalCanvas.getBoundingClientRect();
+      fractalCanvas.width = rect.width * window.devicePixelRatio;
+      fractalCanvas.height = rect.height * window.devicePixelRatio;
+      fCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      drawFractalSync();
+    }
+    window.addEventListener('resize', resizeFractalCanvas);
+
+    function setTimeframeMode(tf) {
+      currentTimeframe = tf;
+      ['4h', '15m', '1m'].forEach(t => {
+        const btn = document.getElementById(`tfBtn-${t}`);
+        btn.className = "px-4 py-1.5 rounded-lg text-xs font-mono border border-surfaceBorder bg-surface text-slate-400 hover:text-white transition-all";
+      });
+      const activeBtn = document.getElementById(`tfBtn-${tf}`);
+      activeBtn.className = "px-4 py-1.5 rounded-lg text-xs font-mono border border-accentCyan bg-accentCyan/20 text-accentCyan font-bold transition-all";
+
+      const title = document.getElementById('tfTitle');
+      const desc = document.getElementById('tfDesc');
+      const dot = document.getElementById('tfDot');
+
+      if (tf === '4h') {
+        playTone(440, 'sine', 0.15);
+        title.innerText = "TIER 1: 4-HOUR MACRO IMPULSE";
+        title.className = "font-bold text-accentCyan";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-accentCyan animate-pulse";
+        desc.innerText = "एक अकेली 4H बुलिश कैंडल। रिटेल ट्रेडर इसे सिर्फ एक हरी लकीर देखता है, लेकिन संस्थागत एल्गोरिद्म इसके अंदर कई आंतरिक स्विंग्स छुपा कर रखता है।";
+      } else if (tf === '15m') {
+        playTone(587.33, 'triangle', 0.15);
+        title.innerText = "TIER 2: 15-MINUTE STRUCTURAL DECOMPOSITION";
+        title.className = "font-bold text-accentAmber";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-accentAmber animate-pulse";
+        desc.innerText = "वही 4H कैंडल अब 16 अलग-अलग 15m कैंडल्स में विभाजित हो चुकी है। यहाँ स्विंग हाई, Inducement (IDM), और डिस्काउंट ऑर्डर ब्लॉक स्पष्ट दिखाई दे रहे हैं।";
+      } else if (tf === '1m') {
+        playTone(783.99, 'sine', 0.2);
+        title.innerText = "TIER 3: 1-MINUTE MICRO EXECUTION & CHOCH";
+        title.className = "font-bold text-accentEmerald";
+        dot.className = "w-2.5 h-2.5 rounded-full bg-accentEmerald animate-pulse";
+        desc.innerText = "15m डिस्काउंट ज़ोन के अंदर 1m माइक्रो टाइमफ्रेम पर ज़ूम-इन। पहला इंटरनल CHoCH बनते ही FVG पर न्यूनतम स्टॉप-लॉस के साथ एंट्री ट्रिगर होती है।";
+      }
+
+      drawFractalSync();
+    }
+
+    function cycleTimeframe() {
+      if (currentTimeframe === '4h') setTimeframeMode('15m');
+      else if (currentTimeframe === '15m') setTimeframeMode('1m');
+      else setTimeframeMode('4h');
+    }
+
+    function drawFractalSync() {
+      const w = fractalCanvas.getBoundingClientRect().width;
+      const h = fractalCanvas.getBoundingClientRect().height;
+      fCtx.clearRect(0, 0, w, h);
+
+      // Price bounds
+      const minP = 24400;
+      const maxP = 25200;
+      const py = (p) => h - ((p - minP) / (maxP - minP)) * (h - 80) - 40;
+
+      // Draw Key Levels across all views
+      const drawHLine = (p, label, color, dashed = true) => {
+        const y = py(p);
+        fCtx.strokeStyle = color;
+        fCtx.lineWidth = 1.2;
+        if (dashed) fCtx.setLineDash([4, 4]);
+        else fCtx.setLineDash([]);
+        fCtx.beginPath();
+        fCtx.moveTo(40, y);
+        fCtx.lineTo(w - 20, y);
+        fCtx.stroke();
+        fCtx.setLineDash([]);
+
+        fCtx.fillStyle = color;
+        fCtx.font = '10px JetBrains Mono';
+        fCtx.fillText(label, 45, y - 6);
+      };
+
+      drawHLine(25100, '4H External Swing High (Target Liquidity)', '#06b6d4');
+      drawHLine(24850, '15m Inducement (IDM Level)', '#f59e0b');
+      drawHLine(24620, '15m Bullish Order Block / FVG (Discount)', '#10b981');
+      drawHLine(24500, '4H Swing Low Base', '#64748b');
+
+      if (currentTimeframe === '4h') {
+        // Draw 1 massive 4H candle in the center
+        const cx = w * 0.5;
+        const openP = 24520;
+        const closeP = 25050;
+        const highP = 25100;
+        const lowP = 24500;
+
+        const openY = py(openP);
+        const closeY = py(closeP);
+        const highY = py(highP);
+        const lowY = py(lowP);
+
+        // Wick
+        fCtx.strokeStyle = '#06b6d4';
+        fCtx.lineWidth = 3;
+        fCtx.beginPath();
+        fCtx.moveTo(cx, highY);
+        fCtx.lineTo(cx, lowY);
+        fCtx.stroke();
+
+        // Body
+        fCtx.fillStyle = '#06b6d4';
+        const bodyY = Math.min(openY, closeY);
+        const bodyH = Math.abs(openY - closeY);
+        fCtx.fillRect(cx - 30, bodyY, 60, bodyH);
+
+        fCtx.fillStyle = '#ffffff';
+        fCtx.font = 'bold 12px JetBrains Mono';
+        fCtx.fillText('4H IMPULSE CANDLE', cx - 65, bodyY + bodyH / 2);
+
+      } else if (currentTimeframe === '15m') {
+        // Draw 12 distinct 15m structural candles forming swing high, IDM sweep, and rally
+        const candles15 = [
+          { o: 24510, h: 24600, l: 24500, c: 24580 },
+          { o: 24580, h: 24750, l: 24560, c: 24720 },
+          { o: 24720, h: 24900, l: 24700, c: 24880 },
+          { o: 24880, h: 25080, l: 24850, c: 25050 }, // Swing High Peak
+          { o: 25050, h: 25060, l: 24880, c: 24900 }, // Pullback start
+          { o: 24900, h: 24920, l: 24830, c: 24840 }, // Sweeps IDM 24850
+          { o: 24840, h: 24860, l: 24650, c: 24680 },
+          { o: 24680, h: 24700, l: 24610, c: 24630 }, // Taps 15m OB 24620
+          { o: 24630, h: 24800, l: 24620, c: 24780 }, // Reversal candle
+          { o: 24780, h: 24950, l: 24750, c: 24920 },
+          { o: 24920, h: 25110, l: 24900, c: 25100 }  // BOS Breakout
+        ];
+
+        const stepX = (w - 120) / (candles15.length - 1);
+        for (let i = 0; i < candles15.length; i++) {
+          const c = candles15[i];
+          const cx = 60 + i * stepX;
+          const openY = py(c.o);
+          const closeY = py(c.c);
+          const highY = py(c.h);
+          const lowY = py(c.l);
+          const isBull = c.c >= c.o;
+
+          fCtx.strokeStyle = isBull ? '#10b981' : '#f43f5e';
+          fCtx.lineWidth = 1.8;
+          fCtx.beginPath();
+          fCtx.moveTo(cx, highY);
+          fCtx.lineTo(cx, lowY);
+          fCtx.stroke();
+
+          fCtx.fillStyle = isBull ? '#10b981' : '#f43f5e';
+          const bY = Math.min(openY, closeY);
+          const bH = Math.max(3, Math.abs(openY - closeY));
+          fCtx.fillRect(cx - 10, bY, 20, bH);
+
+          // Annotation for IDM Sweep
+          if (i === 5) {
+            fCtx.fillStyle = '#f59e0b';
+            fCtx.font = 'bold 9px JetBrains Mono';
+            fCtx.fillText('IDM SWEPT', cx - 25, highY - 12);
+          }
+          // Annotation for OB Tap
+          if (i === 7) {
+            fCtx.fillStyle = '#10b981';
+            fCtx.font = 'bold 9px JetBrains Mono';
+            fCtx.fillText('15m OB TAP', cx - 25, lowY + 16);
+          }
+        }
+
+      } else if (currentTimeframe === '1m') {
+        // Detailed micro-structure inside the 15m OB (24620)
+        const candles1m = [
+          { o: 24670, h: 24680, l: 24625, c: 24630 },
+          { o: 24630, h: 24640, l: 24610, c: 24615 }, // Lowest micro low
+          { o: 24615, h: 24655, l: 24612, c: 24650 }, // Strong micro impulse
+          { o: 24650, h: 24690, l: 24645, c: 24685 }, // Micro CHoCH
+          { o: 24685, h: 24688, l: 24652, c: 24655 }, // Retracement into 1m FVG
+          { o: 24655, h: 24740, l: 24654, c: 24735 }, // Explosive expansion
+          { o: 24735, h: 24820, l: 24730, c: 24810 },
+          { o: 24810, h: 24900, l: 24800, c: 24890 }
+        ];
+
+        const stepX = (w - 140) / (candles1m.length - 1);
+        for (let i = 0; i < candles1m.length; i++) {
+          const c = candles1m[i];
+          const cx = 70 + i * stepX;
+          const openY = py(c.o);
+          const closeY = py(c.c);
+          const highY = py(c.h);
+          const lowY = py(c.l);
+          const isBull = c.c >= c.o;
+
+          fCtx.strokeStyle = isBull ? '#10b981' : '#f43f5e';
+          fCtx.lineWidth = 2;
+          fCtx.beginPath();
+          fCtx.moveTo(cx, highY);
+          fCtx.lineTo(cx, lowY);
+          fCtx.stroke();
+
+          fCtx.fillStyle = isBull ? '#10b981' : '#f43f5e';
+          const bY = Math.min(openY, closeY);
+          const bH = Math.max(3, Math.abs(openY - closeY));
+          fCtx.fillRect(cx - 12, bY, 24, bH);
+
+          if (i === 3) {
+            fCtx.fillStyle = '#06b6d4';
+            fCtx.font = 'bold 10px JetBrains Mono';
+            fCtx.fillText('1M CHoCH CONFIRMED', cx - 45, highY - 14);
+          }
+          if (i === 4) {
+            fCtx.fillStyle = '#10b981';
+            fCtx.font = 'bold 10px JetBrains Mono';
+            fCtx.fillText('★ 1M FVG ENTRY', cx - 35, lowY + 18);
+          }
+        }
+      }
+    }
+
+    // ==========================================
+    // MODULE 3.2: BOS VS. LIQUIDITY SWEEP SANDBOX
+    // ==========================================
+    const sCanvas = document.getElementById('sandboxCanvas');
+    const sCtx = sCanvas.getContext('2d');
+
+    function resizeSandboxCanvas() {
+      const rect = sCanvas.getBoundingClientRect();
+      sCanvas.width = rect.width * window.devicePixelRatio;
+      sCanvas.height = rect.height * window.devicePixelRatio;
+      sCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      drawSandbox();
+    }
+    window.addEventListener('resize', resizeSandboxCanvas);
+
+    function updateCandleSandbox() {
+      const closeDelta = parseInt(document.getElementById('candleCloseSlider').value);
+      const wickDelta = parseInt(document.getElementById('candleWickSlider').value);
+      const vol = document.getElementById('volSelect').value;
+
+      document.getElementById('closeValDisplay').innerText = (closeDelta >= 0 ? `+${closeDelta} pts (Above Level)` : `${closeDelta} pts (Below Level)`);
+      document.getElementById('closeValDisplay').className = closeDelta >= 0 ? 'font-bold text-accentEmerald' : 'font-bold text-accentRose';
+
+      document.getElementById('wickValDisplay').innerText = `+${wickDelta} pts Above Level`;
+      document.getElementById('volValDisplay').innerText = vol === 'high' ? 'High Institutional Volume' : 'Sub-Baseline Volume';
+
+      const vBox = document.getElementById('verdictBox');
+      const conf = document.getElementById('confScore');
+
+      if (closeDelta > 4) {
+        // Valid BOS
+        conf.innerText = vol === 'high' ? '98.5%' : '82.0%';
+        conf.className = 'text-accentEmerald';
+        vBox.className = "p-4 rounded-xl border transition-all text-xs font-mono space-y-1.5 glow-emerald bg-accentEmerald/10 border-accentEmerald text-accentEmerald";
+        vBox.innerHTML = `
+          <div class="font-bold text-sm flex items-center justify-between">
+            <span>✓ INSTITUTIONAL VERDICT: VALID BOS (BREAK OF STRUCTURE)</span>
+            <span class="text-xs px-2 py-0.5 rounded bg-accentEmerald/20 border border-accentEmerald/40">CONTINUATION</span>
+          </div>
+          <p class="text-slate-300">
+            कैंडल की फुल बॉडी ₹25,000 के स्विंग हाई के ऊपर क्लोज हुई है। यह साबित करता है कि स्मार्ट मनी ने नए बाय ऑर्डर्स एब्जॉर्ब कर लिए हैं। अगले डिस्काउंट पुलबैक पर ट्रेंड जारी रहने की संभावना 85%+ है।
+          </p>
+        `;
+        playStructuralBOSSound();
+      } else {
+        // Liquidity Sweep
+        conf.innerText = '94.8%';
+        conf.className = 'text-accentRose';
+        vBox.className = "p-4 rounded-xl border transition-all text-xs font-mono space-y-1.5 glow-rose bg-accentRose/10 border-accentRose text-accentRose";
+        vBox.innerHTML = `
+          <div class="font-bold text-sm flex items-center justify-between">
+            <span>⚠️ INSTITUTIONAL VERDICT: LIQUIDITY SWEEP / PURGE (TRAP)</span>
+            <span class="text-xs px-2 py-0.5 rounded bg-accentRose/20 border border-accentRose/40">REVERSAL ALERT</span>
+          </div>
+          <p class="text-slate-300">
+            कैंडल ने रेजिस्टेंस के ऊपर सिर्फ एक लंबी विक (Wick) निकाली लेकिन क्लोजिंग लेवल के नीचे ही हुई। यह ब्रेकआउट नहीं, बल्कि रिटेल बाय-स्टॉप्स (BSL) को खाने का क्लासिक <strong>Judas Trap</strong> है। विपरीत दिशा में तीव्र रिवर्सल आसन्न है।
+          </p>
+        `;
+        playSweepAlarm();
+      }
+
+      drawSandbox();
+    }
+
+    function drawSandbox() {
+      const w = sCanvas.getBoundingClientRect().width;
+      const h = sCanvas.getBoundingClientRect().height;
+      sCtx.clearRect(0, 0, w, h);
+
+      const closeDelta = parseInt(document.getElementById('candleCloseSlider').value);
+      const wickDelta = parseInt(document.getElementById('candleWickSlider').value);
+      const vol = document.getElementById('volSelect').value;
+
+      const resistanceY = h * 0.45;
+
+      // Draw Critical Resistance Line (₹25,000)
+      sCtx.strokeStyle = '#f43f5e';
+      sCtx.lineWidth = 1.8;
+      sCtx.setLineDash([4, 4]);
+      sCtx.beginPath();
+      sCtx.moveTo(40, resistanceY);
+      sCtx.lineTo(w - 30, resistanceY);
+      sCtx.stroke();
+      sCtx.setLineDash([]);
+
+      sCtx.fillStyle = '#f43f5e';
+      sCtx.font = 'bold 11px JetBrains Mono';
+      sCtx.fillText('MAJOR SWING HIGH RESISTANCE (₹25,000.00)', 50, resistanceY - 8);
+
+      // Previous Reference Swing High Candle
+      const refX = w * 0.32;
+      sCtx.strokeStyle = '#64748b';
+      sCtx.lineWidth = 2;
+      sCtx.beginPath();
+      sCtx.moveTo(refX, resistanceY);
+      sCtx.lineTo(refX, resistanceY + 120);
+      sCtx.stroke();
+
+      sCtx.fillStyle = '#334155';
+      sCtx.fillRect(refX - 16, resistanceY + 10, 32, 60);
+
+      sCtx.fillStyle = '#94a3b8';
+      sCtx.font = '10px JetBrains Mono';
+      sCtx.fillText('Previous High', refX - 35, resistanceY + 90);
+
+      // Testing Live Candle
+      const candleX = w * 0.65;
+      const candleOpenY = resistanceY + 50; // starts lower
+      const candleCloseY = resistanceY - closeDelta * 2.2; // mapping slider
+      const candleHighY = Math.min(candleCloseY, resistanceY - wickDelta * 2.2);
+      const candleLowY = resistanceY + 65;
+
+      const isBull = candleCloseY <= candleOpenY;
+      const candleColor = closeDelta > 4 ? '#10b981' : '#f43f5e';
+
+      // Wick
+      sCtx.strokeStyle = candleColor;
+      sCtx.lineWidth = 2.5;
+      sCtx.beginPath();
+      sCtx.moveTo(candleX, candleHighY);
+      sCtx.lineTo(candleX, candleLowY);
+      sCtx.stroke();
+
+      // Body
+      sCtx.fillStyle = candleColor;
+      const bodyY = Math.min(candleOpenY, candleCloseY);
+      const bodyH = Math.max(4, Math.abs(candleOpenY - candleCloseY));
+      sCtx.fillRect(candleX - 22, bodyY, 44, bodyH);
+
+      // Candle Tag
+      sCtx.fillStyle = candleColor;
+      sCtx.font = 'bold 11px JetBrains Mono';
+      if (closeDelta > 4) {
+        sCtx.fillText('BODY CLOSED ABOVE (BOS)', candleX - 60, candleCloseY - 14);
+      } else {
+        sCtx.fillText('WICK PURGE ONLY (SWEEP)', candleX - 60, candleHighY - 10);
+      }
+
+      // Draw Volume Profile bars on right
+      const volW = vol === 'high' ? 80 : 35;
+      sCtx.fillStyle = vol === 'high' ? 'rgba(6, 182, 212, 0.3)' : 'rgba(100, 116, 139, 0.3)';
+      sCtx.fillRect(w - volW - 30, h - 35, volW, 20);
+      sCtx.strokeStyle = vol === 'high' ? '#06b6d4' : '#64748b';
+      sCtx.strokeRect(w - volW - 30, h - 35, volW, 20);
+
+      sCtx.fillStyle = '#94a3b8';
+      sCtx.font = '9px JetBrains Mono';
+      sCtx.fillText('VOL PROFILE', w - 100, h - 42);
+    }
+
+    // ==========================================
+    // MODULE 3.3: VALID PULLBACK LAB & PUZZLE
+    // ==========================================
+    const pCanvas = document.getElementById('pullbackCanvas');
+    const pCtx = pCanvas.getContext('2d');
+    let pullbackVerifiedCount = 0;
+
+    // Candlesticks setup for the puzzle: A = Inside bar (invalid), B = Swept Previous Low (Valid Pullback!), C = Continuation up, D = Inside bar
+    const puzzleCandles = [
+      { id: '1', o: 100, h: 120, l: 95, c: 118, label: 'Base' },
+      { id: '2', o: 118, h: 145, l: 115, c: 142, label: 'Impulse' },
+      { id: 'A', o: 142, h: 144, l: 125, c: 130, label: 'Candle A', valid: false, reason: 'Candle A candle 2 के अंदर ही है (Inside Bar)। इसने पिछला Low नहीं तोड़ा।' },
+      { id: 'B', o: 130, h: 135, l: 112, c: 114, label: 'Candle B', valid: true, reason: 'सटीक! Candle B ने candle 2 के Low (115) को स्वीप करके नया लो (112) बनाया। यह Valid Pullback है।' },
+      { id: 'C', o: 114, h: 155, l: 113, c: 152, label: 'Candle C', valid: false, reason: 'Candle C ऊपर की ओर नया हाई बना रही है, यह पुलबैक नहीं बल्कि इम्प्लस है।' },
+      { id: 'D', o: 152, h: 154, l: 140, c: 146, label: 'Candle D', valid: false, reason: 'Candle D ने candle C का लो नहीं तोड़ा। यह केवल इनसाइड बार है।' }
+    ];
+
+    function resizePullbackCanvas() {
+      const rect = pCanvas.getBoundingClientRect();
+      pCanvas.width = rect.width * window.devicePixelRatio;
+      pCanvas.height = rect.height * window.devicePixelRatio;
+      pCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      drawPullbackPuzzle();
+    }
+    window.addEventListener('resize', resizePullbackCanvas);
+
+    function drawPullbackPuzzle() {
+      const w = pCanvas.getBoundingClientRect().width;
+      const h = pCanvas.getBoundingClientRect().height;
+      pCtx.clearRect(0, 0, w, h);
+
+      const minP = 90;
+      const maxP = 165;
+      const py = (p) => h - ((p - minP) / (maxP - minP)) * (h - 60) - 30;
+
+      const stepX = (w - 100) / (puzzleCandles.length - 1);
+
+      // Draw Previous Candle 2 Low Reference Line
+      const refLowY = py(115);
+      pCtx.strokeStyle = '#f59e0b';
+      pCtx.setLineDash([3, 3]);
+      pCtx.beginPath();
+      pCtx.moveTo(40, refLowY);
+      pCtx.lineTo(w - 30, refLowY);
+      pCtx.stroke();
+      pCtx.setLineDash([]);
+
+      pCtx.fillStyle = '#f59e0b';
+      pCtx.font = '10px JetBrains Mono';
+      pCtx.fillText('Candle 2 Previous Low (115) Threshold', 45, refLowY - 5);
+
+      for (let i = 0; i < puzzleCandles.length; i++) {
+        const c = puzzleCandles[i];
+        const cx = 50 + i * stepX;
+        c.cx = cx; // store for click bounds
+
+        const openY = py(c.o);
+        const closeY = py(c.c);
+        const highY = py(c.h);
+        const lowY = py(c.l);
+        const isBull = c.c >= c.o;
+
+        pCtx.strokeStyle = isBull ? '#10b981' : '#f43f5e';
+        pCtx.lineWidth = 2;
+        pCtx.beginPath();
+        pCtx.moveTo(cx, highY);
+        pCtx.lineTo(cx, lowY);
+        pCtx.stroke();
+
+        pCtx.fillStyle = isBull ? '#10b981' : '#f43f5e';
+        const bY = Math.min(openY, closeY);
+        const bH = Math.max(3, Math.abs(openY - closeY));
+        pCtx.fillRect(cx - 14, bY, 28, bH);
+
+        // Candle label
+        pCtx.fillStyle = '#ffffff';
+        pCtx.font = 'bold 11px JetBrains Mono';
+        pCtx.fillText(c.label, cx - 18, highY - 8);
+      }
+    }
+
+    function handlePullbackCanvasClick(e) {
+      const rect = pCanvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+
+      let clickedCandle = null;
+      for (const c of puzzleCandles) {
+        if (Math.abs(clickX - c.cx) < 25) {
+          clickedCandle = c;
+          break;
+        }
+      }
+
+      if (!clickedCandle) return;
+      const fb = document.getElementById('pullbackFeedback');
+      fb.classList.remove('hidden');
+
+      if (clickedCandle.valid) {
+        playTone(680, 'sine', 0.2);
+        pullbackVerifiedCount = Math.min(3, pullbackVerifiedCount + 1);
+        document.getElementById('pullbackScore').innerText = `${pullbackVerifiedCount} / 3 Verified`;
+
+        fb.className = "p-3.5 rounded-xl border border-accentEmerald/40 bg-accentEmerald/10 text-accentEmerald text-xs font-mono space-y-1";
+        fb.innerHTML = `<strong>✓ VALID PULLBACK VERIFIED:</strong> ${clickedCandle.reason}`;
+      } else {
+        playTone(220, 'sawtooth', 0.2);
+        fb.className = "p-3.5 rounded-xl border border-accentRose/40 bg-accentRose/10 text-accentRose text-xs font-mono space-y-1";
+        fb.innerHTML = `<strong>✕ INVALID PULLBACK:</strong> ${clickedCandle.reason}`;
+      }
+    }
+
+    function resetPullbackPuzzle() {
+      pullbackVerifiedCount = 0;
+      document.getElementById('pullbackScore').innerText = "0 / 3 Verified";
+      document.getElementById('pullbackFeedback').classList.add('hidden');
+      drawPullbackPuzzle();
+    }
+
+    // ==========================================
+    // MODULE 3.4: CHOCH & INDUCEMENT SIMULATOR
+    // ==========================================
+    const cCanvas = document.getElementById('chochCanvas');
+    const cCtx = cCanvas.getContext('2d');
+    let chochPhase = 0;
+    let chochAutoTimer = null;
+
+    const chochPhasesData = [
+      {
+        badge: "STAGE 1: HEALTHY BULLISH STRUCTURE",
+        desc: "मार्केट लगातार हायर हाई (HH) और हायर लो (HL) बना रहा है। हर नया हाई फुल बॉडी के साथ BOS कन्फर्म कर रहा है।",
+        color: "accentCyan"
+      },
+      {
+        badge: "STAGE 2: INDUCEMENT (IDM) TRAP FORMED",
+        desc: "प्राइस ने पहला आंतरिक लो (IDM) तोड़ा। रिटेल सेलर्स FOMO में शॉर्ट करने कूदे, लेकिन यह असली स्ट्रक्चरल लो नहीं है।",
+        color: "accentAmber"
+      },
+      {
+        badge: "STAGE 3: TRUE MAJOR CHOCH REVERSAL",
+        desc: "प्राइस ने उस असली मेजर लो को फुल बॉडी के साथ तोड़ दिया जिसने सबसे ऊंचा हाई बनाया था। अब ट्रेंड आधिकारिक रूप से बेयरिश हो चुका है।",
+        color: "accentRose"
+      },
+      {
+        badge: "STAGE 4: BEARISH MITIGATION ENTRY",
+        desc: "प्राइस अब बेयरिश FVG को टैप करके नए लो की ओर विस्तारित हो रही है। संस्थागत सेलर्स पूरी तरह हावी हैं।",
+        color: "accentEmerald"
+      }
+    ];
+
+    function resizeChochCanvas() {
+      const rect = cCanvas.getBoundingClientRect();
+      cCanvas.width = rect.width * window.devicePixelRatio;
+      cCanvas.height = rect.height * window.devicePixelRatio;
+      cCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      drawChochCanvas();
+    }
+    window.addEventListener('resize', resizeChochCanvas);
+
+    function stepChochSim(step) {
+      chochPhase = step;
+      playTone(400 + step * 90, 'triangle', 0.15);
+
+      for (let i = 0; i < 4; i++) {
+        const btn = document.getElementById(`chochStepBtn-${i}`);
+        btn.className = "px-3 py-1.5 rounded-lg text-xs font-mono border border-surfaceBorder bg-surface text-slate-400 hover:text-white transition-all";
+      }
+      document.getElementById(`chochStepBtn-${step}`).className = "px-3 py-1.5 rounded-lg text-xs font-mono border border-accentCyan bg-accentCyan/20 text-accentCyan font-semibold transition-all";
+
+      const p = chochPhasesData[step];
+      document.getElementById('chochBadgePhase').innerText = p.badge;
+      document.getElementById('chochBadgePhase').className = `text-${p.color} font-bold`;
+      document.getElementById('chochBadgeDesc').innerText = p.desc;
+
+      drawChochCanvas();
+    }
+
+    function playChochAuto() {
+      let cur = 0;
+      stepChochSim(cur);
+      if (chochAutoTimer) clearInterval(chochAutoTimer);
+      chochAutoTimer = setInterval(() => {
+        cur++;
+        if (cur > 3) {
+          clearInterval(chochAutoTimer);
+          return;
+        }
+        stepChochSim(cur);
+      }, 2200);
+    }
+
+    function resetChochSim() {
+      if (chochAutoTimer) clearInterval(chochAutoTimer);
+      stepChochSim(0);
+    }
+
+    function drawChochCanvas() {
+      const w = cCanvas.getBoundingClientRect().width;
+      const h = cCanvas.getBoundingClientRect().height;
+      cCtx.clearRect(0, 0, w, h);
+
+      // Points for the structural zigzag line
+      const points = [
+        { x: 40, y: h * 0.75, label: 'HL 1' },
+        { x: w * 0.22, y: h * 0.35, label: 'HH 1' },
+        { x: w * 0.38, y: h * 0.65, label: 'MAJOR HL' }, // Crucial low for CHoCH
+        { x: w * 0.58, y: h * 0.18, label: 'HIGHEST HIGH' },
+        { x: w * 0.70, y: h * 0.42, label: 'IDM (Minor)' }, // Inducement
+        { x: w * 0.78, y: h * 0.30, label: 'Fake Push' },
+        { x: w * 0.88, y: h * 0.82, label: 'TRUE CHoCH' }  // Breaks Major HL
+      ];
+
+      // Draw connecting lines up to phase
+      let maxPt = 3;
+      if (chochPhase === 1) maxPt = 4;
+      if (chochPhase === 2) maxPt = 6;
+      if (chochPhase === 3) maxPt = 6;
+
+      cCtx.strokeStyle = '#06b6d4';
+      cCtx.lineWidth = 3;
+      cCtx.beginPath();
+      cCtx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i <= maxPt; i++) {
+        cCtx.lineTo(points[i].x, points[i].y);
+      }
+      cCtx.stroke();
+
+      // Draw Major HL horizontal threshold
+      const majorLowY = points[2].y;
+      cCtx.strokeStyle = '#f43f5e';
+      cCtx.lineWidth = 1.5;
+      cCtx.setLineDash([4, 4]);
+      cCtx.beginPath();
+      cCtx.moveTo(points[2].x, majorLowY);
+      cCtx.lineTo(w - 20, majorLowY);
+      cCtx.stroke();
+      cCtx.setLineDash([]);
+
+      cCtx.fillStyle = '#f43f5e';
+      cCtx.font = '10px JetBrains Mono';
+      cCtx.fillText('MAJOR STRUCTURAL LOW (CHoCH TRIGGER LINE)', points[2].x + 10, majorLowY - 8);
+
+      // Draw point markers
+      for (let i = 0; i <= maxPt; i++) {
+        const pt = points[i];
+        cCtx.fillStyle = i === 2 ? '#f43f5e' : (i === 4 ? '#f59e0b' : '#06b6d4');
+        cCtx.beginPath();
+        cCtx.arc(pt.x, pt.y, 5, 0, Math.PI * 2);
+        cCtx.fill();
+
+        cCtx.fillStyle = '#ffffff';
+        cCtx.font = 'bold 10px JetBrains Mono';
+        cCtx.fillText(pt.label, pt.x - 20, pt.y < h * 0.5 ? pt.y - 10 : pt.y + 18);
+      }
+
+      // If phase 3: draw bearish mitigation arrow
+      if (chochPhase === 3) {
+        cCtx.strokeStyle = '#10b981';
+        cCtx.lineWidth = 2.5;
+        cCtx.setLineDash([3, 3]);
+        cCtx.beginPath();
+        cCtx.moveTo(points[6].x, points[6].y);
+        cCtx.lineTo(points[6].x + 35, majorLowY);
+        cCtx.stroke();
+        cCtx.setLineDash([]);
+
+        cCtx.fillStyle = '#10b981';
+        cCtx.font = 'bold 10px JetBrains Mono';
+        cCtx.fillText('BEARISH FVG RETEST', points[6].x + 15, majorLowY - 10);
+      }
+    }
+
+    // ==========================================
+    // MODULE 3.5: AUDIT & CHECKLIST LOGIC
+    // ==========================================
+    function updateAuditStatus() {
+      const checks = document.querySelectorAll('.struct-check');
+      let count = 0;
+      checks.forEach(c => { if (c.checked) count++; });
+
+      const box = document.getElementById('auditResultBox');
+      if (count === 4) {
+        playStructuralBOSSound();
+        box.className = "p-4 rounded-xl bg-accentEmerald/15 border border-accentEmerald text-xs text-accentEmerald font-bold glow-emerald";
+        box.innerText = "✓ PASSED: ALL 4 STRUCTURAL FILTERS VALIDATED (PROCEED TO EXECUTION)";
+      } else {
+        box.className = "p-4 rounded-xl bg-obsidian border border-surfaceBorder text-xs text-accentRose font-bold";
+        box.innerText = `BLOCKED: Complete All 4 Structural Verifications (${count}/4)`;
+      }
+    }
+
+    function copyStructuralRules() {
+      const rules = `THE AXIOM LAB: CHAPTER 3 TRUE MARKET STRUCTURE RULES
+1. The Body Close Rule: BOS requires a full candle body close beyond the swing high/low. Wick sweeps represent liquidity purges.
+2. The Valid Pullback Rule: A swing is only confirmed once the prior candle's high/low is liquidated.
+3. The Inducement Filter: Never short the first pullback low; wait for the Major Structural Low to break for true CHoCH.
+4. Multi-Timeframe Alignment: Execute 1m micro setups strictly inside 4H/15m institutional discount/premium zones.`;
+
+      const el = document.createElement('textarea');
+      el.value = rules;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+
+      playTone(660, 'sine', 0.15);
+      const btnTxt = document.getElementById('copyRulesTxt');
+      btnTxt.innerText = 'Copied to Clipboard!';
+      setTimeout(() => { btnTxt.innerText = 'Copy Structure Rules'; }, 2000);
+    }
+
+    // Window Load Initialization
+    window.onload = function() {
+      resizeFractalCanvas();
+      resizeSandboxCanvas();
+      resizePullbackCanvas();
+      resizeChochCanvas();
+      updateCandleSandbox();
+      stepChochSim(0);
+    };
+  </script>
+</body>
+</html>

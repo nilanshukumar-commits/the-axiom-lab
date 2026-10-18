@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="hi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 6: Advanced Liquidity Models & SMT Divergence | The Axiom Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        axiom: {
+                            900: '#07090e',
+                            850: '#0d1117',
+                            800: '#161b22',
+                            700: '#21262d',
+                            600: '#30363d',
+                            accent: '#38bdf8',
+                            emerald: '#10b981',
+                            rose: '#f43f5e',
+                            amber: '#f59e0b',
+                            violet: '#8b5cf6'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #07090e;
+            color: #e6edf3;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.05) 0%, transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.05) 0%, transparent 45%);
+        }
+        .hud-glass {
+            background: rgba(13, 17, 23, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(48, 54, 61, 0.6);
+        }
+        .canvas-container {
+            position: relative;
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.9);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #07090e; }
+        ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-axiom-accent selection:text-axiom-900 pb-24">
+
+    <!-- Top Navigation HUD -->
+    <header class="sticky top-0 z-50 hud-glass border-b border-axiom-700/80 px-6 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-axiom-violet via-axiom-accent to-axiom-emerald flex items-center justify-center shadow-lg shadow-axiom-violet/20">
+                <span class="font-mono font-black text-axiom-900 text-base">M6</span>
+            </div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-mono font-semibold tracking-wider uppercase text-axiom-violet">The Axiom Lab</span>
+                    <span class="text-xs text-axiom-600">/</span>
+                    <span class="text-xs font-mono text-gray-400">Advanced Liquidity Engineering</span>
+                </div>
+                <h1 class="text-sm font-bold tracking-tight text-white flex items-center gap-2">
+                    Chapter 6: SMT Divergence & Inversion FVG
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono bg-axiom-violet/20 text-axiom-violet border border-axiom-violet/30">MODULE 06</span>
+                </h1>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <button id="audioToggleBtn" onclick="toggleAudio()" class="px-3 py-1.5 rounded-md text-xs font-mono bg-axiom-800 hover:bg-axiom-700 border border-axiom-600 flex items-center gap-2 transition-all">
+                <span id="audioIcon" class="w-2 h-2 rounded-full bg-axiom-rose"></span>
+                <span id="audioText">Audio: Muted</span>
+            </button>
+            <a href="chapter5.html" class="px-3 py-1.5 rounded-md text-xs font-mono bg-axiom-800 hover:bg-axiom-700 border border-axiom-600 transition-all text-gray-300 hover:text-white">
+                ← Chapter 5
+            </a>
+            <a href="#lab6-2" class="px-3 py-1.5 rounded-md text-xs font-mono bg-axiom-accent text-axiom-900 font-bold hover:brightness-110 shadow-lg shadow-axiom-accent/20 transition-all">
+                SMT Sandbox ↓
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-12">
+
+        <!-- Chapter Hero Banner -->
+        <section class="hud-glass rounded-2xl p-8 border border-axiom-700 relative overflow-hidden">
+            <div class="absolute -right-16 -top-16 w-80 h-80 bg-axiom-violet/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-16 -bottom-16 w-80 h-80 bg-axiom-accent/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="max-w-3xl relative z-10 space-y-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono bg-axiom-violet/10 text-axiom-violet border border-axiom-violet/30">
+                    <span class="animate-pulse">●</span> INSTITUTIONAL INTER-MARKET CRACK
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+                    Advanced Liquidity Models & SMT Divergence
+                </h2>
+                <p class="text-base text-gray-300 leading-relaxed">
+                    जब दो अत्यधिक सहसंबंधित (Correlated) एसेट्स में से एक नया हाई या लो बना रहा हो और दूसरा विफल हो जाए, तो इसे <span class="text-axiom-violet font-semibold">SMT Divergence (Smart Money Tool)</span> कहते हैं। यह संस्थानिक ऑर्डर्स के सबसे गुप्त पदचिह्नों में से एक है। साथ ही जानिए कि फेल्ड फेयर वैल्यू गैप कैसे एक शक्तिशाली <span class="text-axiom-accent font-semibold">Inversion FVG (IFVG)</span> में बदल जाता है।
+                </p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 text-xs font-mono">
+                    <div class="bg-axiom-900/60 p-3 rounded-lg border border-axiom-700">
+                        <div class="text-gray-400">SMT DIVERGENCE</div>
+                        <div class="text-axiom-violet font-bold text-sm mt-1">Inter-market Crack</div>
+                    </div>
+                    <div class="bg-axiom-900/60 p-3 rounded-lg border border-axiom-700">
+                        <div class="text-gray-400">INVERSION FVG</div>
+                        <div class="text-axiom-accent font-bold text-sm mt-1">Imbalance Flip</div>
+                    </div>
+                    <div class="bg-axiom-900/60 p-3 rounded-lg border border-axiom-700">
+                        <div class="text-gray-400">LIQUIDITY VOID</div>
+                        <div class="text-axiom-rose font-bold text-sm mt-1">Slippage Vacuum</div>
+                    </div>
+                    <div class="bg-axiom-900/60 p-3 rounded-lg border border-axiom-700">
+                        <div class="text-gray-400">MITIGATION BLOCK</div>
+                        <div class="text-axiom-emerald font-bold text-sm mt-1">Failure Flip Zone</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LAB 6.1: SMT DIVERGENCE DUAL-CHART COMPARATOR -->
+        <section id="lab6-1" class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-axiom-700/80 pb-4">
+                <div>
+                    <div class="text-xs font-mono text-axiom-violet tracking-wider uppercase">Interactive Lab 6.1</div>
+                    <h3 class="text-xl font-bold text-white">SMT Divergence Dual-Asset Synchronizer</h3>
+                    <p class="text-sm text-gray-400">निफ्टी बनाम बैंक निफ्टी (या EUR/USD vs DXY) में संस्थागत दरार (Cracks in the Matrix) को पहचानें।</p>
+                </div>
+                <div class="flex items-center gap-2 font-mono text-xs">
+                    <button onclick="setSMTType('bearish')" id="btnSmtBear" class="px-3 py-2 rounded-lg bg-axiom-rose/20 text-axiom-rose border border-axiom-rose/40 font-bold hover:bg-axiom-rose/30 transition-all">
+                        Bearish SMT (Swing Highs)
+                    </button>
+                    <button onclick="setSMTType('bullish')" id="btnSmtBull" class="px-3 py-2 rounded-lg bg-axiom-800 text-gray-400 border border-axiom-700 font-bold hover:bg-axiom-700 transition-all">
+                        Bullish SMT (Swing Lows)
+                    </button>
+                    <button onclick="triggerSMTSweep()" class="px-4 py-2 rounded-lg bg-axiom-violet text-white font-bold hover:brightness-110 shadow-lg shadow-axiom-violet/20">
+                        ⚡ Reveal Institutional Divergence
+                    </button>
+                </div>
+            </div>
+
+            <!-- Dual Canvas Container -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Asset A Canvas -->
+                <div class="bg-axiom-900 rounded-xl border border-axiom-700 p-4 canvas-container relative">
+                    <div class="flex justify-between items-center mb-2 font-mono text-xs">
+                        <span id="assetALabel" class="text-axiom-accent font-bold">ASSET A: NIFTY 50 (Index Leader)</span>
+                        <span id="assetAStatus" class="px-2 py-0.5 rounded bg-axiom-850 text-gray-300 border border-axiom-700 text-[10px]">Sweeps High (Higher High)</span>
+                    </div>
+                    <canvas id="smtCanvasA" width="460" height="260" class="w-full h-auto block rounded"></canvas>
+                </div>
+
+                <!-- Asset B Canvas -->
+                <div class="bg-axiom-900 rounded-xl border border-axiom-700 p-4 canvas-container relative">
+                    <div class="flex justify-between items-center mb-2 font-mono text-xs">
+                        <span id="assetBLabel" class="text-axiom-rose font-bold">ASSET B: BANKNIFTY (Reluctant Follower)</span>
+                        <span id="assetBStatus" class="px-2 py-0.5 rounded bg-axiom-850 text-axiom-rose border border-axiom-rose/40 text-[10px]">Fails to Break (Lower High)</span>
+                    </div>
+                    <canvas id="smtCanvasB" width="460" height="260" class="w-full h-auto block rounded"></canvas>
+                </div>
+            </div>
+
+            <!-- Algorithmic Verdict Card -->
+            <div class="bg-axiom-900/90 p-5 rounded-xl border border-axiom-violet/40 font-mono text-xs space-y-2">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full bg-axiom-violet animate-ping"></span>
+                    <span id="smtVerdictBadge" class="text-axiom-violet font-bold uppercase tracking-wider text-[11px]">INSTITUTIONAL CRACK CONFIRMED: BEARISH SMT</span>
+                </div>
+                <p id="smtVerdictText" class="text-gray-300 leading-relaxed text-[11px]">
+                    निफ्टी ने पिछले स्विंग हाई के ऊपर जाकर BSL लिक्विडिटी स्वीप की, लेकिन बैंक निफ्टी नया हाई बनाने में विफल रहा (Lower High)। यह स्पष्ट संकेत है कि रियल मनी बाज़ार से निकल रही है और दोनों एसेट्स में एक बड़ा डाउनवर्ड रिवर्सल आसन्न है।
+                </p>
+            </div>
+        </section>
+
+        <!-- LAB 6.2: INVERSION FAIR VALUE GAP (IFVG) FLIP SIMULATOR -->
+        <section id="lab6-2" class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-axiom-700/80 pb-4">
+                <div>
+                    <div class="text-xs font-mono text-axiom-accent tracking-wider uppercase">Interactive Lab 6.2</div>
+                    <h3 class="text-xl font-bold text-white">Inversion Fair Value Gap (IFVG) Flip Engine</h3>
+                    <p class="text-sm text-gray-400">जब कोई बुलिश FVG बाज़ार को रोकने में विफल हो जाता है, तो वह कैसे पलटकर रेजिस्टेंस (Inversion) बन जाता है।</p>
+                </div>
+                <div class="flex items-center gap-3 font-mono text-xs">
+                    <label class="text-gray-400">Breach & Retest Depth:</label>
+                    <input type="range" id="ifvgSlider" min="0" max="100" value="0" oninput="updateIFVG(this.value)" class="w-36 accent-axiom-accent cursor-pointer">
+                    <span id="ifvgSliderVal" class="text-axiom-accent font-bold w-12">0%</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
+                <div class="lg:col-span-2 bg-axiom-900 rounded-xl border border-axiom-700 p-4 canvas-container">
+                    <canvas id="ifvgCanvas" width="700" height="360" class="w-full h-auto block rounded"></canvas>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-axiom-900/80 p-4 rounded-xl border border-axiom-700 space-y-3">
+                        <div class="text-gray-400 font-bold uppercase tracking-wider text-[11px]">IFVG Transition Phases</div>
+                        <div class="space-y-2 text-gray-300">
+                            <div><strong>1. Initial FVG:</strong> बुलिश इम्बैलेंस जिसे बाय सपोर्ट होना चाहिए था।</div>
+                            <div><strong>2. The Displacement Breach:</strong> विशाल बेयरिश कैंडल द्वारा ज़ोन को नीचे की ओर फाड़ देना।</div>
+                            <div><strong>3. The Inversion Flip:</strong> वही ज़ोन अब पलटकर मजबूत रेजिस्टेंस बन चुका है।</div>
+                            <div><strong>4. Retest & Drop:</strong> नीचे से ज़ोन को छूते ही हाई-प्रॉबेबिलिटी शॉर्ट एंट्री।</div>
+                        </div>
+                    </div>
+                    <div id="ifvgVerdictBox" class="p-4 bg-axiom-850 rounded-xl border border-axiom-accent/30 text-gray-300 text-[11px] leading-relaxed">
+                        स्लाइडर को 100% तक ले जाएं और देखें कि ज़ोन का रंग हरे (सपोर्ट) से बैंगनी/लाल (Inversion Resistance) में कैसे बदलता है।
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LAB 6.3: LIQUIDITY VOID VS MITIGATION BLOCK (THEORY MATRIX) -->
+        <section class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-6 font-mono text-xs">
+            <div class="border-b border-axiom-700/80 pb-4">
+                <div class="text-xs text-axiom-emerald tracking-wider uppercase">Institutional Edge Architecture</div>
+                <h3 class="text-xl font-bold text-white">Liquidity Voids vs. Mitigation Blocks</h3>
+                <p class="text-sm text-gray-400">मार्केट गैप्स और फेल्ड स्ट्रक्चरल ब्लॉक्स के बीच का संस्थागत अंतर।</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Liquidity Void -->
+                <div class="bg-axiom-900/90 p-5 rounded-xl border border-axiom-rose/30 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="px-2.5 py-1 rounded bg-axiom-rose/20 text-axiom-rose font-bold text-xs">LIQUIDITY VOID (VACUUM)</span>
+                        <span class="text-gray-400 text-[10px]">Vacuum Effect</span>
+                    </div>
+                    <p class="text-gray-300 leading-relaxed">
+                        जब कोई अप्रत्याशित समाचार या ओपनिंग गैप (जैसे 200 अंक का गैप-अप/डाउन) आता है, तो बीच के सभी प्राइस लेवल्स पर शून्य लिक्विडिटी होती है। 
+                    </p>
+                    <div class="p-3 bg-axiom-850 rounded border border-axiom-rose/20 text-axiom-rose text-[11px]">
+                        <strong>The Law of Nature:</strong> एल्गोरिद्म इस खाली शून्य (Void) को भरने के लिए चुंबक (Magnet) की तरह वापस दौड़ता है। यह दिन के सबसे तेज 1-वे एक्सपेंशन मूव्स देता है।
+                    </div>
+                </div>
+
+                <!-- Mitigation Block -->
+                <div class="bg-axiom-900/90 p-5 rounded-xl border border-axiom-emerald/30 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <span class="px-2.5 py-1 rounded bg-axiom-emerald/20 text-axiom-emerald font-bold text-xs">MITIGATION BLOCK</span>
+                        <span class="text-gray-400 text-[10px]">Failure-Swing Flip</span>
+                    </div>
+                    <p class="text-gray-300 leading-relaxed">
+                        Breaker Block के विपरीत, Mitigation Block वह ऑर्डर ब्लॉक होता है जिसने विपरीत दिशा की लिक्विडिटी को स्वीप <strong>नहीं</strong> किया था (Failure Swing)।
+                    </p>
+                    <div class="p-3 bg-axiom-850 rounded border border-axiom-emerald/20 text-axiom-emerald text-[11px]">
+                        <strong>Institutional Mechanism:</strong> जब मार्केट बिना लिक्विडिटी लिए अचानक विपरीत मुड़ता है, तो वे ट्रेडर्स जो गलत साइड फंसे थे, अपने लॉस को 0 (Break-Even) पर निकालने के लिए इसी ब्लॉक पर एग्जिट करते हैं।
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chapter 6 Self-Audit Checklist -->
+        <section class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-4 font-mono text-xs">
+            <div class="flex items-center justify-between border-b border-axiom-700/80 pb-3">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <span class="text-axiom-violet">⚡</span> Chapter 6 Advanced Execution Checklist
+                </h3>
+                <span class="text-gray-400">Institutional Criteria</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label class="flex items-center gap-3 p-3 bg-axiom-900 rounded-lg border border-axiom-700 cursor-pointer hover:border-axiom-violet transition-all">
+                    <input type="checkbox" class="accent-axiom-violet w-4 h-4 rounded">
+                    <span>क्या Nifty और BankNifty में से किसी एक ने नया हाई/लो बनाने से इनकार कर दिया (SMT)?</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 bg-axiom-900 rounded-lg border border-axiom-700 cursor-pointer hover:border-axiom-violet transition-all">
+                    <input type="checkbox" class="accent-axiom-violet w-4 h-4 rounded">
+                    <span>क्या कोई पुराना FVG आक्रामक रूप से ब्रेक होकर Inversion FVG (IFVG) में तब्दील हुआ?</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 bg-axiom-900 rounded-lg border border-axiom-700 cursor-pointer hover:border-axiom-violet transition-all">
+                    <input type="checkbox" class="accent-axiom-violet w-4 h-4 rounded">
+                    <span>क्या चार्ट पर अन-फिल्ड लिक्विडिटी वॉयड (Liquidity Void) है जो मैग्नेट का काम करेगा?</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 bg-axiom-900 rounded-lg border border-axiom-700 cursor-pointer hover:border-axiom-violet transition-all">
+                    <input type="checkbox" class="accent-axiom-violet w-4 h-4 rounded">
+                    <span>क्या मेरी एंट्री फेल्ड ज़ोन के री-टेस्ट पर न्यूनतम स्टॉप-लॉस के साथ अलाइंड है?</span>
+                </label>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Web Audio Synthesizer
+        let audioCtx = null;
+        let audioMuted = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function toggleAudio() {
+            initAudio();
+            audioMuted = !audioMuted;
+            const icon = document.getElementById('audioIcon');
+            const txt = document.getElementById('audioText');
+            if (audioMuted) {
+                icon.className = 'w-2 h-2 rounded-full bg-axiom-rose';
+                txt.innerText = 'Audio: Muted';
+            } else {
+                icon.className = 'w-2 h-2 rounded-full bg-axiom-emerald animate-pulse';
+                txt.innerText = 'Audio: Active';
+                playTone(660, 0.1, 'sine');
+            }
+        }
+
+        function playTone(freq, duration, type='sine') {
+            if (audioMuted || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e){}
+        }
+
+        // LAB 6.1: SMT Divergence Simulator
+        let currentSMT = 'bearish'; // 'bearish' or 'bullish'
+        const cA = document.getElementById('smtCanvasA');
+        const ctxA = cA.getContext('2d');
+        const cB = document.getElementById('smtCanvasB');
+        const ctxB = cB.getContext('2d');
+        let smtAnimated = false;
+
+        function setSMTType(type) {
+            initAudio();
+            currentSMT = type;
+            smtAnimated = false;
+
+            const btnBear = document.getElementById('btnSmtBear');
+            const btnBull = document.getElementById('btnSmtBull');
+            const badge = document.getElementById('smtVerdictBadge');
+            const desc = document.getElementById('smtVerdictText');
+
+            if (type === 'bearish') {
+                btnBear.className = "px-3 py-2 rounded-lg bg-axiom-rose/20 text-axiom-rose border border-axiom-rose/40 font-bold hover:bg-axiom-rose/30 transition-all";
+                btnBull.className = "px-3 py-2 rounded-lg bg-axiom-800 text-gray-400 border border-axiom-700 font-bold hover:bg-axiom-700 transition-all";
+                document.getElementById('assetAStatus').innerText = "Sweeps High (Higher High)";
+                document.getElementById('assetBStatus').innerText = "Fails to Break (Lower High)";
+                badge.innerText = "INSTITUTIONAL CRACK CONFIRMED: BEARISH SMT";
+                badge.className = "text-axiom-rose font-bold uppercase tracking-wider text-[11px]";
+                desc.innerText = "निफ्टी ने पिछले स्विंग हाई के ऊपर जाकर BSL लिक्विडिटी स्वीप की, लेकिन बैंक निफ्टी नया हाई बनाने में विफल रहा (Lower High)। यह स्पष्ट संकेत है कि रियल मनी बाज़ार से निकल रही है और दोनों एसेट्स में एक बड़ा डाउनवर्ड रिवर्सल आसन्न है।";
+                playTone(440, 0.1, 'sine');
+            } else {
+                btnBull.className = "px-3 py-2 rounded-lg bg-axiom-emerald/20 text-axiom-emerald border border-axiom-emerald/40 font-bold hover:bg-axiom-emerald/30 transition-all";
+                btnBear.className = "px-3 py-2 rounded-lg bg-axiom-800 text-gray-400 border border-axiom-700 font-bold hover:bg-axiom-700 transition-all";
+                document.getElementById('assetAStatus').innerText = "Sweeps Low (Lower Low)";
+                document.getElementById('assetBStatus').innerText = "Fails to Break (Higher Low)";
+                badge.innerText = "INSTITUTIONAL ACCUMULATION CONFIRMED: BULLISH SMT";
+                badge.className = "text-axiom-emerald font-bold uppercase tracking-wider text-[11px]";
+                desc.innerText = "निफ्टी ने सेल-साइड लिक्विडिटी (SSL) स्वीप करके नया लोअर लो बनाया, लेकिन बैंक निफ्टी ने पिछला लो तोड़ने से इनकार कर दिया (Higher Low)। यह स्मार्ट मनी द्वारा चुपचाप की जा रही बड़ी खरीदारी का अचूक प्रमाण है।";
+                playTone(554, 0.1, 'sine');
+            }
+            drawSMTCharts();
+        }
+
+        function triggerSMTSweep() {
+            initAudio();
+            smtAnimated = true;
+            playTone(880, 0.25, 'triangle');
+            drawSMTCharts();
+        }
+
+        function drawSMTCharts() {
+            // Draw Chart A (Leader)
+            ctxA.clearRect(0, 0, cA.width, cA.height);
+            drawGrid(ctxA, cA);
+
+            // Draw Chart B (Follower)
+            ctxB.clearRect(0, 0, cB.width, cB.height);
+            drawGrid(ctxB, cB);
+
+            if (currentSMT === 'bearish') {
+                // Asset A: Higher High
+                drawCandleSMT(ctxA, 90, 160, 110, 180, '#10b981'); // Peak 1 at 110
+                drawCandleSMT(ctxA, 180, 150, 190, 130, '#f43f5e'); // Pullback
+                drawCandleSMT(ctxA, 270, 140, 90, 160, '#10b981');  // Peak 2 at 90 (HIGHER HIGH)
+
+                // Reference line on A
+                ctxA.strokeStyle = '#f43f5e';
+                ctxA.lineWidth = 1.5;
+                ctxA.setLineDash([4, 4]);
+                ctxA.beginPath(); ctxA.moveTo(90, 110); ctxA.lineTo(380, 110); ctxA.stroke();
+                ctxA.setLineDash([]);
+                ctxA.fillStyle = '#f43f5e';
+                ctxA.font = '10px JetBrains Mono';
+                ctxA.fillText('Previous High [₹24,900]', 100, 104);
+
+                // Trendline showing Higher High
+                ctxA.strokeStyle = '#38bdf8';
+                ctxA.lineWidth = 2;
+                ctxA.beginPath(); ctxA.moveTo(90, 110); ctxA.lineTo(270, 90); ctxA.stroke();
+                ctxA.fillStyle = '#38bdf8';
+                ctxA.fillText('▲ HIGHER HIGH (BSL PURGE)', 230, 80);
+
+                // Asset B: Lower High (The Crack!)
+                drawCandleSMT(ctxB, 90, 160, 100, 180, '#10b981'); // Peak 1 at 100
+                drawCandleSMT(ctxB, 180, 150, 190, 130, '#f43f5e'); // Pullback
+                drawCandleSMT(ctxB, 270, 160, 125, 170, '#10b981'); // Peak 2 at 125 (LOWER HIGH!)
+
+                // Reference line on B
+                ctxB.strokeStyle = '#f43f5e';
+                ctxB.lineWidth = 1.5;
+                ctxB.setLineDash([4, 4]);
+                ctxB.beginPath(); ctxB.moveTo(90, 100); ctxB.lineTo(380, 100); ctxB.stroke();
+                ctxB.setLineDash([]);
+                ctxB.fillStyle = '#f43f5e';
+                ctxB.font = '10px JetBrains Mono';
+                ctxB.fillText('Previous High [₹51,500]', 100, 94);
+
+                // Trendline showing Lower High
+                ctxB.strokeStyle = '#f43f5e';
+                ctxB.lineWidth = 2;
+                ctxB.beginPath(); ctxB.moveTo(90, 100); ctxB.lineTo(270, 125); ctxB.stroke();
+                ctxB.fillStyle = '#f43f5e';
+                ctxB.fillText('▼ LOWER HIGH (SMT FAILURE)', 230, 145);
+
+                if (smtAnimated) {
+                    // Draw crash candles on both
+                    drawCandleSMT(ctxA, 350, 120, 105, 220, '#f43f5e');
+                    drawCandleSMT(ctxB, 350, 140, 130, 230, '#f43f5e');
+                }
+            } else {
+                // Bullish SMT: Asset A Lower Low, Asset B Higher Low
+                drawCandleSMT(ctxA, 90, 120, 190, 100, '#f43f5e'); // Low 1 at 190
+                drawCandleSMT(ctxA, 180, 140, 110, 160, '#10b981'); // Bounce
+                drawCandleSMT(ctxA, 270, 150, 220, 130, '#f43f5e'); // Low 2 at 220 (LOWER LOW)
+
+                ctxA.strokeStyle = '#10b981';
+                ctxA.lineWidth = 1.5;
+                ctxA.setLineDash([4, 4]);
+                ctxA.beginPath(); ctxA.moveTo(90, 190); ctxA.lineTo(380, 190); ctxA.stroke();
+                ctxA.setLineDash([]);
+                ctxA.strokeStyle = '#38bdf8';
+                ctxA.lineWidth = 2;
+                ctxA.beginPath(); ctxA.moveTo(90, 190); ctxA.lineTo(270, 220); ctxA.stroke();
+                ctxA.fillStyle = '#38bdf8';
+                ctxA.font = '10px JetBrains Mono';
+                ctxA.fillText('▼ LOWER LOW (SSL PURGE)', 230, 238);
+
+                // Asset B: Higher Low
+                drawCandleSMT(ctxB, 90, 120, 210, 100, '#f43f5e'); // Low 1 at 210
+                drawCandleSMT(ctxB, 180, 140, 120, 160, '#10b981'); // Bounce
+                drawCandleSMT(ctxB, 270, 140, 180, 130, '#f43f5e'); // Low 2 at 180 (HIGHER LOW!)
+
+                ctxB.strokeStyle = '#10b981';
+                ctxB.lineWidth = 1.5;
+                ctxB.setLineDash([4, 4]);
+                ctxB.beginPath(); ctxB.moveTo(90, 210); ctxB.lineTo(380, 210); ctxB.stroke();
+                ctxB.setLineDash([]);
+                ctxB.strokeStyle = '#10b981';
+                ctxB.lineWidth = 2;
+                ctxB.beginPath(); ctxB.moveTo(90, 210); ctxB.lineTo(270, 180); ctxB.stroke();
+                ctxB.fillStyle = '#10b981';
+                ctxB.font = '10px JetBrains Mono';
+                ctxB.fillText('▲ HIGHER LOW (BULLISH SMT)', 230, 170);
+
+                if (smtAnimated) {
+                    drawCandleSMT(ctxA, 350, 190, 90, 200, '#10b981');
+                    drawCandleSMT(ctxB, 350, 170, 80, 180, '#10b981');
+                }
+            }
+        }
+
+        function drawCandleSMT(ctx, x, o, h, l, color) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(x, h); ctx.lineTo(x, l); ctx.stroke();
+            ctx.fillStyle = color;
+            const top = Math.min(o, (o+h)/2);
+            const height = Math.abs(o - (o+h)/2) + 15;
+            ctx.fillRect(x - 9, top, 18, height);
+        }
+
+        function drawGrid(ctx, c) {
+            ctx.strokeStyle = '#161b22';
+            ctx.lineWidth = 1;
+            for(let x=0; x<c.width; x+=40) {
+                ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,c.height); ctx.stroke();
+            }
+            for(let y=0; y<c.height; y+=35) {
+                ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(c.width,y); ctx.stroke();
+            }
+        }
+
+        // LAB 6.2: Inversion FVG Canvas Simulation
+        const ifvgCanvas = document.getElementById('ifvgCanvas');
+        const iCtx = ifvgCanvas.getContext('2d');
+
+        function updateIFVG(val) {
+            document.getElementById('ifvgSliderVal').innerText = val + '%';
+            const progress = val / 100;
+            drawIFVGChart(progress);
+
+            const vBox = document.getElementById('ifvgVerdictBox');
+            if (val == 0) {
+                vBox.innerHTML = "प्रारंभिक अवस्था: यह एक <strong>बुलिश FVG</strong> है। रिटेल बायर्स को उम्मीद है कि मार्केट यहाँ से ऊपर उछलेगा।";
+                vBox.className = "p-4 bg-axiom-850 rounded-xl border border-axiom-emerald/30 text-gray-300 text-[11px] leading-relaxed";
+            } else if (val < 50) {
+                vBox.innerHTML = `ब्रेकडाउन शुरू: प्राइस FVG को नीचे की ओर तोड़ रही है (${val}%)। बायर्स के स्टॉप-लॉस ट्रिगर हो रहे हैं।`;
+                vBox.className = "p-4 bg-axiom-850 rounded-xl border border-axiom-amber/30 text-gray-300 text-[11px] leading-relaxed";
+            } else if (val < 90) {
+                vBox.innerHTML = "⚡ <strong>FLIP COMPLETE:</strong> बुलिश FVG पूरी तरह फेल होकर अब एक <strong>Inversion FVG (Resistance)</strong> बन चुका है!";
+                vBox.className = "p-4 bg-axiom-850 rounded-xl border border-axiom-violet/50 text-axiom-violet text-[11px] leading-relaxed";
+                if(val == 60) playTone(554, 0.1, 'triangle');
+            } else {
+                vBox.innerHTML = "🎯 <strong>PERFECT RETEST & CRASH:</strong> प्राइस ने नीचे से आकर ठीक IFVG रेखा को छुआ और एक विशाल मंदी का मूव दिया। 1:7 RRR बुक।";
+                vBox.className = "p-4 bg-axiom-850 rounded-xl border border-axiom-rose/50 text-axiom-rose text-[11px] leading-relaxed";
+                if(val == 100) playTone(880, 0.25, 'sawtooth');
+            }
+        }
+
+        function drawIFVGChart(prog) {
+            iCtx.clearRect(0, 0, ifvgCanvas.width, ifvgCanvas.height);
+            drawGrid(iCtx, ifvgCanvas);
+
+            // Candle 1 (Green impulse creating initial FVG)
+            drawCandleSMT(iCtx, 120, 260, 160, 280, '#10b981');
+            const fvgLow = 210;
+            const fvgHigh = 160;
+
+            // FVG Zone Box
+            if (prog < 0.5) {
+                iCtx.fillStyle = 'rgba(16, 185, 129, 0.15)';
+                iCtx.strokeStyle = '#10b981';
+            } else {
+                iCtx.fillStyle = 'rgba(139, 92, 246, 0.2)';
+                iCtx.strokeStyle = '#8b5cf6';
+            }
+            iCtx.fillRect(120, fvgHigh, 480, fvgLow - fvgHigh);
+            iCtx.setLineDash([4, 4]);
+            iCtx.strokeRect(120, fvgHigh, 480, fvgLow - fvgHigh);
+            iCtx.setLineDash([]);
+
+            iCtx.fillStyle = prog < 0.5 ? '#10b981' : '#8b5cf6';
+            iCtx.font = '10px JetBrains Mono';
+            iCtx.fillText(prog < 0.5 ? 'ORIGINAL BULLISH FVG [SUPPORT]' : 'INVERSION FVG (IFVG) [FLIPPED RESISTANCE]', 140, fvgHigh - 8);
+
+            // Candle 2: Piercing Bearish Candle
+            if (prog > 0.1) {
+                const curClose = fvgHigh + prog * 100;
+                drawCandleSMT(iCtx, 220, 140, 130, curClose, '#f43f5e');
+            }
+
+            // Candle 3: Retest candle tapping IFVG from below
+            if (prog > 0.6) {
+                const retestY = fvgLow - (prog - 0.6) * 50;
+                drawCandleSMT(iCtx, 340, 270, retestY, 280, '#10b981');
+
+                // Label Tap
+                if (prog >= 0.9) {
+                    iCtx.fillStyle = '#38bdf8';
+                    iCtx.fillText('⚡ RETEST ENTRY ON IFVG', 320, fvgLow + 18);
+                    // Drop candle
+                    drawCandleSMT(iCtx, 440, fvgLow, fvgLow - 10, 320, '#f43f5e');
+                }
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            setSMTType('bearish');
+            updateIFVG(0);
+        });
+    </script>
+</body>
+</html>

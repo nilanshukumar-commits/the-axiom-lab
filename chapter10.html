@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="hi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 10: The Systematic Operator's Code | The Axiom Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        axiom: {
+                            900: '#07090e',
+                            850: '#0d1117',
+                            800: '#161b22',
+                            700: '#21262d',
+                            600: '#30363d',
+                            accent: '#38bdf8',
+                            emerald: '#10b981',
+                            rose: '#f43f5e',
+                            amber: '#f59e0b',
+                            violet: '#8b5cf6',
+                            gold: '#fbbf24'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #07090e;
+            color: #e6edf3;
+            background-image: 
+                radial-gradient(circle at 12% 18%, rgba(251, 191, 36, 0.05) 0%, transparent 45%),
+                radial-gradient(circle at 88% 82%, rgba(56, 189, 248, 0.05) 0%, transparent 45%);
+        }
+        .hud-glass {
+            background: rgba(13, 17, 23, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(48, 54, 61, 0.6);
+        }
+        .canvas-container {
+            position: relative;
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.9);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #07090e; }
+        ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #fbbf24; }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-axiom-gold selection:text-axiom-900 pb-24">
+
+    <!-- Top Navigation HUD -->
+    <header class="sticky top-0 z-50 hud-glass border-b border-axiom-700/80 px-6 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-axiom-gold via-axiom-amber to-axiom-accent flex items-center justify-center shadow-lg shadow-axiom-gold/20">
+                <span class="font-mono font-black text-axiom-900 text-base">M10</span>
+            </div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-mono font-semibold tracking-wider uppercase text-axiom-gold">The Axiom Lab</span>
+                    <span class="text-xs text-axiom-600">/</span>
+                    <span class="text-xs font-mono text-gray-400">Master Finale</span>
+                </div>
+                <h1 class="text-sm font-bold tracking-tight text-white flex items-center gap-2">
+                    Chapter 10: The Systematic Operator's Code & Longevity
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono bg-axiom-gold/20 text-axiom-gold border border-axiom-gold/30">FINAL MODULE</span>
+                </h1>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <button id="audioToggleBtn" onclick="toggleAudio()" class="px-3 py-1.5 rounded-md text-xs font-mono bg-axiom-800 hover:bg-axiom-700 border border-axiom-600 flex items-center gap-2 transition-all">
+                <span id="audioIcon" class="w-2 h-2 rounded-full bg-axiom-rose"></span>
+                <span id="audioText">Audio: Muted</span>
+            </button>
+            <a href="chapter9.html" class="px-3 py-1.5 rounded-md text-xs font-mono bg-axiom-800 hover:bg-axiom-700 border border-axiom-600 transition-all text-gray-300 hover:text-white">
+                ← Chapter 9
+            </a>
+            <a href="#lab10-3" class="px-3 py-1.5 rounded-md text-xs font-mono bg-axiom-gold text-axiom-900 font-bold hover:brightness-110 shadow-lg shadow-axiom-gold/20 transition-all">
+                10 Laws Vault ↓
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-12">
+
+        <!-- Chapter Hero Banner -->
+        <section class="hud-glass rounded-2xl p-8 border border-axiom-700 relative overflow-hidden">
+            <div class="absolute -right-16 -top-16 w-80 h-80 bg-axiom-gold/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-16 -bottom-16 w-80 h-80 bg-axiom-accent/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="max-w-3xl relative z-10 space-y-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono bg-axiom-gold/10 text-axiom-gold border border-axiom-gold/30">
+                    <span class="animate-pulse">●</span> MASTER CURRICULUM CAPSTONE
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+                    The Systematic Operator's Code & Long-Term Longevity
+                </h2>
+                <p class="text-base text-gray-300 leading-relaxed">
+                    यह बाज़ार कोई स्प्रिंट नहीं, बल्कि एक असीम मैराथन है। एक उत्कृष्ट संस्थागत ट्रेडर वह नहीं है जो एक दिन में सबसे अधिक पैसा बनाता है, बल्कि वह है जिसे बाज़ार कभी बाहर नहीं निकाल पाता। <span class="text-axiom-gold font-semibold">ड्रॉडाउन सहनशीलता</span>, <span class="text-axiom-emerald font-semibold">मुनाफे की व्यवस्थित निकासी</span> और <span class="text-axiom-accent font-semibold">10 अटूट नियमों</span> के साथ अपने ट्रेडिंग करियर को अमर बनाएं।
+                </p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 text-xs font-mono">
+                    <div class="bg-axiom-900/60 p-3 rounded-lg border border-axiom-700">
+                        <div class="text-gray-400">ENDURANCE</div>
+                        <div class="text-axiom-gold font-bold text-sm mt-1">Multi-Tier Drawdown</div>
+                    </div>
+                    <div class="bg-axiom-900/60 p-3 rounded-lg border border-axiom-700">
+                        <div class="text-gray-400">WEALTH ENGINE</div>
+                        <div class="text-axiom-emerald font-bold text-sm mt-1">50/30/20 Extraction</div>
+                    </div>
+                    <div class="bg-axiom-900/60 p-3 rounded-lg border border-axiom-700">
+                        <div class="text-gray-400">THE 10 LAWS</div>
+                        <div class="text-axiom-accent font-bold text-sm mt-1">The Ironclad Vault</div>
+                    </div>
+                    <div class="bg-axiom-900/60 p-3 rounded-lg border border-axiom-700">
+                        <div class="text-gray-400">MASTER OATH</div>
+                        <div class="text-axiom-violet font-bold text-sm mt-1">Lifetime Certification</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LAB 10.1: MULTI-TIER DRAWDOWN STRESS & RUNWAY SIMULATOR -->
+        <section id="lab10-1" class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-axiom-700/80 pb-4">
+                <div>
+                    <div class="text-xs font-mono text-axiom-gold tracking-wider uppercase">Interactive Lab 10.1</div>
+                    <h3 class="text-xl font-bold text-white">Multi-Tier Drawdown Stress & Runway Engine</h3>
+                    <p class="text-sm text-gray-400">लगातार 10 नुकसानों के दौरान 1% अनुशासित रिस्क बनाम 3% आक्रामक रिस्क के जीवन काल (Survival Runway) की तुलना करें।</p>
+                </div>
+                <div class="flex items-center gap-2 font-mono text-xs">
+                    <button onclick="simulateLossRunway()" class="px-4 py-2 rounded-lg bg-axiom-gold text-axiom-900 font-bold hover:brightness-110 shadow-lg shadow-axiom-gold/20 transition-all">
+                        ⚡ Simulate 10 Consecutive Losses
+                    </button>
+                    <button onclick="resetRunwaySim()" class="px-3 py-2 rounded-lg bg-axiom-800 text-gray-300 border border-axiom-600 hover:bg-axiom-700 transition-all">
+                        Reset
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
+                <!-- Parameters Card -->
+                <div class="bg-axiom-900 p-5 rounded-xl border border-axiom-700 space-y-4">
+                    <div class="text-gray-300 font-bold uppercase text-[11px]">Endurance Parameters</div>
+                    <div class="space-y-3">
+                        <div>
+                            <div class="flex justify-between text-gray-400 mb-1">
+                                <span>Starting Capital:</span>
+                                <span class="text-white font-bold">₹10,00,000</span>
+                            </div>
+                        </div>
+                        <div class="p-3 bg-axiom-850 rounded border border-axiom-emerald/30 space-y-1">
+                            <span class="text-axiom-emerald font-bold">Model A: Institutional (1.0% Risk)</span>
+                            <div class="text-gray-400 text-[10px]">Tier-1 de-leveraging kicks in at -5%</div>
+                        </div>
+                        <div class="p-3 bg-axiom-850 rounded border border-axiom-rose/30 space-y-1">
+                            <span class="text-axiom-rose font-bold">Model B: Retail Gambler (3.0% Risk)</span>
+                            <div class="text-gray-400 text-[10px]">No de-leveraging; aggressive sizing</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Canvas Runway Chart -->
+                <div class="lg:col-span-2 bg-axiom-900 rounded-xl border border-axiom-700 p-4 canvas-container">
+                    <canvas id="runwayCanvas" width="700" height="260" class="w-full h-auto block rounded"></canvas>
+                    <div class="flex justify-between items-center mt-3 pt-2 border-t border-axiom-800 text-[11px]">
+                        <span class="text-axiom-emerald font-bold">Institutional Equity: <strong id="lblInstCap">₹10,00,000 (-0%)</strong></span>
+                        <span class="text-axiom-rose font-bold">Retail Gambler Equity: <strong id="lblRetCap">₹10,00,000 (-0%)</strong></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LAB 10.2: THE 50/30/20 WEALTH EXTRACTION ENGINE -->
+        <section id="lab10-2" class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-6">
+            <div class="border-b border-axiom-700/80 pb-4">
+                <div class="text-xs font-mono text-axiom-emerald tracking-wider uppercase">Interactive Lab 10.2</div>
+                <h3 class="text-xl font-bold text-white">The 50/30/20 Institutional Wealth Extraction Engine</h3>
+                <p class="text-sm text-gray-400">ट्रेडिंग खाते से नियमित मुनाफा निकालकर वास्तविक जीवन की संपत्तियों में लॉक करने का गणितीय मॉडल।</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
+                <div class="bg-axiom-900 p-5 rounded-xl border border-axiom-700 space-y-3">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Quarterly Net Trading Profit (₹):</label>
+                        <input type="number" id="inpProfit" value="400000" oninput="calculateExtraction()" class="w-full bg-axiom-850 border border-axiom-600 rounded p-2 text-axiom-gold font-bold text-base outline-none focus:border-axiom-gold">
+                    </div>
+                    <div class="p-3 bg-axiom-850 rounded border border-axiom-700 text-gray-400 text-[11px] leading-relaxed">
+                        त्रैमासिक मुनाफे को ट्रेडिंग टर्मिनल में छोड़ने के बजाय तुरंत तीन अलग-अलग बकेट्स में विभाजित करें।
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 bg-axiom-900 p-5 rounded-xl border border-axiom-700 grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+                    <!-- Bucket 1: 50% -->
+                    <div class="p-4 bg-axiom-850 rounded-xl border-2 border-axiom-emerald/40 text-center space-y-1">
+                        <div class="text-gray-400 text-[10px]">50% HARD ASSETS</div>
+                        <div id="extAssets" class="text-xl font-black text-axiom-emerald">₹2,00,000</div>
+                        <div class="text-gray-400 text-[10px]">Real Estate / Debt Funds</div>
+                        <div class="text-[9px] text-axiom-emerald font-bold mt-1">Permanently Removed</div>
+                    </div>
+
+                    <!-- Bucket 2: 30% -->
+                    <div class="p-4 bg-axiom-850 rounded-xl border-2 border-axiom-accent/40 text-center space-y-1">
+                        <div class="text-gray-400 text-[10px]">30% SAFETY RESERVE</div>
+                        <div id="extReserve" class="text-xl font-black text-axiom-accent">₹1,20,000</div>
+                        <div class="text-gray-400 text-[10px]">High-Yield Liquid Bank</div>
+                        <div class="text-[9px] text-axiom-accent font-bold mt-1">Black-Swan Shield</div>
+                    </div>
+
+                    <!-- Bucket 3: 20% -->
+                    <div class="p-4 bg-axiom-850 rounded-xl border-2 border-axiom-gold/40 text-center space-y-1">
+                        <div class="text-gray-400 text-[10px]">20% COMPOUNDING</div>
+                        <div id="extCompound" class="text-xl font-black text-axiom-gold">₹80,000</div>
+                        <div class="text-gray-400 text-[10px]">Base Account Buffer</div>
+                        <div class="text-[9px] text-axiom-gold font-bold mt-1">Scales Up Lot Sizes</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LAB 10.3: THE 10 UNBREAKABLE LAWS VAULT -->
+        <section id="lab10-3" class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-6">
+            <div class="border-b border-axiom-700/80 pb-4">
+                <div class="text-xs font-mono text-axiom-accent tracking-wider uppercase">Interactive Lab 10.3</div>
+                <h3 class="text-xl font-bold text-white">The 10 Unbreakable Laws of the Systematic Operator</h3>
+                <p class="text-sm text-gray-400">इन 10 नियमों पर क्लिक करें और प्रत्येक संस्थागत सिद्धांत के मूल उद्देश्य को अनलॉक करें।</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 font-mono text-xs" id="lawsGrid">
+                <!-- Populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- MASTER CAPSTONE GRADUATION OATH -->
+        <section class="hud-glass rounded-2xl p-8 border-2 border-axiom-gold/50 space-y-6 text-center relative overflow-hidden">
+            <div class="max-w-2xl mx-auto space-y-4">
+                <div class="w-14 h-14 mx-auto rounded-full bg-axiom-gold/20 border-2 border-axiom-gold flex items-center justify-center text-axiom-gold text-2xl shadow-lg shadow-axiom-gold/20">
+                    📜
+                </div>
+                <h3 class="text-2xl font-black text-white uppercase tracking-wider">
+                    The Axiom Lab Master Operator's Oath
+                </h3>
+                <p class="text-sm text-gray-300 leading-relaxed italic">
+                    "मैं यह स्वीकार करता हूँ कि वित्तीय बाज़ार मेरे नियंत्रण में नहीं है, लेकिन मेरा जोखिम, मेरा मानसिक संतुलन और मेरा अनुशासन पूरी तरह मेरे नियंत्रण में है। मैं कभी भी एक ट्रेड पर 1% से अधिक का जोखिम नहीं लूंगा, कभी भी रिवेंज मोड में नहीं जाऊंगा, और हमेशा परिणाम के बजाय निष्पादन की शुद्धता को अपनी सच्ची जीत मानूंगा।"
+                </p>
+                <div class="pt-4">
+                    <button onclick="signGraduationOath()" id="btnOath" class="px-6 py-3 rounded-xl bg-axiom-gold text-axiom-900 font-extrabold text-sm hover:brightness-110 shadow-xl shadow-axiom-gold/20 transition-all">
+                        ✍️ Sign & Seal Master Certification
+                    </button>
+                    <div id="oathSeal" class="hidden mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-axiom-emerald/20 text-axiom-emerald border border-axiom-emerald/40 font-mono text-xs font-bold animate-pulse">
+                        ✓ CERTIFIED INSTITUTIONAL SYSTEMATIC OPERATOR • THE AXIOM LAB
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        let audioCtx = null;
+        let audioMuted = true;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function toggleAudio() {
+            initAudio();
+            audioMuted = !audioMuted;
+            const icon = document.getElementById('audioIcon');
+            const txt = document.getElementById('audioText');
+            if (audioMuted) {
+                icon.className = 'w-2 h-2 rounded-full bg-axiom-rose';
+                txt.innerText = 'Audio: Muted';
+            } else {
+                icon.className = 'w-2 h-2 rounded-full bg-axiom-emerald animate-pulse';
+                txt.innerText = 'Audio: Active';
+                playChime(660, 0.1, 'sine');
+            }
+        }
+
+        function playChime(freq, dur, type='sine') {
+            if (audioMuted || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + dur);
+            } catch(e){}
+        }
+
+        // LAB 10.1: Runway Simulator
+        const rCanvas = document.getElementById('runwayCanvas');
+        const rCtx = rCanvas.getContext('2d');
+
+        function simulateLossRunway() {
+            initAudio();
+            playChime(554, 0.2, 'triangle');
+
+            let instCap = 1000000;
+            let retCap = 1000000;
+
+            const instPoints = [instCap];
+            const retPoints = [retCap];
+
+            for (let i = 1; i <= 10; i++) {
+                // Institutional: 1% risk initially, drops to 0.5% after 5% DD
+                const instRiskPct = (instCap < 950000) ? 0.005 : 0.01;
+                instCap -= instCap * instRiskPct;
+                instPoints.push(instCap);
+
+                // Retail: Constant 3% aggressive risk
+                retCap -= retCap * 0.03;
+                retPoints.push(retCap);
+            }
+
+            const instDD = ((1000000 - instCap) / 1000000) * 100;
+            const retDD = ((1000000 - retCap) / 1000000) * 100;
+
+            document.getElementById('lblInstCap').innerText = `₹${Math.round(instCap).toLocaleString()} (-${instDD.toFixed(1)}%)`;
+            document.getElementById('lblRetCap').innerText = `₹${Math.round(retCap).toLocaleString()} (-${retDD.toFixed(1)}%)`;
+
+            drawRunwayChart(instPoints, retPoints);
+        }
+
+        function resetRunwaySim() {
+            drawRunwayChart([1000000], [1000000]);
+            document.getElementById('lblInstCap').innerText = "₹10,00,000 (-0%)";
+            document.getElementById('lblRetCap').innerText = "₹10,00,000 (-0%)";
+        }
+
+        function drawRunwayChart(instPts, retPts) {
+            rCtx.clearRect(0, 0, rCanvas.width, rCanvas.height);
+
+            // Grid
+            rCtx.strokeStyle = '#161b22';
+            rCtx.lineWidth = 1;
+            for(let x=0; x<rCanvas.width; x+=45) {
+                rCtx.beginPath(); rCtx.moveTo(x,0); rCtx.lineTo(x,rCanvas.height); rCtx.stroke();
+            }
+            for(let y=0; y<rCanvas.height; y+=35) {
+                rCtx.beginPath(); rCtx.moveTo(0,y); rCtx.lineTo(rCanvas.width,y); rCtx.stroke();
+            }
+
+            const minVal = 700000, maxVal = 1020000;
+            function getY(val) {
+                return rCanvas.height - 25 - ((val - minVal) / (maxVal - minVal)) * (rCanvas.height - 50);
+            }
+
+            const stepX = (rCanvas.width - 60) / 10;
+
+            // Plot Retail (Red)
+            rCtx.strokeStyle = '#f43f5e';
+            rCtx.lineWidth = 2.5;
+            rCtx.beginPath();
+            retPts.forEach((v, i) => {
+                const x = 40 + i * stepX;
+                const y = getY(v);
+                if (i === 0) rCtx.moveTo(x, y);
+                else rCtx.lineTo(x, y);
+            });
+            rCtx.stroke();
+
+            // Plot Institutional (Green)
+            rCtx.strokeStyle = '#10b981';
+            rCtx.lineWidth = 2.5;
+            rCtx.beginPath();
+            instPts.forEach((v, i) => {
+                const x = 40 + i * stepX;
+                const y = getY(v);
+                if (i === 0) rCtx.moveTo(x, y);
+                else rCtx.lineTo(x, y);
+            });
+            rCtx.stroke();
+        }
+
+        // LAB 10.2: Extraction Calculator
+        function calculateExtraction() {
+            const profit = parseFloat(document.getElementById('inpProfit').value) || 0;
+            const hardAssets = profit * 0.50;
+            const reserve = profit * 0.30;
+            const compound = profit * 0.20;
+
+            document.getElementById('extAssets').innerText = '₹' + Math.round(hardAssets).toLocaleString();
+            document.getElementById('extReserve').innerText = '₹' + Math.round(reserve).toLocaleString();
+            document.getElementById('extCompound').innerText = '₹' + Math.round(compound).toLocaleString();
+        }
+
+        // LAB 10.3: 10 Laws Vault
+        const laws = [
+            { num: "01", title: "Law of Invalidation", desc: "प्रवेश से पहले पता होना चाहिए कि सेटअप कब अमान्य माना जाएगा।" },
+            { num: "02", title: "Law of Asymmetric Risk", desc: "हमेशा न्यूनतम 1:3 RRR वाले सेटअप्स पर ही पूंजी लगाएं।" },
+            { num: "03", title: "Law of Fixed Fractional Exposure", desc: "प्रति ट्रेड अधिकतम जोखिम 1% पर सीमित रखें।" },
+            { num: "04", title: "Law of Interbank Killzones", desc: "केवल उच्च-वॉल्यूम लिक्विडिटी इंजेक्शन के समय ही ट्रेड करें।" },
+            { num: "05", title: "Law of Confirmation", desc: "तल या शीर्ष की भविष्यवाणी न करें; केवल प्रतिक्रिया दें।" },
+            { num: "06", title: "Law of No Counter-Trend Impulse", desc: "हायर टाइमफ्रेम लिक्विडिटी के खिलाफ कभी खड़े न हों।" },
+            { num: "07", title: "Law of Outcome Independence", desc: "परिणाम से नहीं, केवल प्रक्रिया के अनुपालन से स्वयं को मापें।" },
+            { num: "08", title: "Law of the Circuit Breaker", desc: "2 लगातार स्टॉप-लॉस के बाद टर्मिनल को अनिवार्य रूप से बंद करें।" },
+            { num: "09", title: "Law of SMT Correlation", desc: "सहसंबंधित दरार में कमजोर को बेचें और मजबूत को खरीदें।" },
+            { num: "10", title: "Law of Longevity", desc: "बाज़ार कल भी रहेगा; सुनिश्चित करें कि आपकी पूंजी भी रहे।" }
+        ];
+
+        function buildLawsGrid() {
+            const grid = document.getElementById('lawsGrid');
+            grid.innerHTML = '';
+            laws.forEach((l) => {
+                const div = document.createElement('div');
+                div.className = "p-3.5 bg-axiom-900 rounded-xl border border-axiom-700 hover:border-axiom-gold transition-all cursor-pointer flex gap-3 items-start";
+                div.onclick = () => {
+                    initAudio();
+                    playChime(660, 0.1, 'sine');
+                };
+                div.innerHTML = `
+                    <span class="px-2 py-0.5 rounded bg-axiom-gold/20 text-axiom-gold font-bold text-xs">${l.num}</span>
+                    <div>
+                        <div class="text-white font-bold text-sm">${l.title}</div>
+                        <div class="text-gray-400 text-[11px] mt-0.5 leading-relaxed">${l.desc}</div>
+                    </div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        function signGraduationOath() {
+            initAudio();
+            playChime(880, 0.6, 'sine');
+            document.getElementById('btnOath').className = "hidden";
+            document.getElementById('oathSeal').className = "inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-axiom-emerald/20 text-axiom-emerald border border-axiom-emerald/40 font-mono text-sm font-extrabold animate-pulse shadow-xl shadow-axiom-emerald/20";
+        }
+
+        window.addEventListener('load', () => {
+            simulateLossRunway();
+            calculateExtraction();
+            buildLawsGrid();
+        });
+    </script>
+</body>
+</html>

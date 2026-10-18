@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="hi" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Axiom Lab | Chapter 1: The Matrix of Financial Markets</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            obsidian: '#080b11',
+            charcoal: '#0f1420',
+            surface: '#151c2c',
+            surfaceBorder: '#232f48',
+            smartEmerald: '#10b981',
+            retailRose: '#f43f5e',
+            axiomGold: '#f59e0b',
+            cyberCyan: '#06b6d4',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #080b11;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #232f48;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #10b981;
+    }
+
+    .glass-card {
+      background: rgba(15, 20, 32, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(35, 47, 72, 0.8);
+    }
+    .glass-card-hover {
+      transition: all 0.25s ease-in-out;
+    }
+    .glass-card-hover:hover {
+      border-color: rgba(6, 182, 212, 0.4);
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+    }
+    .glow-emerald {
+      box-shadow: 0 0 25px -5px rgba(16, 185, 129, 0.25);
+    }
+    .glow-rose {
+      box-shadow: 0 0 25px -5px rgba(244, 63, 94, 0.25);
+    }
+    .glow-cyan {
+      box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.25);
+    }
+  </style>
+</head>
+
+<body class="bg-obsidian text-slate-200 font-sans min-h-screen selection:bg-smartEmerald selection:text-black">
+
+  <!-- Top Progress Bar -->
+  <div id="scrollProgress" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-cyberCyan via-smartEmerald to-axiomGold z-50 transition-all duration-75 w-0"></div>
+
+  <!-- Header / Nav -->
+  <header class="sticky top-0 z-40 glass-card border-b border-surfaceBorder/80 px-4 sm:px-8 py-3.5 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-cyberCyan to-smartEmerald flex items-center justify-center font-mono font-black text-black text-base shadow-lg shadow-smartEmerald/20">
+        Ω
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="font-mono text-xs text-cyberCyan tracking-widest font-semibold uppercase">The Axiom Lab</span>
+          <span class="px-1.5 py-0.5 text-[10px] font-mono rounded bg-smartEmerald/10 text-smartEmerald border border-smartEmerald/30">Ch. 01 Portal</span>
+        </div>
+        <h1 class="text-xs sm:text-sm font-semibold tracking-wide text-slate-100 hidden sm:block">Smart Money Concepts & Neuro-Psychology</h1>
+      </div>
+    </div>
+
+    <!-- Nav Items -->
+    <nav class="hidden md:flex items-center gap-6 text-xs font-mono text-slate-400">
+      <a href="#overview" class="hover:text-cyberCyan transition-colors">01. Overview</a>
+      <a href="#hierarchy" class="hover:text-cyberCyan transition-colors">02. Food Chain</a>
+      <a href="#mirage" class="hover:text-cyberCyan transition-colors">03. Retail Mirage</a>
+      <a href="#simulator" class="hover:text-smartEmerald transition-colors flex items-center gap-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-smartEmerald animate-pulse"></span> Trap Simulator
+      </a>
+      <a href="#monte-carlo" class="hover:text-axiomGold transition-colors">04. Probability</a>
+      <a href="#audit" class="hover:text-slate-100 transition-colors">05. Audit</a>
+    </nav>
+
+    <!-- Controls -->
+    <div class="flex items-center gap-2">
+      <button id="soundToggle" onclick="toggleAudio()" class="px-2.5 py-1.5 rounded-md border border-surfaceBorder bg-surface text-slate-300 hover:text-smartEmerald transition-colors text-xs font-mono flex items-center gap-1.5">
+        <svg id="soundIcon" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path></svg>
+        <span id="soundLabel">SFX: ON</span>
+      </button>
+
+      <button onclick="window.print()" class="px-2.5 py-1.5 rounded-md border border-surfaceBorder bg-surface text-slate-300 hover:text-cyberCyan transition-colors text-xs font-mono flex items-center gap-1.5" title="Print/Export Chapter Notes">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4H7v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+        <span class="hidden sm:inline">PDF Notes</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
+
+    <!-- Hero Section -->
+    <section id="overview" class="relative pt-4 pb-2">
+      <div class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-smartEmerald/10 via-obsidian to-obsidian"></div>
+      
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyberCyan/10 border border-cyberCyan/30 text-cyberCyan text-xs font-mono mb-4">
+        <span class="w-2 h-2 rounded-full bg-cyberCyan animate-ping"></span>
+        INSTITUTIONAL PLAYBOOK // CHAPTER 01
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-8 space-y-4">
+          <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+            The Matrix of <span class="text-transparent bg-clip-text bg-gradient-to-r from-smartEmerald via-cyberCyan to-axiomGold">Financial Markets</span>
+          </h1>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+            मार्केट कोई निष्पक्ष खेल का मैदान नहीं है। यह <span class="text-smartEmerald font-semibold">शिकारियों (Institutions)</span> और <span class="text-retailRose font-semibold">शिकार (Retail Herd)</span> का एक सुव्यवस्थित ईकोसिस्टम है। यहाँ प्राइस इंडिकेटर्स पर नहीं, बल्कि केवल एक चीज़ पर चलती है: <strong class="text-white">अस्तित्व की लिक्विडिटी (Liquidity Extraction)</strong>।
+          </p>
+
+          <blockquote class="border-l-2 border-axiomGold pl-4 py-1 text-slate-400 italic text-xs sm:text-sm bg-surface/40 rounded-r">
+            "यदि आप पोकर टेबल पर बैठे हैं और आधे घंटे में यह नहीं जान पाए कि 'मुर्गा' (Patsy) कौन है, तो समझ लीजिए कि वह 'मुर्गा' आप ही हैं।"
+            <span class="block text-axiomGold font-mono not-italic text-xs mt-1">— Warren Buffett</span>
+          </blockquote>
+
+          <div class="flex flex-wrap gap-2 pt-2">
+            <span class="px-2.5 py-1 text-xs rounded bg-surface border border-surfaceBorder text-slate-300 font-mono">Zero-Sum Mechanics</span>
+            <span class="px-2.5 py-1 text-xs rounded bg-surface border border-surfaceBorder text-slate-300 font-mono">Orderflow Liquidity</span>
+            <span class="px-2.5 py-1 text-xs rounded bg-surface border border-surfaceBorder text-slate-300 font-mono">Retail Trap Engineering</span>
+            <span class="px-2.5 py-1 text-xs rounded bg-surface border border-surfaceBorder text-slate-300 font-mono">Neuro-Biological Biases</span>
+          </div>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="lg:col-span-4 grid grid-cols-2 gap-3">
+          <div class="glass-card p-4 rounded-xl border border-surfaceBorder">
+            <span class="text-[10px] font-mono text-retailRose uppercase tracking-wider block">Retail Failure Rate</span>
+            <span class="text-2xl sm:text-3xl font-mono font-bold text-white mt-1 block">92.4%</span>
+            <span class="text-[11px] text-slate-400 mt-1 block leading-tight">SEBI & ESMA audited report data</span>
+          </div>
+
+          <div class="glass-card p-4 rounded-xl border border-surfaceBorder">
+            <span class="text-[10px] font-mono text-smartEmerald uppercase tracking-wider block">Daily Interbank Vol</span>
+            <span class="text-2xl sm:text-3xl font-mono font-bold text-white mt-1 block">$7.5T+</span>
+            <span class="text-[11px] text-slate-400 mt-1 block leading-tight">FX & Index daily order execution</span>
+          </div>
+
+          <div class="glass-card p-4 rounded-xl border border-surfaceBorder">
+            <span class="text-[10px] font-mono text-cyberCyan uppercase tracking-wider block">Avg Execution Delay</span>
+            <span class="text-2xl sm:text-3xl font-mono font-bold text-white mt-1 block">0.8ms</span>
+            <span class="text-[11px] text-slate-400 mt-1 block leading-tight">HFT algorithms latency edge</span>
+          </div>
+
+          <div class="glass-card p-4 rounded-xl border border-surfaceBorder">
+            <span class="text-[10px] font-mono text-axiomGold uppercase tracking-wider block">Minimum Target RRR</span>
+            <span class="text-2xl sm:text-3xl font-mono font-bold text-white mt-1 block">1:3.0</span>
+            <span class="text-[11px] text-slate-400 mt-1 block leading-tight">Asymmetric math requirement</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 1: The Liquidity Food Chain Interactive Hierarchy -->
+    <section id="hierarchy" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-surfaceBorder pb-3">
+        <div>
+          <span class="text-xs font-mono text-smartEmerald uppercase">Module 1.1</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-white">The Liquidity Food Chain (खाद्य श्रृंखला)</h2>
+        </div>
+        <p class="text-xs text-slate-400 font-mono">Click each tier to uncover their hidden execution mechanics</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Interactive Hierarchy Column -->
+        <div class="lg:col-span-5 space-y-2.5">
+          <!-- Tier 1 -->
+          <div onclick="selectTier(0)" id="tierBtn-0" class="cursor-pointer p-4 rounded-xl border border-smartEmerald/40 bg-surface/90 transition-all duration-200 hover:border-smartEmerald flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded-lg bg-smartEmerald/20 text-smartEmerald font-mono font-bold flex items-center justify-center text-xs">T1</span>
+              <div>
+                <h3 class="text-sm font-semibold text-white">Central Banks</h3>
+                <p class="text-xs text-slate-400">Fed, ECB, RBI, BoJ</p>
+              </div>
+            </div>
+            <span class="text-xs font-mono text-smartEmerald">Policy Makers</span>
+          </div>
+
+          <!-- Tier 2 -->
+          <div onclick="selectTier(1)" id="tierBtn-1" class="cursor-pointer p-4 rounded-xl border border-surfaceBorder bg-surface/50 transition-all duration-200 hover:border-cyberCyan flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded-lg bg-cyberCyan/20 text-cyberCyan font-mono font-bold flex items-center justify-center text-xs">T2</span>
+              <div>
+                <h3 class="text-sm font-semibold text-white">Tier-1 Market Makers</h3>
+                <p class="text-xs text-slate-400">JPMorgan, Goldman Sachs, Citadel</p>
+              </div>
+            </div>
+            <span class="text-xs font-mono text-cyberCyan">Liquidity Architects</span>
+          </div>
+
+          <!-- Tier 3 -->
+          <div onclick="selectTier(2)" id="tierBtn-2" class="cursor-pointer p-4 rounded-xl border border-surfaceBorder bg-surface/50 transition-all duration-200 hover:border-axiomGold flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded-lg bg-axiomGold/20 text-axiomGold font-mono font-bold flex items-center justify-center text-xs">T3</span>
+              <div>
+                <h3 class="text-sm font-semibold text-white">Institutional Desks & Funds</h3>
+                <p class="text-xs text-slate-400">Hedge Funds, Prop Desks, Mutual Funds</p>
+              </div>
+            </div>
+            <span class="text-xs font-mono text-axiomGold">Volume Drivers</span>
+          </div>
+
+          <!-- Tier 4 -->
+          <div onclick="selectTier(3)" id="tierBtn-3" class="cursor-pointer p-4 rounded-xl border border-surfaceBorder bg-surface/50 transition-all duration-200 hover:border-retailRose flex items-center justify-between">
+            <div class="flex items-center gap-3">
+              <span class="w-7 h-7 rounded-lg bg-retailRose/20 text-retailRose font-mono font-bold flex items-center justify-center text-xs">T4</span>
+              <div>
+                <h3 class="text-sm font-semibold text-white">Retail Herd (You & Me)</h3>
+                <p class="text-xs text-slate-400">Telegram signals, Chart pattern traders</p>
+              </div>
+            </div>
+            <span class="text-xs font-mono text-retailRose">The Liquidity Fuel</span>
+          </div>
+        </div>
+
+        <!-- Detailed Tier Breakdown Card -->
+        <div class="lg:col-span-7 glass-card p-6 rounded-2xl border border-surfaceBorder min-h-[340px] flex flex-col justify-between" id="tierDetailCard">
+          <!-- Dynamic Content rendered via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: The Zero-Sum & Negative-Sum Friction Visualizer -->
+    <section class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-surfaceBorder pb-3">
+        <div>
+          <span class="text-xs font-mono text-axiomGold uppercase">Module 1.2</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-white">The Zero-Sum Reality & Friction Leakage</h2>
+        </div>
+        <span class="text-xs text-slate-400 font-mono">Mathematical Wealth Drain Visualizer</span>
+      </div>
+
+      <div class="glass-card p-6 rounded-2xl border border-surfaceBorder grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-6 space-y-4">
+          <p class="text-slate-300 text-sm leading-relaxed">
+            जब आप ₹20,000 का लॉस करते हैं, तो वह पैसा हवा में गायब नहीं होता। वह तुरंत किसी और के खाते में ट्रांसफर होता है। लेकिन वास्तविक जीवन में ट्रेडिंग <strong class="text-retailRose">Negative-Sum Game</strong> है क्योंकि हर ट्रांजैक्शन पर ब्रोकरेज, STT, एक्सचेंज फीस और स्लिपेज का घर्षण (friction) लगता है।
+          </p>
+
+          <div class="space-y-3 bg-surface/60 p-4 rounded-xl border border-surfaceBorder">
+            <div class="flex justify-between items-center text-xs font-mono">
+              <span class="text-slate-300">Simulate Monthly Retail Turnover:</span>
+              <span id="turnoverValue" class="text-cyberCyan font-bold">₹10,00,000</span>
+            </div>
+            <input type="range" id="turnoverSlider" min="100000" max="5000000" step="50000" value="1000000" oninput="updateFrictionVisualizer()" class="w-full accent-smartEmerald cursor-pointer">
+            <div class="flex justify-between text-[10px] font-mono text-slate-500">
+              <span>₹1 Lakh</span>
+              <span>₹25 Lakh</span>
+              <span>₹50 Lakh</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-6 grid grid-cols-3 gap-3">
+          <div class="p-4 rounded-xl bg-surface/80 border border-surfaceBorder text-center">
+            <span class="text-[10px] font-mono text-slate-400 uppercase block">Government & STT</span>
+            <span id="sttCost" class="text-lg font-mono font-bold text-axiomGold mt-2 block">₹1,250</span>
+            <span class="text-[10px] text-slate-500 mt-1 block">Taxes & Stamp duty</span>
+          </div>
+
+          <div class="p-4 rounded-xl bg-surface/80 border border-surfaceBorder text-center">
+            <span class="text-[10px] font-mono text-slate-400 uppercase block">Broker & Exchange</span>
+            <span id="brokerCost" class="text-lg font-mono font-bold text-cyberCyan mt-2 block">₹2,400</span>
+            <span class="text-[10px] text-slate-500 mt-1 block">Turnover charges</span>
+          </div>
+
+          <div class="p-4 rounded-xl bg-surface/80 border border-surfaceBorder text-center">
+            <span class="text-[10px] font-mono text-slate-400 uppercase block">Smart Money Extraction</span>
+            <span id="alphaExtraction" class="text-lg font-mono font-bold text-smartEmerald mt-2 block">₹35,000</span>
+            <span class="text-[10px] text-slate-500 mt-1 block">Institutional Orderflow</span>
+          </div>
+
+          <div class="col-span-3 p-3 rounded-lg bg-retailRose/10 border border-retailRose/30 flex items-center justify-between text-xs font-mono text-rose-300">
+            <span>Guaranteed Friction Loss Before Even Predicting Market:</span>
+            <span id="totalFriction" class="font-bold">₹3,650 / Month</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: The Retail Mirage Interactive Comparison Matrix -->
+    <section id="mirage" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-surfaceBorder pb-3">
+        <div>
+          <span class="text-xs font-mono text-cyberCyan uppercase">Module 1.3</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-white">The Retail Mirage: Perception vs. Reality</h2>
+        </div>
+        <span class="text-xs text-slate-400 font-mono">Why Classic Patterns Get Murdered</span>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Mirage Card 1 -->
+        <div class="glass-card glass-card-hover p-5 rounded-2xl border border-surfaceBorder space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono px-2 py-0.5 rounded bg-retailRose/10 text-retailRose border border-retailRose/30">Trap Setup 01</span>
+            <span class="text-xs font-mono text-slate-400">Classic Technical</span>
+          </div>
+          <h3 class="text-base font-bold text-white">The "Mighty" Double Top</h3>
+          
+          <div class="space-y-2 text-xs">
+            <div class="p-2.5 rounded bg-retailRose/5 border border-retailRose/20">
+              <span class="text-retailRose font-mono font-bold block mb-0.5">रिटेल ट्रेडर क्या सोचता है:</span>
+              <p class="text-slate-300">"दो बार लेवल टेस्ट हुआ है, यह मजबूत रेजिस्टेंस है। यहाँ सेल करो और स्टॉप 10 पॉइंट ऊपर लगाओ।"</p>
+            </div>
+            <div class="p-2.5 rounded bg-smartEmerald/5 border border-smartEmerald/20">
+              <span class="text-smartEmerald font-mono font-bold block mb-0.5">स्मार्ट मनी क्या करती है:</span>
+              <p class="text-slate-300">"इक्वल हाई के ठीक ऊपर लाखों बाय-स्टॉप्स (BSL) हैं। प्राइस को ऊपर पंप करके स्टॉप्स खाओ, फिर हेवी सेलिंग शुरू करो।"</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mirage Card 2 -->
+        <div class="glass-card glass-card-hover p-5 rounded-2xl border border-surfaceBorder space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono px-2 py-0.5 rounded bg-retailRose/10 text-retailRose border border-retailRose/30">Trap Setup 02</span>
+            <span class="text-xs font-mono text-slate-400">Trendline Phantom</span>
+          </div>
+          <h3 class="text-base font-bold text-white">The Diagonal Trendline</h3>
+          
+          <div class="space-y-2 text-xs">
+            <div class="p-2.5 rounded bg-retailRose/5 border border-retailRose/20">
+              <span class="text-retailRose font-mono font-bold block mb-0.5">रिटेल ट्रेडर क्या सोचता है:</span>
+              <p class="text-slate-300">"तीसरी बार ट्रेंडलाइन को टच कर रहा है, परफेक्ट बाउंस आएगा! बाय ऑर्डर्स डालो।"</p>
+            </div>
+            <div class="p-2.5 rounded bg-smartEmerald/5 border border-smartEmerald/20">
+              <span class="text-smartEmerald font-mono font-bold block mb-0.5">स्मार्ट मनी क्या करती है:</span>
+              <p class="text-slate-300">"ट्रेंडलाइन एक लिक्विडिटी रनवे है। उसके नीचे रिटेल के स्टॉप्स का समंदर है। एक तेज लिक्विडिटी फ्लश से सभी को बाहर करो।"</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mirage Card 3 -->
+        <div class="glass-card glass-card-hover p-5 rounded-2xl border border-surfaceBorder space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-mono px-2 py-0.5 rounded bg-retailRose/10 text-retailRose border border-retailRose/30">Trap Setup 03</span>
+            <span class="text-xs font-mono text-slate-400">Lagging Oscillator</span>
+          </div>
+          <h3 class="text-base font-bold text-white">RSI Overbought (>70)</h3>
+          
+          <div class="space-y-2 text-xs">
+            <div class="p-2.5 rounded bg-retailRose/5 border border-retailRose/20">
+              <span class="text-retailRose font-mono font-bold block mb-0.5">रिटेल ट्रेडर क्या सोचता है:</span>
+              <p class="text-slate-300">"RSI 75 पहुँच गया! मार्केट बहुत महँगा हो गया है, तुरंत शॉर्ट करो।"</p>
+            </div>
+            <div class="p-2.5 rounded bg-smartEmerald/5 border border-smartEmerald/20">
+              <span class="text-smartEmerald font-mono font-bold block mb-0.5">स्मार्ट मनी क्या करती है:</span>
+              <p class="text-slate-300">"हाई मोमेंटम एक्सपेंशन में RSI कई दिनों तक ओवरबॉट रह सकता है। अर्ली शॉर्टर्स के स्टॉप्स ही हमारे अपट्रेंड का पेट्रोल हैं।"</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Live Hands-on Practice Simulator 1 (The Candlestick Trap Canvas) -->
+    <section id="simulator" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-surfaceBorder pb-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-mono text-smartEmerald uppercase">Interactive Lab 01</span>
+            <span class="px-2 py-0.5 text-[10px] rounded-full bg-smartEmerald/20 text-smartEmerald font-mono animate-pulse">Live Simulator</span>
+          </div>
+          <h2 class="text-xl sm:text-2xl font-bold text-white">The Candlestick Liquidity Trap Simulator</h2>
+        </div>
+        <p class="text-xs text-slate-400 font-mono">BankNifty / Gold Index Case Study: ₹48,000 Resistance Zone</p>
+      </div>
+
+      <div class="glass-card p-6 rounded-2xl border border-surfaceBorder space-y-6">
+        <!-- Interactive Controls Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-4 bg-surface/70 p-4 rounded-xl border border-surfaceBorder">
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="setSimStage(1)" id="stageBtn-1" class="px-3 py-1.5 rounded-lg text-xs font-mono border border-smartEmerald bg-smartEmerald/10 text-smartEmerald font-semibold transition-all">Step 1: The Bait</button>
+            <button onclick="setSimStage(2)" id="stageBtn-2" class="px-3 py-1.5 rounded-lg text-xs font-mono border border-surfaceBorder bg-surface text-slate-400 hover:text-white transition-all">Step 2: Retail Trapped</button>
+            <button onclick="setSimStage(3)" id="stageBtn-3" class="px-3 py-1.5 rounded-lg text-xs font-mono border border-surfaceBorder bg-surface text-slate-400 hover:text-white transition-all">Step 3: The Judas Sweep</button>
+            <button onclick="setSimStage(4)" id="stageBtn-4" class="px-3 py-1.5 rounded-lg text-xs font-mono border border-surfaceBorder bg-surface text-slate-400 hover:text-white transition-all">Step 4: Smart Money Dump</button>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="playAutoSimulation()" id="autoPlayBtn" class="px-3 py-1.5 rounded-lg text-xs font-mono bg-cyberCyan/20 border border-cyberCyan text-cyberCyan hover:bg-cyberCyan hover:text-black transition-all flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
+              Auto Play
+            </button>
+            <button onclick="resetSimulation()" class="px-3 py-1.5 rounded-lg text-xs font-mono bg-surface border border-surfaceBorder text-slate-400 hover:text-white transition-all">Reset</button>
+          </div>
+        </div>
+
+        <!-- Canvas Container -->
+        <div class="relative w-full h-[400px] bg-obsidian rounded-xl overflow-hidden border border-surfaceBorder/80">
+          <canvas id="chartCanvas" class="w-full h-full block"></canvas>
+          
+          <!-- Live Overlay Tooltip -->
+          <div id="chartTooltip" class="absolute top-4 left-4 max-w-sm p-3 rounded-lg glass-card border border-surfaceBorder pointer-events-none transition-all duration-300 opacity-90">
+            <span id="tooltipBadge" class="text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-smartEmerald/20 text-smartEmerald">Phase 1</span>
+            <h4 id="tooltipTitle" class="text-xs font-bold text-white mt-1">Forming the Double Top Bait</h4>
+            <p id="tooltipDesc" class="text-[11px] text-slate-300 mt-1 leading-snug">Price hits the ₹48,000 level twice, creating an apparent clean resistance level for retail retail eyes.</p>
+          </div>
+
+          <!-- Price Scale Legend -->
+          <div class="absolute right-3 top-3 text-[10px] font-mono text-slate-500 space-y-1 text-right pointer-events-none">
+            <div class="text-axiomGold">₹48,150 (BSL Pool)</div>
+            <div class="text-retailRose">₹48,000 (Retail Resistance)</div>
+            <div class="text-slate-400">₹47,600 (Equilibrium)</div>
+            <div class="text-smartEmerald">₹47,200 (Discount Target)</div>
+          </div>
+        </div>
+
+        <!-- Decision Interactive Playground: Retail vs SMC Mode -->
+        <div class="p-5 rounded-xl bg-surface/50 border border-surfaceBorder grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+          <div class="space-y-2">
+            <span class="text-xs font-mono text-axiomGold uppercase tracking-wide">Test Your Execution Muscle</span>
+            <h3 class="text-base font-bold text-white">How would you trade the break above ₹48,000?</h3>
+            <p class="text-xs text-slate-400">कैंडल ने रेजिस्टेंस ब्रेक कर दिया है। आपकी अगली चाल क्या होगी?</p>
+          </div>
+
+          <div class="flex flex-col sm:flex-row gap-3">
+            <button onclick="userTakeTrade('retail')" class="flex-1 p-3 rounded-xl border border-retailRose/40 bg-retailRose/10 hover:bg-retailRose/20 text-retailRose font-mono text-xs text-left transition-all group">
+              <div class="font-bold flex items-center justify-between">
+                <span>Option A: Buy Breakout</span>
+                <span class="text-slate-400 group-hover:translate-x-1 transition-transform">→</span>
+              </div>
+              <span class="text-[11px] text-slate-400 block mt-1">"Breakout confirmed, buy market order!"</span>
+            </button>
+
+            <button onclick="userTakeTrade('smc')" class="flex-1 p-3 rounded-xl border border-smartEmerald/40 bg-smartEmerald/10 hover:bg-smartEmerald/20 text-smartEmerald font-mono text-xs text-left transition-all group">
+              <div class="font-bold flex items-center justify-between">
+                <span>Option B: Wait for Sweep</span>
+                <span class="text-slate-400 group-hover:translate-x-1 transition-transform">→</span>
+              </div>
+              <span class="text-[11px] text-slate-400 block mt-1">"Liquidity grab expected, wait for CHoCH"</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Interactive Outcome Alert -->
+        <div id="decisionResult" class="hidden p-4 rounded-xl border transition-all text-xs font-mono space-y-1"></div>
+      </div>
+    </section>
+
+    <!-- Section 5: Hands-on Practice Simulator 2 (Probabilistic Mindset Engine) -->
+    <section id="monte-carlo" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-surfaceBorder pb-3">
+        <div>
+          <span class="text-xs font-mono text-axiomGold uppercase">Interactive Lab 02</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-white">The Probabilistic Mindset Simulator</h2>
+        </div>
+        <span class="text-xs text-slate-400 font-mono">Mark Douglas "Trading In The Zone" Engine</span>
+      </div>
+
+      <div class="glass-card p-6 rounded-2xl border border-surfaceBorder grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <!-- Controls Column -->
+        <div class="lg:col-span-4 space-y-5">
+          <p class="text-xs text-slate-300 leading-relaxed">
+            यहां सिमुलेट करें कि <strong class="text-white">40% विन रेट</strong> के साथ भी आप कंसिस्टेंट प्रॉफिटेबल कैसे बनते हैं, यदि आपका <strong class="text-smartEmerald">RRR 1:3</strong> है। यह सिमुलेटर भावनात्मक झुकाव (emotional tilt) और रैंडमनेस के सच को प्रदर्शित करता है।
+          </p>
+
+          <div class="space-y-4 bg-surface/60 p-4 rounded-xl border border-surfaceBorder">
+            <div class="space-y-1.5">
+              <div class="flex justify-between text-xs font-mono">
+                <span class="text-slate-300">Win Rate:</span>
+                <span id="winRateVal" class="text-smartEmerald font-bold">40%</span>
+              </div>
+              <input type="range" id="winRateSlider" min="25" max="75" step="1" value="40" oninput="updateProbSliders()" class="w-full accent-smartEmerald cursor-pointer">
+            </div>
+
+            <div class="space-y-1.5">
+              <div class="flex justify-between text-xs font-mono">
+                <span class="text-slate-300">Risk-to-Reward Ratio:</span>
+                <span id="rrrVal" class="text-axiomGold font-bold">1:3.0</span>
+              </div>
+              <input type="range" id="rrrSlider" min="1.0" max="5.0" step="0.5" value="3.0" oninput="updateProbSliders()" class="w-full accent-axiomGold cursor-pointer">
+            </div>
+
+            <div class="space-y-1.5">
+              <div class="flex justify-between text-xs font-mono">
+                <span class="text-slate-300">Total Simulated Trades:</span>
+                <span class="text-cyberCyan font-bold">50 Trades</span>
+              </div>
+            </div>
+
+            <button onclick="runMonteCarloSimulation()" class="w-full py-2.5 rounded-lg bg-gradient-to-r from-smartEmerald to-cyberCyan text-black font-mono font-bold text-xs hover:opacity-90 transition-all flex items-center justify-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+              Run 50-Trade Sequence
+            </button>
+          </div>
+
+          <div class="p-3 rounded-lg bg-surface border border-surfaceBorder text-[11px] font-mono text-slate-400 space-y-1">
+            <span class="text-axiomGold block font-bold">Critical Psychology Takeaway:</span>
+            <p>लगातार 4-5 लॉस एक सामान्य गणितीय घटना है। यदि आप लॉस के बाद रिवेंज ट्रेडिंग करते हैं, तो आप सिस्टम को नहीं, अपने अहंकार को ट्रेड कर रहे हैं।</p>
+          </div>
+        </div>
+
+        <!-- Simulation Graph & Stats Column -->
+        <div class="lg:col-span-8 space-y-4">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="p-3 rounded-xl bg-surface/80 border border-surfaceBorder">
+              <span class="text-[10px] font-mono text-slate-400 block uppercase">Final Net Profit</span>
+              <span id="statNetProfit" class="text-base sm:text-lg font-mono font-bold text-smartEmerald mt-1 block">+₹32,000</span>
+            </div>
+            <div class="p-3 rounded-xl bg-surface/80 border border-surfaceBorder">
+              <span class="text-[10px] font-mono text-slate-400 block uppercase">Max Drawdown</span>
+              <span id="statMaxDD" class="text-base sm:text-lg font-mono font-bold text-retailRose mt-1 block">-₹6,000</span>
+            </div>
+            <div class="p-3 rounded-xl bg-surface/80 border border-surfaceBorder">
+              <span class="text-[10px] font-mono text-slate-400 block uppercase">Max Loss Streak</span>
+              <span id="statLossStreak" class="text-base sm:text-lg font-mono font-bold text-axiomGold mt-1 block">5 in a row</span>
+            </div>
+            <div class="p-3 rounded-xl bg-surface/80 border border-surfaceBorder">
+              <span class="text-[10px] font-mono text-slate-400 block uppercase">Simulated Win %</span>
+              <span id="statRealizedWin" class="text-base sm:text-lg font-mono font-bold text-cyberCyan mt-1 block">42.0%</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Equity Curve Canvas -->
+          <div class="relative w-full h-[280px] bg-obsidian rounded-xl overflow-hidden border border-surfaceBorder p-2">
+            <canvas id="equityCanvas" class="w-full h-full block"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 6: Chapter 1 Interactive Self-Assessment Audit & Quiz -->
+    <section id="audit" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-surfaceBorder pb-3">
+        <div>
+          <span class="text-xs font-mono text-smartEmerald uppercase">Module 1.4</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-white">Institutional Operator Audit & Quiz</h2>
+        </div>
+        <span class="text-xs text-slate-400 font-mono">Unlock Institutional Apprentice Badge</span>
+      </div>
+
+      <div class="glass-card p-6 rounded-2xl border border-surfaceBorder grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Quiz Column -->
+        <div class="lg:col-span-7 space-y-6">
+          <div class="space-y-1">
+            <span class="text-xs font-mono text-cyberCyan" id="questionCount">Question 1 of 3</span>
+            <h3 class="text-sm sm:text-base font-semibold text-white" id="questionText">
+              प्राइस एक प्रमुख दैनिक रेजिस्टेंस को भारी वॉल्यूम के साथ पार करती है, लेकिन 15 मिनट बाद एक लंबी ऊपरी विक (Wick) छोड़कर रेजिस्टेंस के नीचे क्लोज हो जाती है। यह क्या दर्शाता है?
+            </h3>
+          </div>
+
+          <div class="space-y-2.5" id="optionsContainer">
+            <!-- Rendered dynamically -->
+          </div>
+
+          <div id="quizFeedback" class="hidden p-3.5 rounded-xl border text-xs font-mono leading-relaxed"></div>
+        </div>
+
+        <!-- Pre-Flight Checklist Column -->
+        <div class="lg:col-span-5 bg-surface/60 p-5 rounded-2xl border border-surfaceBorder space-y-4">
+          <div class="flex items-center justify-between border-b border-surfaceBorder pb-2">
+            <h4 class="text-xs font-mono uppercase tracking-wider text-axiomGold font-bold">Daily Pre-Trade Audit</h4>
+            <span class="text-[10px] font-mono text-slate-400">Must check all 4</span>
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <label class="flex items-start gap-3 cursor-pointer group">
+              <input type="checkbox" onchange="auditCheck()" class="audit-box mt-0.5 rounded bg-surface border-surfaceBorder text-smartEmerald focus:ring-0">
+              <span class="text-slate-300 group-hover:text-white transition-colors">मैंने अपनी एंट्री से पहले BSL (बाय-साइड) और SSL (सेल-साइड) लिक्विडिटी पूल्स को मार्क किया है।</span>
+            </label>
+
+            <label class="flex items-start gap-3 cursor-pointer group">
+              <input type="checkbox" onchange="auditCheck()" class="audit-box mt-0.5 rounded bg-surface border-surfaceBorder text-smartEmerald focus:ring-0">
+              <span class="text-slate-300 group-hover:text-white transition-colors">मैं FOMO या किसी ग्रीन कैंडल के पीछे भागकर मार्केट ऑर्डर पर नहीं कूद रहा हूँ।</span>
+            </label>
+
+            <label class="flex items-start gap-3 cursor-pointer group">
+              <input type="checkbox" onchange="auditCheck()" class="audit-box mt-0.5 rounded bg-surface border-surfaceBorder text-smartEmerald focus:ring-0">
+              <span class="text-slate-300 group-hover:text-white transition-colors">मेरा रिस्क मेरे कुल कैपिटल के 1% से कम है और रिवॉर्ड कम से कम 1:3 है।</span>
+            </label>
+
+            <label class="flex items-start gap-3 cursor-pointer group">
+              <input type="checkbox" onchange="auditCheck()" class="audit-box mt-0.5 rounded bg-surface border-surfaceBorder text-smartEmerald focus:ring-0">
+              <span class="text-slate-300 group-hover:text-white transition-colors">यदि यह ट्रेड स्टॉप-लॉस हिट करता है, तो मैं अगले 2 घंटे कोई नया ट्रेड नहीं लूँगा।</span>
+            </label>
+          </div>
+
+          <div id="auditStatus" class="p-3 rounded-xl bg-obsidian border border-surfaceBorder text-center text-xs font-mono text-slate-400">
+            Audit Status: <span class="text-retailRose font-bold">Incomplete (0/4)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter Cheatsheet / Printable Notes Summary (Always visible & optimized for Print) -->
+    <section class="glass-card p-6 sm:p-8 rounded-2xl border border-surfaceBorder space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-surfaceBorder pb-4">
+        <div>
+          <span class="text-xs font-mono text-axiomGold uppercase tracking-widest">Permanent Mental Models</span>
+          <h2 class="text-xl font-bold text-white mt-0.5">Chapter 1 Executive Cheatsheet</h2>
+        </div>
+        <button onclick="copyCheatsheet()" id="copyNotesBtn" class="px-3.5 py-1.5 rounded-lg border border-surfaceBorder bg-surface hover:text-smartEmerald text-xs font-mono text-slate-300 transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+          <span id="copyBtnText">Copy Core Principles</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-slate-300">
+        <div class="space-y-2">
+          <h4 class="font-mono text-smartEmerald font-semibold uppercase tracking-wide">1. The Liquidity Imperative</h4>
+          <p class="leading-relaxed">
+            संस्थानों के पास पैसा असीमित है लेकिन लिक्विडिटी सीमित है। वे बिना रिटेल स्टॉप्स को ट्रिगर किए बड़े ऑर्डर्स नहीं भर सकते। आपका स्टॉप-लॉस उनका एंट्री पॉइंट है।
+          </p>
+        </div>
+        <div class="space-y-2">
+          <h4 class="font-mono text-cyberCyan font-semibold uppercase tracking-wide">2. Stop Prediction, Start Reaction</h4>
+          <p class="leading-relaxed">
+            मार्केट को अपनी मर्जी से चलाने की कोशिश मत कीजिए। यह कभी मत कहिए कि "मार्केट को यहाँ से ऊपर जाना चाहिए।" केवल यह देखिए कि "स्मार्ट मनी ने कहाँ लिक्विडिटी ग्रैब की है?"
+          </p>
+        </div>
+        <div class="space-y-2">
+          <h4 class="font-mono text-axiomGold font-semibold uppercase tracking-wide">3. Probability & Preservation</h4>
+          <p class="leading-relaxed">
+            एक अकेला ट्रेड कुछ भी साबित नहीं करता। 100 ट्रेड्स की श्रृंखला में सोचें। 1:3 रिस्क-टू-रिवॉर्ड के साथ 40% विन रेट आपको दुनिया के शीर्ष 5% ट्रेडर्स में खड़ा कर सकता है।
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-surfaceBorder/80 py-8 text-center text-xs font-mono text-slate-500 space-y-2">
+    <p>THE AXIOM LAB &bull; SMART MONEY CONCEPTS & PSYCHOLOGY OPEN ARCHITECTURE</p>
+    <p class="text-[11px] text-slate-600">Built for forward-thinking quantitative & discretionary operators. Deployable on GitHub Pages.</p>
+  </footer>
+
+  <!-- Embedded Sound Synthesis Engine (Web Audio API) -->
+  <script>
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playTone(freq, type, duration) {
+      if (!soundEnabled) return;
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type || 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function toggleAudio() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('soundLabel').innerText = soundEnabled ? 'SFX: ON' : 'SFX: OFF';
+      document.getElementById('soundToggle').classList.toggle('text-smartEmerald', soundEnabled);
+      if (soundEnabled) playTone(600, 'triangle', 0.15);
+    }
+
+    // Scroll Progress Bar
+    window.addEventListener('scroll', () => {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById('scrollProgress').style.width = scrolled + '%';
+    });
+
+    // ==========================================
+    // MODULE 1.1: HIERARCHY INTERACTION
+    // ==========================================
+    const tiersData = [
+      {
+        title: "Tier 1: Central Banks (केंद्रीय बैंक)",
+        sub: "Federal Reserve, RBI, European Central Bank, Bank of Japan",
+        desc: "सेंट्रल बैंक्स का उद्देश्य प्रॉफिट कमाना नहीं, बल्कि अर्थव्यवस्था और करेंसी के मूल्य को नियंत्रित करना है। वे मॉनेटरी पॉलिसी, रेपो रेट्स और अनपेक्षित लिक्विडिटी इंजेक्शन से पूरे वैश्विक ट्रेंड का निर्माण करते हैं। जब वे कोई फैसला लेते हैं, तो तकनीकी पैटर्न्स सेकंड्स में धुआं हो जाते हैं।",
+        orderSize: "$50 Billion+",
+        role: "Absolute Macro Direction & Systemic Liquidity",
+        color: "smartEmerald"
+      },
+      {
+        title: "Tier 2: Tier-1 Interbank Market Makers",
+        sub: "JPMorgan Chase, Goldman Sachs, Deutsche Bank, Citadel Securities",
+        desc: "यह संस्थाएं असली 'स्मार्ट मनी' हैं जो इंटरबैंक फॉरेक्स और फ्यूचर्स मार्केट्स में ऑर्डर्स मैच करती हैं। इनके पास HFT (High Frequency Trading) एल्गोरिद्म और को-लोकेशन सर्वर्स होते हैं। यह संस्थाएं कभी स्टॉप-लॉस पर निर्भर नहीं रहतीं; वे दोनों तरफ की लिक्विडिटी को हार्वेस्ट (Harvest) करती हैं।",
+        orderSize: "$500M - $5 Billion per block",
+        role: "Liquidity Engineering & Algorithmic Sweeps",
+        color: "cyberCyan"
+      },
+      {
+        title: "Tier 3: Institutional Desks & Hedge Funds",
+        sub: "Bridgewater, Millennium, Mutual Funds, Prop Trading Desks",
+        desc: "इन फंड्स के पास भारी कैपिटल होता है लेकिन वे टियर-1 की तरह मार्केट मेकर्स नहीं हैं। इन्हें अपना बड़ा आकार भरने के लिए लिक्विडिटी की सख्त जरूरत होती है। इसलिए वे रिटेल ट्रेडर्स को 'ब्रेकआउट' में फंसाकर अपने भारी ऑर्डर्स उनके स्टॉप-लॉस पर एग्जिट करते हैं।",
+        orderSize: "$10M - $250 Million",
+        role: "Trend Expansion & Heavy Order Flow",
+        color: "axiomGold"
+      },
+      {
+        title: "Tier 4: Retail Herd (खुदरा ट्रेडर्स)",
+        sub: "Individual Traders, Telegram Signal Followers, YouTube Learners",
+        desc: "खुदरा ट्रेडर्स के पास कोई लिक्विडिटी एज या सूचना का लाभ नहीं होता। वे किताबों के पुराने पैटर्न्स (Head and Shoulders, Trendlines, Double Tops) पर भरोसा करते हैं। यही कारण है कि उनका स्टॉप-लॉस संस्थागत ऑपरेटरों के लिए सिर्फ एक 'एग्जिट लिक्विडिटी' पूल बनकर रह जाता है।",
+        orderSize: "$100 - $50,000",
+        role: "The Essential Exit Liquidity Fuel",
+        color: "retailRose"
+      }
+    ];
+
+    function selectTier(idx) {
+      playTone(450 + idx * 80, 'sine', 0.1);
+      for (let i = 0; i < 4; i++) {
+        const btn = document.getElementById(`tierBtn-${i}`);
+        btn.classList.remove('border-smartEmerald', 'border-cyberCyan', 'border-axiomGold', 'border-retailRose', 'bg-surface/90');
+        btn.classList.add('border-surfaceBorder', 'bg-surface/50');
+      }
+
+      const activeBtn = document.getElementById(`tierBtn-${idx}`);
+      const t = tiersData[idx];
+      activeBtn.classList.remove('border-surfaceBorder', 'bg-surface/50');
+      activeBtn.classList.add(`border-${t.color}`, 'bg-surface/90');
+
+      const container = document.getElementById('tierDetailCard');
+      container.innerHTML = `
+        <div class="space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-surfaceBorder pb-3">
+            <div>
+              <span class="text-xs font-mono uppercase text-${t.color} font-bold tracking-wider">Tier Hierarchy Breakdown</span>
+              <h3 class="text-lg font-bold text-white mt-0.5">${t.title}</h3>
+              <p class="text-xs text-slate-400">${t.sub}</p>
+            </div>
+            <span class="px-2.5 py-1 rounded text-xs font-mono bg-${t.color}/10 text-${t.color} border border-${t.color}/30 font-semibold">${t.role}</span>
+          </div>
+          <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">${t.desc}</p>
+        </div>
+        <div class="pt-4 border-t border-surfaceBorder grid grid-cols-2 gap-4 text-xs font-mono">
+          <div>
+            <span class="text-slate-400 block text-[10px] uppercase">Average Block Size:</span>
+            <span class="text-white font-bold text-sm">${t.orderSize}</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[10px] uppercase">Market Impact:</span>
+            <span class="text-${t.color} font-bold text-sm">Deterministic Orderflow</span>
+          </div>
+        </div>
+      `;
+    }
+    selectTier(0);
+
+    // ==========================================
+    // MODULE 1.2: FRICTION VISUALIZER
+    // ==========================================
+    function updateFrictionVisualizer() {
+      const val = parseInt(document.getElementById('turnoverSlider').value);
+      document.getElementById('turnoverValue').innerText = '₹' + val.toLocaleString('en-IN');
+      
+      const stt = Math.round(val * 0.00125);
+      const broker = Math.round(val * 0.0024);
+      const alpha = Math.round(val * 0.035);
+      const totalFriction = stt + broker;
+
+      document.getElementById('sttCost').innerText = '₹' + stt.toLocaleString('en-IN');
+      document.getElementById('brokerCost').innerText = '₹' + broker.toLocaleString('en-IN');
+      document.getElementById('alphaExtraction').innerText = '₹' + alpha.toLocaleString('en-IN');
+      document.getElementById('totalFriction').innerText = '₹' + totalFriction.toLocaleString('en-IN') + ' / Month';
+    }
+    updateFrictionVisualizer();
+
+    // ==========================================
+    // MODULE 1.3: INTERACTIVE CANVAS SIMULATOR (TRAP SIM)
+    // ==========================================
+    const canvas = document.getElementById('chartCanvas');
+    const ctx = canvas.getContext('2d');
+    let simStage = 1;
+    let autoPlayTimer = null;
+
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width * window.devicePixelRatio;
+      canvas.height = rect.height * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      drawCandleTrap();
+    }
+    window.addEventListener('resize', resizeCanvas);
+
+    // Candlestick dataset structure: [open, high, low, close, label, volume]
+    const baseCandles = [
+      { o: 47400, h: 47650, l: 47350, c: 47600, label: 'Base' },
+      { o: 47600, h: 47900, l: 47580, c: 47850, label: 'Push' },
+      { o: 47850, h: 48020, l: 47800, c: 47990, label: 'Touch 1 (High)' },
+      { o: 47990, h: 48010, l: 47650, c: 47700, label: 'Pullback' },
+      { o: 47700, h: 47850, l: 47680, c: 47800, label: 'Rally' },
+      { o: 47800, h: 48010, l: 47780, c: 48000, label: 'Touch 2 (Equal High)' },
+      // Step 2 & 3
+      { o: 48000, h: 48040, l: 47850, c: 47890, label: 'Consolidation' },
+      { o: 47890, h: 48180, l: 47870, c: 48120, label: 'The Judas Breakout' },
+      // Step 4: Dump
+      { o: 48120, h: 48130, l: 47600, c: 47640, label: 'Rejection & Flush' },
+      { o: 47640, h: 47680, l: 47250, c: 47280, label: 'Full Institutional Dump' }
+    ];
+
+    function drawCandleTrap() {
+      const w = canvas.getBoundingClientRect().width;
+      const h = canvas.getBoundingClientRect().height;
+      ctx.clearRect(0, 0, w, h);
+
+      // Price mapping helpers
+      const minP = 47100;
+      const maxP = 48300;
+      const priceToY = (p) => h - ((p - minP) / (maxP - minP)) * (h - 60) - 30;
+
+      // Draw Grid Lines
+      ctx.strokeStyle = '#151c2c';
+      ctx.lineWidth = 1;
+      for (let p = 47200; p <= 48200; p += 200) {
+        const y = priceToY(p);
+        ctx.beginPath();
+        ctx.moveTo(40, y);
+        ctx.lineTo(w - 20, y);
+        ctx.stroke();
+
+        ctx.fillStyle = '#475569';
+        ctx.font = '10px JetBrains Mono';
+        ctx.fillText('₹' + p, 5, y + 3);
+      }
+
+      // Draw Key Levels
+      // Resistance ₹48,000
+      const resY = priceToY(48000);
+      ctx.strokeStyle = '#f43f5e';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(40, resY);
+      ctx.lineTo(w - 20, resY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.fillStyle = '#f43f5e';
+      ctx.font = 'bold 11px JetBrains Mono';
+      ctx.fillText('RETAIL RESISTANCE / EQUAL HIGHS (₹48,000)', 70, resY - 6);
+
+      // BSL Liquidity Zone Highlight
+      const bslY1 = priceToY(48150);
+      const bslY2 = priceToY(48010);
+      ctx.fillStyle = 'rgba(245, 158, 11, 0.08)';
+      ctx.fillRect(40, bslY1, w - 60, bslY2 - bslY1);
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = '10px JetBrains Mono';
+      ctx.fillText('BUY-SIDE LIQUIDITY POOL (BSL - Retail Stop Losses)', w - 340, bslY1 + 14);
+
+      // How many candles to show based on simStage
+      let count = 6;
+      if (simStage === 2) count = 7;
+      if (simStage === 3) count = 8;
+      if (simStage === 4) count = 10;
+
+      const candleSpacing = (w - 120) / 10;
+      const candleWidth = Math.min(26, candleSpacing * 0.65);
+
+      for (let i = 0; i < count; i++) {
+        const c = baseCandles[i];
+        const cx = 80 + i * candleSpacing;
+        const openY = priceToY(c.o);
+        const closeY = priceToY(c.c);
+        const highY = priceToY(c.h);
+        const lowY = priceToY(c.l);
+        const isBullish = c.c >= c.o;
+
+        // Draw Wick
+        ctx.strokeStyle = isBullish ? '#10b981' : '#f43f5e';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(cx, highY);
+        ctx.lineTo(cx, lowY);
+        ctx.stroke();
+
+        // Draw Body
+        ctx.fillStyle = isBullish ? '#10b981' : '#f43f5e';
+        const bodyY = Math.min(openY, closeY);
+        const bodyH = Math.max(3, Math.abs(openY - closeY));
+        ctx.fillRect(cx - candleWidth / 2, bodyY, candleWidth, bodyH);
+
+        // Highlight Specific Educational Candles
+        if (i === 7 && simStage >= 3) {
+          // Judas Sweep Wick
+          ctx.strokeStyle = '#f59e0b';
+          ctx.strokeRect(cx - candleWidth / 2 - 4, highY - 4, candleWidth + 8, lowY - highY + 8);
+          ctx.fillStyle = '#f59e0b';
+          ctx.font = 'bold 9px JetBrains Mono';
+          ctx.fillText('LIQUIDITY SWEEP', cx - 40, highY - 10);
+        }
+
+        if (i === 8 && simStage === 4) {
+          // Sharp Rejection
+          ctx.fillStyle = '#06b6d4';
+          ctx.font = 'bold 9px JetBrains Mono';
+          ctx.fillText('CHoCH / FLUSH', cx - 35, lowY + 16);
+        }
+      }
+    }
+
+    function setSimStage(stage) {
+      simStage = stage;
+      playTone(380 + stage * 70, 'triangle', 0.12);
+
+      // Update button visuals
+      for (let s = 1; s <= 4; s++) {
+        const btn = document.getElementById(`stageBtn-${s}`);
+        if (s === stage) {
+          btn.className = "px-3 py-1.5 rounded-lg text-xs font-mono border border-smartEmerald bg-smartEmerald/10 text-smartEmerald font-semibold transition-all";
+        } else {
+          btn.className = "px-3 py-1.5 rounded-lg text-xs font-mono border border-surfaceBorder bg-surface text-slate-400 hover:text-white transition-all";
+        }
+      }
+
+      // Update Descriptions
+      const title = document.getElementById('tooltipTitle');
+      const desc = document.getElementById('tooltipDesc');
+      const badge = document.getElementById('tooltipBadge');
+
+      if (stage === 1) {
+        badge.innerText = 'Phase 1';
+        badge.className = 'text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-smartEmerald/20 text-smartEmerald';
+        title.innerText = 'The Bait: Equal Highs Formed';
+        desc.innerText = 'प्राइस दो बार ₹48,000 से गिरती है। यह रिटेल की नजर में एक क्लासिक "डबल टॉप रेजिस्टेंस" बना देता है।';
+      } else if (stage === 2) {
+        badge.innerText = 'Phase 2';
+        badge.className = 'text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-axiomGold/20 text-axiomGold';
+        title.innerText = 'Retail Enters & Sets Stop-Losses';
+        desc.innerText = 'खुदरा सेलर्स ₹48,000 के नीचे सेल करते हैं और अपना स्टॉप ₹48,050-₹48,150 पर रखते हैं। इस पूल को Buy-Side Liquidity (BSL) कहते हैं।';
+      } else if (stage === 3) {
+        badge.innerText = 'Phase 3';
+        badge.className = 'text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-retailRose/20 text-retailRose';
+        title.innerText = 'The Judas Swing: Breakout Mirage';
+        desc.innerText = 'एक आक्रामक कैंडल ₹48,000 के ऊपर निकलती है। सेलर्स के स्टॉप लॉस कटते हैं और ब्रेकआउट बायर्स FOMO में अंदर कूदते हैं।';
+      } else if (stage === 4) {
+        badge.innerText = 'Phase 4';
+        badge.className = 'text-[10px] font-mono uppercase px-1.5 py-0.5 rounded bg-cyberCyan/20 text-cyberCyan';
+        title.innerText = 'Smart Money Flush & Reversal';
+        desc.innerText = 'जैसे ही लाखों बाय ऑर्डर्स ट्रिगर हुए, स्मार्ट मनी ने अपने विशाल सेलिंग ऑर्डर्स भर दिए। मार्केट तेजी से ₹47,200 की ओर क्रैश कर गया।';
+      }
+
+      drawCandleTrap();
+    }
+
+    function playAutoSimulation() {
+      let current = 1;
+      setSimStage(current);
+      if (autoPlayTimer) clearInterval(autoPlayTimer);
+      autoPlayTimer = setInterval(() => {
+        current++;
+        if (current > 4) {
+          clearInterval(autoPlayTimer);
+          return;
+        }
+        setSimStage(current);
+      }, 2000);
+    }
+
+    function resetSimulation() {
+      if (autoPlayTimer) clearInterval(autoPlayTimer);
+      setSimStage(1);
+      const res = document.getElementById('decisionResult');
+      res.classList.add('hidden');
+    }
+
+    function userTakeTrade(mode) {
+      const res = document.getElementById('decisionResult');
+      res.classList.remove('hidden');
+
+      if (mode === 'retail') {
+        playTone(180, 'sawtooth', 0.25);
+        setSimStage(4);
+        res.className = "p-4 rounded-xl border border-retailRose/50 bg-retailRose/10 text-retailRose text-xs font-mono space-y-1.5 glow-rose";
+        res.innerHTML = `
+          <div class="font-bold text-sm">❌ REPUTATION TRAPPED: SL HIT (-100%)</div>
+          <p class="text-slate-300">आपने रेजिस्टेंस ब्रेक पर ₹48,120 पर बाय किया। लेकिन यह कोई ब्रेकआउट नहीं बल्कि <strong>BSL Liquidity Grab</strong> था। 10 मिनट में प्राइस ₹47,600 पर गिर गई और आपका स्टॉप-लॉस खाकर मार्केट आपके डायरेक्शन के विपरीत निकल गया।</p>
+        `;
+      } else {
+        playTone(587.33, 'sine', 0.2);
+        setTimeout(() => playTone(880, 'sine', 0.25), 150);
+        setSimStage(4);
+        res.className = "p-4 rounded-xl border border-smartEmerald/50 bg-smartEmerald/10 text-smartEmerald text-xs font-mono space-y-1.5 glow-emerald";
+        res.innerHTML = `
+          <div class="font-bold text-sm">✓ INSTITUTIONAL ALPHA: FULL TARGET (+300% / 1:3 RRR)</div>
+          <p class="text-slate-300">आपने धैर्य रखा और BSL स्वीप होने दिया। जैसे ही 5-मिनट कैंडल विक छोड़कर अंदर क्लोज हुई (CHoCH), आपने ₹48,050 पर शॉर्ट किया और स्टॉप स्वीप विक के ऊपर ₹48,190 पर रखा। टारगेट ₹47,200 आसानी से हिट हुआ।</p>
+        `;
+      }
+    }
+
+    // ==========================================
+    // MODULE 1.4: PROBABILITY & MONTE CARLO SIMULATOR
+    // ==========================================
+    const eqCanvas = document.getElementById('equityCanvas');
+    const eqCtx = eqCanvas.getContext('2d');
+
+    function updateProbSliders() {
+      const winRate = document.getElementById('winRateSlider').value;
+      const rrr = parseFloat(document.getElementById('rrrSlider').value).toFixed(1);
+      document.getElementById('winRateVal').innerText = winRate + '%';
+      document.getElementById('rrrVal').innerText = '1:' + rrr;
+    }
+
+    function runMonteCarloSimulation() {
+      playTone(520, 'sine', 0.1);
+      const winRate = parseInt(document.getElementById('winRateSlider').value) / 100;
+      const rrr = parseFloat(document.getElementById('rrrSlider').value);
+      const totalTrades = 50;
+      const riskPerTrade = 1000; // ₹1,000 per loss
+
+      let equity = [0];
+      let currentEquity = 0;
+      let wins = 0;
+      let maxLossStreak = 0;
+      let currentLossStreak = 0;
+      let peak = 0;
+      let maxDrawdown = 0;
+
+      for (let i = 0; i < totalTrades; i++) {
+        const isWin = Math.random() < winRate;
+        if (isWin) {
+          wins++;
+          currentEquity += riskPerTrade * rrr;
+          currentLossStreak = 0;
+        } else {
+          currentEquity -= riskPerTrade;
+          currentLossStreak++;
+          if (currentLossStreak > maxLossStreak) {
+            maxLossStreak = currentLossStreak;
+          }
+        }
+        equity.push(currentEquity);
+
+        if (currentEquity > peak) peak = currentEquity;
+        const dd = peak - currentEquity;
+        if (dd > maxDrawdown) maxDrawdown = dd;
+      }
+
+      // Update Stats
+      const finalPnl = equity[equity.length - 1];
+      const pnlEl = document.getElementById('statNetProfit');
+      pnlEl.innerText = (finalPnl >= 0 ? '+₹' : '-₹') + Math.abs(finalPnl).toLocaleString('en-IN');
+      pnlEl.className = finalPnl >= 0 ? "text-base sm:text-lg font-mono font-bold text-smartEmerald mt-1 block" : "text-base sm:text-lg font-mono font-bold text-retailRose mt-1 block";
+
+      document.getElementById('statMaxDD').innerText = '-₹' + maxDrawdown.toLocaleString('en-IN');
+      document.getElementById('statLossStreak').innerText = maxLossStreak + ' in a row';
+      document.getElementById('statRealizedWin').innerText = ((wins / totalTrades) * 100).toFixed(1) + '%';
+
+      drawEquityCurve(equity);
+    }
+
+    function drawEquityCurve(equity) {
+      const rect = eqCanvas.getBoundingClientRect();
+      eqCanvas.width = rect.width * window.devicePixelRatio;
+      eqCanvas.height = rect.height * window.devicePixelRatio;
+      eqCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+      const w = rect.width;
+      const h = rect.height;
+      eqCtx.clearRect(0, 0, w, h);
+
+      const minVal = Math.min(...equity, -5000);
+      const maxVal = Math.max(...equity, 15000);
+
+      const getY = (val) => h - ((val - minVal) / (maxVal - minVal)) * (h - 40) - 20;
+
+      // Draw Zero line
+      const zeroY = getY(0);
+      eqCtx.strokeStyle = '#232f48';
+      eqCtx.lineWidth = 1;
+      eqCtx.setLineDash([3, 3]);
+      eqCtx.beginPath();
+      eqCtx.moveTo(30, zeroY);
+      eqCtx.lineTo(w - 10, zeroY);
+      eqCtx.stroke();
+      eqCtx.setLineDash([]);
+
+      // Draw Curve
+      eqCtx.strokeStyle = equity[equity.length - 1] >= 0 ? '#10b981' : '#f43f5e';
+      eqCtx.lineWidth = 2.5;
+      eqCtx.beginPath();
+
+      const stepX = (w - 50) / (equity.length - 1);
+      for (let i = 0; i < equity.length; i++) {
+        const x = 35 + i * stepX;
+        const y = getY(equity[i]);
+        if (i === 0) eqCtx.moveTo(x, y);
+        else eqCtx.lineTo(x, y);
+      }
+      eqCtx.stroke();
+
+      // End Circle
+      const endX = 35 + (equity.length - 1) * stepX;
+      const endY = getY(equity[equity.length - 1]);
+      eqCtx.fillStyle = equity[equity.length - 1] >= 0 ? '#10b981' : '#f43f5e';
+      eqCtx.beginPath();
+      eqCtx.arc(endX, endY, 4, 0, Math.PI * 2);
+      eqCtx.fill();
+    }
+
+    // ==========================================
+    // MODULE 1.5: QUIZ & AUDIT ENGINE
+    // ==========================================
+    const quizData = [
+      {
+        q: "प्राइस एक प्रमुख दैनिक रेजिस्टेंस को भारी वॉल्यूम के साथ पार करती है, लेकिन 15 मिनट बाद एक लंबी ऊपरी विक (Wick) छोड़कर रेजिस्टेंस के नीचे क्लोज हो जाती है। यह क्या दर्शाता है?",
+        options: [
+          { text: "यह एक ब्रेकआउट कन्फर्मेशन है, तुरंत नए लॉन्ग्स ऐड करें।", correct: false },
+          { text: "संस्थानों ने बाय-स्टॉप्स (BSL) को स्वीप करके अपनी सेलिंग पोजीशन भरी है।", correct: true },
+          { text: "मार्केट में वॉल्यूम खत्म हो गया है, साइडवेज रहेगा।", correct: false }
+        ],
+        explanation: "करेक्ट! जब प्राइस रेजिस्टेंस के ऊपर केवल विक छोड़ती है और वापस नीचे क्लोज होती है, तो यह इंस्टीट्यूशनल लिक्विडिटी ग्रैब (Sweep) का क्लासिक संकेत है।"
+      },
+      {
+        q: "Zero-Sum बाज़ारों में जब आप ₹10,000 का स्टॉप-लॉस खोते हैं, तो वह फंड्स असल में कहाँ जाते हैं?",
+        options: [
+          { text: "वह एक्सचेंज के सर्वर में जमा हो जाते हैं।", correct: false },
+          { text: "उस ऑपरेटर या ट्रेडर के पास जिसने आपके एग्जिट लिक्विडिटी का विपरीत पक्ष लिया।", correct: true },
+          { text: "वह हमेशा के लिए अर्थव्यवस्था से नष्ट हो जाते हैं।", correct: false }
+        ],
+        explanation: "बिल्कुल सही! डेरिवेटिव्स में हर प्रॉफिट किसी का लॉस होता है। आपका स्टॉप-लॉस उस संस्था के ऑर्डर को भरता है जिसने वह लेवल स्वीप किया था।"
+      },
+      {
+        q: "यदि आपका विन-रेट 40% है और आपका रिस्क-टू-रिवॉर्ड (RRR) 1:3 है, तो 10 ट्रेड्स के बाद आपका गणितीय परिणाम क्या होगा?",
+        options: [
+          { text: "आप घाटे में रहेंगे क्योंकि आप 60% ट्रेड्स हार गए।", correct: false },
+          { text: "आप ब्रेक-ईवन पर रहेंगे।", correct: false },
+          { text: "आप +6R के शानदार मुनाफे में रहेंगे (4 Wins x 3R = 12R, 6 Losses x 1R = 6R, Net = +6R)।", correct: true }
+        ],
+        explanation: "सटीक! ट्रेडिंग विन-रेट का नहीं बल्कि असिमेट्रिक पे-ऑफ (Asymmetric Payoff) का खेल है। 40% विन रेट पर भी 1:3 RRR आपको भारी बढ़त देता है।"
+      }
+    ];
+
+    let currentQ = 0;
+
+    function renderQuiz() {
+      const q = quizData[currentQ];
+      document.getElementById('questionCount').innerText = `Question ${currentQ + 1} of ${quizData.length}`;
+      document.getElementById('questionText').innerText = q.q;
+
+      const cont = document.getElementById('optionsContainer');
+      cont.innerHTML = '';
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = "w-full text-left p-3 rounded-xl border border-surfaceBorder bg-surface/70 hover:border-cyberCyan text-xs text-slate-300 transition-all font-mono";
+        btn.innerText = `${String.fromCharCode(65 + idx)}. ${opt.text}`;
+        btn.onclick = () => selectQuizAnswer(opt.correct, q.explanation);
+        cont.appendChild(btn);
+      });
+      document.getElementById('quizFeedback').classList.add('hidden');
+    }
+
+    function selectQuizAnswer(isCorrect, exp) {
+      const fb = document.getElementById('quizFeedback');
+      fb.classList.remove('hidden');
+
+      if (isCorrect) {
+        playTone(659.25, 'sine', 0.2);
+        fb.className = "p-3.5 rounded-xl border border-smartEmerald/40 bg-smartEmerald/10 text-smartEmerald text-xs font-mono space-y-1";
+        fb.innerHTML = `<strong>✓ SENSATIONAL ACCURACY:</strong> ${exp}`;
+        setTimeout(() => {
+          if (currentQ < quizData.length - 1) {
+            currentQ++;
+            renderQuiz();
+          } else {
+            fb.innerHTML += "<div class='mt-2 font-bold text-axiomGold'>🎖️ BADGE UNLOCKED: Certified Institutional Apprentice (Ch. 1 Mastered)</div>";
+          }
+        }, 1800);
+      } else {
+        playTone(220, 'sawtooth', 0.2);
+        fb.className = "p-3.5 rounded-xl border border-retailRose/40 bg-retailRose/10 text-retailRose text-xs font-mono space-y-1";
+        fb.innerHTML = `<strong>✕ RETAIL BIAS DETECTED:</strong> पुनः विचार करें। स्मार्ट मनी के दृष्टिकोण से सोचें, इंडिकेटर की किताबों से नहीं।`;
+      }
+    }
+
+    function auditCheck() {
+      const boxes = document.querySelectorAll('.audit-box');
+      let checked = 0;
+      boxes.forEach(b => { if (b.checked) checked++; });
+
+      const statusEl = document.getElementById('auditStatus');
+      if (checked === 4) {
+        playTone(880, 'sine', 0.2);
+        statusEl.innerHTML = 'Audit Status: <span class="text-smartEmerald font-bold">READY TO OPERATE (4/4 PASS)</span>';
+        statusEl.className = "p-3 rounded-xl bg-smartEmerald/10 border border-smartEmerald text-center text-xs font-mono glow-emerald";
+      } else {
+        statusEl.innerHTML = `Audit Status: <span class="text-retailRose font-bold">Incomplete (${checked}/4)</span>`;
+        statusEl.className = "p-3 rounded-xl bg-obsidian border border-surfaceBorder text-center text-xs font-mono text-slate-400";
+      }
+    }
+
+    function copyCheatsheet() {
+      const text = `THE AXIOM LAB: CHAPTER 1 CORE MENTAL MODELS
+1. The Liquidity Imperative: Large institutions cannot enter without triggering retail stop loss clusters (BSL/SSL). Your stop loss is their entry fuel.
+2. The Retail Mirage: Double Tops, Head & Shoulders, and RSI divergences are designed liquidity collection traps.
+3. Asymmetric Probability: 40% win rate with 1:3 RRR yields consistent compound growth. Stop predicting, execute setups systematically.`;
+
+      const el = document.createElement('textarea');
+      el.value = text;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+
+      playTone(700, 'sine', 0.15);
+      const btn = document.getElementById('copyBtnText');
+      btn.innerText = 'Copied to Clipboard!';
+      setTimeout(() => { btn.innerText = 'Copy Core Principles'; }, 2000);
+    }
+
+    // Initialize all visual modules on page load
+    window.onload = function() {
+      resizeCanvas();
+      runMonteCarloSimulation();
+      renderQuiz();
+    };
+  </script>
+</body>
+</html>

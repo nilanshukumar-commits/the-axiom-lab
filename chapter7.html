@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="hi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 7: Asymmetric Risk Engineering & Capital Math | The Axiom Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        axiom: {
+                            900: '#07090e',
+                            850: '#0d1117',
+                            800: '#161b22',
+                            700: '#21262d',
+                            600: '#30363d',
+                            accent: '#38bdf8',
+                            emerald: '#10b981',
+                            rose: '#f43f5e',
+                            amber: '#f59e0b',
+                            violet: '#8b5cf6'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #07090e;
+            color: #e6edf3;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(56, 189, 248, 0.05) 0%, transparent 45%);
+        }
+        .hud-glass {
+            background: rgba(13, 17, 23, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(48, 54, 61, 0.6);
+        }
+        .canvas-container {
+            position: relative;
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.9);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #07090e; }
+        ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #10b981; }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-axiom-emerald selection:text-axiom-900 pb-24">
+
+    <!-- Top Navigation HUD -->
+    <header class="sticky top-0 z-50 hud-glass border-b border-axiom-700/80 px-6 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-axiom-emerald via-axiom-accent to-axiom-violet flex items-center justify-center shadow-lg shadow-axiom-emerald/20">
+                <span class="font-mono font-black text-axiom-900 text-base">M7</span>
+            </div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-mono font-semibold tracking-wider uppercase text-axiom-emerald">The Axiom Lab</span>
+                    <span class="text-xs text-axiom-600">/</span>
+                    <span class="text-xs font-mono text-gray-400">Capital Engineering</span>
+                </div>
+                <h1 class="text-sm font-bold tracking-tight text-white flex items-center gap-2">
+                    Chapter 7: Asymmetric Risk Engineering & Capital Math
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono bg-axiom-emerald/20 text-axiom-emerald border border-axiom-emerald/30">MODULE 07</span>
+                </h1>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <button id="audioToggleBtn" onclick="toggleAudio()" class="px-3 py-1.5 rounded-md text-xs font-mono bg-axiom-800 hover:bg-axiom-700 border border-axiom-600 flex items-center gap-2 transition-all">
+                <span id="audioIcon" class="w-2 h-2 rounded-full bg-axiom-rose"></span>
+                <span id="audioText">Audio: Muted</span>
+            </button>
+            <a href="chapter6.html" class="px-3 py-1.5 rounded-md text-xs font-mono bg-axiom-800 hover:bg-axiom-700 border border-axiom-600 transition-all text-gray-300 hover:text-white">
+                ← Chapter 6 Core
+            </a>
+            <a href="chapter6_case_studies.html" class="px-3 py-1.5 rounded-md text-xs font-mono bg-axiom-800 hover:bg-axiom-700 border border-axiom-600 transition-all text-gray-300 hover:text-white">
+                Ch 6 Case Studies
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-12">
+
+        <!-- Chapter Hero Banner -->
+        <section class="hud-glass rounded-2xl p-8 border border-axiom-700 relative overflow-hidden">
+            <div class="absolute -right-16 -top-16 w-80 h-80 bg-axiom-emerald/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-16 -bottom-16 w-80 h-80 bg-axiom-accent/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="max-w-3xl relative z-10 space-y-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono bg-axiom-emerald/10 text-axiom-emerald border border-axiom-emerald/30">
+                    <span class="animate-pulse">●</span> MATHEMATICAL TRADING EDGE
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+                    Asymmetric Risk Engineering & Capital Math
+                </h2>
+                <p class="text-base text-gray-300 leading-relaxed">
+                    शुरुआती ट्रेडर्स "प्रॉफिट" पर ध्यान केंद्रित करते हैं, जबकि संस्थाएं केवल <span class="text-axiom-emerald font-semibold">"रिस्क"</span> को नियंत्रित करती हैं। ट्रेडिंग में बने रहने का एकमात्र वैज्ञानिक तरीका है: <span class="text-axiom-accent font-semibold">असममित भुगतान (Asymmetric Payoff)</span>—जहाँ हारने पर केवल ₹1 खोया जाए, लेकिन जीतने पर ₹4 से ₹8 कमाए जाएं। जानिए क्यों 35% विन-रेट वाला ट्रेडर 80% विन-रेट वाले से कहीं अधिक संपत्ति बनाता है।
+                </p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 text-xs font-mono">
+                    <div class="bg-axiom-900/60 p-3 rounded-lg border border-axiom-700">
+                        <div class="text-gray-400">FIXED RISK</div>
+                        <div class="text-axiom-emerald font-bold text-sm mt-1">1% Capital Rule</div>
+                    </div>
+                    <div class="bg-axiom-900/60 p-3 rounded-lg border border-axiom-700">
+                        <div class="text-gray-400">PAYOFF MATRIX</div>
+                        <div class="text-axiom-accent font-bold text-sm mt-1">1:4 to 1:8 RRR</div>
+                    </div>
+                    <div class="bg-axiom-900/60 p-3 rounded-lg border border-axiom-700">
+                        <div class="text-gray-400">DRAWDOWN LAW</div>
+                        <div class="text-axiom-rose font-bold text-sm mt-1">Non-Linear Physics</div>
+                    </div>
+                    <div class="bg-axiom-900/60 p-3 rounded-lg border border-axiom-700">
+                        <div class="text-gray-400">POSITION SIZING</div>
+                        <div class="text-axiom-violet font-bold text-sm mt-1">Dynamic Lot Sizing</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LAB 7.1: ASYMMETRIC EXPECTANCY & MONTE CARLO SIMULATOR -->
+        <section id="lab7-1" class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-axiom-700/80 pb-4">
+                <div>
+                    <div class="text-xs font-mono text-axiom-emerald tracking-wider uppercase">Interactive Lab 7.1</div>
+                    <h3 class="text-xl font-bold text-white">Monte Carlo Asymmetric Equity Engine</h3>
+                    <p class="text-sm text-gray-400">35% विन-रेट और 1:4 RRR के साथ 50 स्वतंत्र ट्रेड्स का मोंटे कार्लो सिमुलेशन चलाएं।</p>
+                </div>
+                <div class="flex items-center gap-2 font-mono text-xs">
+                    <button onclick="runMonteCarlo()" class="px-4 py-2 rounded-lg bg-axiom-emerald text-axiom-900 font-bold hover:brightness-110 shadow-lg shadow-axiom-emerald/20 transition-all">
+                        ⚡ Simulate 50 Random Trades
+                    </button>
+                    <button onclick="resetMonteCarlo()" class="px-3 py-2 rounded-lg bg-axiom-800 text-gray-300 border border-axiom-600 hover:bg-axiom-700 transition-all">
+                        Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Simulator Controls & Canvas -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 font-mono text-xs">
+                <!-- Parameters Control Card -->
+                <div class="bg-axiom-900 p-5 rounded-xl border border-axiom-700 space-y-4">
+                    <div class="text-gray-300 font-bold uppercase text-[11px]">System Parameters</div>
+                    <div class="space-y-3">
+                        <div>
+                            <div class="flex justify-between text-gray-400 mb-1">
+                                <span>Win Rate (%):</span>
+                                <span id="winRateLbl" class="text-axiom-emerald font-bold">35%</span>
+                            </div>
+                            <input type="range" id="winRateSlider" min="20" max="75" value="35" oninput="updateParams()" class="w-full accent-axiom-emerald cursor-pointer">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-gray-400 mb-1">
+                                <span>Risk-to-Reward (RRR):</span>
+                                <span id="rrrLbl" class="text-axiom-accent font-bold">1 : 4.0</span>
+                            </div>
+                            <input type="range" id="rrrSlider" min="1" max="10" step="0.5" value="4.0" oninput="updateParams()" class="w-full accent-axiom-accent cursor-pointer">
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-gray-400 mb-1">
+                                <span>Risk Per Trade (%):</span>
+                                <span id="riskLbl" class="text-axiom-rose font-bold">1.0%</span>
+                            </div>
+                            <input type="range" id="riskSlider" min="0.5" max="5.0" step="0.5" value="1.0" oninput="updateParams()" class="w-full accent-axiom-rose cursor-pointer">
+                        </div>
+                    </div>
+
+                    <!-- Expectancy Math Box -->
+                    <div class="p-3 bg-axiom-850 rounded border border-axiom-700 space-y-1.5 text-[11px]">
+                        <div class="text-gray-400 font-bold uppercase text-[10px]">Mathematical Expectancy ($E$)</div>
+                        <div class="text-axiom-emerald font-bold text-sm" id="expectancyVal">+0.75R / Trade</div>
+                        <div class="text-gray-500 text-[10px]">$E = (W \times R) - (L \times 1)$</div>
+                    </div>
+                </div>
+
+                <!-- Canvas Chart -->
+                <div class="lg:col-span-3 bg-axiom-900 rounded-xl border border-axiom-700 p-4 canvas-container relative">
+                    <canvas id="equityCanvas" width="800" height="340" class="w-full h-auto block rounded"></canvas>
+                    <div class="flex justify-between items-center mt-3 pt-2 border-t border-axiom-800 text-[11px]">
+                        <span class="text-gray-400">Starting: <strong class="text-white">₹10,00,000</strong></span>
+                        <span class="text-gray-400">Final Equity: <strong id="finalEquityLbl" class="text-axiom-emerald font-bold">₹13,80,000 (+38%)</strong></span>
+                        <span class="text-gray-400">Max Drawdown: <strong id="maxDDLbl" class="text-axiom-rose font-bold">-4.8%</strong></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LAB 7.2: DRAWDOWN RECOVERY NON-LINEAR PHYSICS -->
+        <section id="lab7-2" class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-6">
+            <div class="border-b border-axiom-700/80 pb-4">
+                <div class="text-xs font-mono text-axiom-rose tracking-wider uppercase">Interactive Lab 7.2</div>
+                <h3 class="text-xl font-bold text-white">The Asymmetric Trap: Drawdown Recovery Physics</h3>
+                <p class="text-sm text-gray-400">घाटा रैखिक (Linear) नहीं बढ़ता; जैसे-जैसे ड्रॉडाउन गहरा होता है, रिकवरी का गणित अमानवीय हो जाता है।</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
+                <div class="bg-axiom-900 p-5 rounded-xl border border-axiom-700 space-y-4">
+                    <div class="text-gray-300 font-bold uppercase text-[11px]">Account Loss Slider</div>
+                    <div>
+                        <div class="flex justify-between text-gray-400 mb-1">
+                            <span>Drawdown Loss:</span>
+                            <span id="ddLossVal" class="text-axiom-rose font-bold text-base">-20%</span>
+                        </div>
+                        <input type="range" id="ddSlider" min="5" max="90" step="5" value="20" oninput="updateDrawdownPhysics(this.value)" class="w-full accent-axiom-rose cursor-pointer">
+                    </div>
+
+                    <div class="p-4 bg-axiom-850 rounded-xl border border-axiom-rose/30 space-y-2">
+                        <div class="text-gray-400 text-[10px]">REQUIRED GAIN TO BREAK-EVEN:</div>
+                        <div id="reqGainVal" class="text-2xl font-black text-axiom-rose">+25.0%</div>
+                        <p id="ddWarningText" class="text-gray-400 text-[11px] leading-relaxed">
+                            20% के नुकसान को वापस पाने के लिए आपको 25% का शुद्ध मुनाफा चाहिए।
+                        </p>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 bg-axiom-900 rounded-xl border border-axiom-700 p-4 canvas-container">
+                    <canvas id="ddCurveCanvas" width="700" height="260" class="w-full h-auto block rounded"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- LAB 7.3: DYNAMIC POSITION SIZING & LOT CALCULATOR -->
+        <section id="lab7-3" class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-6">
+            <div class="border-b border-axiom-700/80 pb-4">
+                <div class="text-xs font-mono text-axiom-accent tracking-wider uppercase">Interactive Lab 7.3</div>
+                <h3 class="text-xl font-bold text-white">Dynamic Institutional Lot Sizing Engine</h3>
+                <p class="text-sm text-gray-400">चाहे स्टॉप लॉस 15 अंक का हो या 90 अंक का, आपका वित्तीय जोखिम हमेशा 1% पर स्थिर रहेगा।</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
+                <div class="bg-axiom-900 p-5 rounded-xl border border-axiom-700 space-y-3">
+                    <div>
+                        <label class="block text-gray-400 mb-1">Account Capital (₹):</label>
+                        <input type="number" id="inpCapital" value="500000" oninput="calculateLotSize()" class="w-full bg-axiom-850 border border-axiom-600 rounded p-2 text-white font-bold focus:border-axiom-emerald outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Risk Percentage (%):</label>
+                        <input type="number" id="inpRiskPct" value="1.0" step="0.25" oninput="calculateLotSize()" class="w-full bg-axiom-850 border border-axiom-600 rounded p-2 text-axiom-emerald font-bold focus:border-axiom-emerald outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 mb-1">Stop Loss in Points:</label>
+                        <input type="number" id="inpSLPoints" value="35" oninput="calculateLotSize()" class="w-full bg-axiom-850 border border-axiom-600 rounded p-2 text-axiom-rose font-bold focus:border-axiom-rose outline-none">
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 bg-axiom-900 p-5 rounded-xl border border-axiom-700 grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+                    <div class="p-4 bg-axiom-850 rounded-xl border border-axiom-700 text-center">
+                        <div class="text-gray-400 text-[10px]">MAX RISK AMOUNT</div>
+                        <div id="resRiskAmt" class="text-xl font-bold text-axiom-rose mt-1">₹5,000</div>
+                        <div class="text-gray-500 text-[10px] mt-0.5">Fixed 1% Limit</div>
+                    </div>
+                    <div class="p-4 bg-axiom-850 rounded-xl border border-axiom-emerald/40 text-center">
+                        <div class="text-gray-400 text-[10px]">ALLOWED QUANTITY</div>
+                        <div id="resQty" class="text-2xl font-extrabold text-axiom-emerald mt-1">142 Qty</div>
+                        <div id="resLots" class="text-axiom-accent text-[10px] mt-0.5">(~2 Lots Nifty)</div>
+                    </div>
+                    <div class="p-4 bg-axiom-850 rounded-xl border border-axiom-700 text-center">
+                        <div class="text-gray-400 text-[10px]">1:4 RRR PROFIT</div>
+                        <div id="resProfit" class="text-xl font-bold text-axiom-accent mt-1">+₹20,000</div>
+                        <div class="text-gray-500 text-[10px] mt-0.5">+4.0% Account Growth</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chapter 7 Self-Audit Checklist -->
+        <section class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-4 font-mono text-xs">
+            <div class="flex items-center justify-between border-b border-axiom-700/80 pb-3">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <span class="text-axiom-emerald">⚡</span> Chapter 7 Risk Engineering Checklist
+                </h3>
+                <span class="text-gray-400">Capital Protection Laws</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label class="flex items-center gap-3 p-3 bg-axiom-900 rounded-lg border border-axiom-700 cursor-pointer hover:border-axiom-emerald transition-all">
+                    <input type="checkbox" class="accent-axiom-emerald w-4 h-4 rounded">
+                    <span>क्या मेरा अधिकतम जोखिम प्रति ट्रेड 1% या उससे कम निर्धारित है?</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 bg-axiom-900 rounded-lg border border-axiom-700 cursor-pointer hover:border-axiom-emerald transition-all">
+                    <input type="checkbox" class="accent-axiom-emerald w-4 h-4 rounded">
+                    <span>क्या सेटअप कम से कम 1:3 या 1:4 का न्यूनतम रिस्क-रिवॉर्ड प्रदान करता है?</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 bg-axiom-900 rounded-lg border border-axiom-700 cursor-pointer hover:border-axiom-emerald transition-all">
+                    <input type="checkbox" class="accent-axiom-emerald w-4 h-4 rounded">
+                    <span>क्या मैंने स्टॉप-लॉस पॉइंट्स के आधार पर पोजीशन साइजिंग की है?</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 bg-axiom-900 rounded-lg border border-axiom-700 cursor-pointer hover:border-axiom-emerald transition-all">
+                    <input type="checkbox" class="accent-axiom-emerald w-4 h-4 rounded">
+                    <span>क्या मुझे पता है कि 50% ड्रॉडाउन को रिकवर करने के लिए 100% लाभ चाहिए?</span>
+                </label>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        let audioCtx = null;
+        let audioMuted = true;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function toggleAudio() {
+            initAudio();
+            audioMuted = !audioMuted;
+            const icon = document.getElementById('audioIcon');
+            const txt = document.getElementById('audioText');
+            if (audioMuted) {
+                icon.className = 'w-2 h-2 rounded-full bg-axiom-rose';
+                txt.innerText = 'Audio: Muted';
+            } else {
+                icon.className = 'w-2 h-2 rounded-full bg-axiom-emerald animate-pulse';
+                txt.innerText = 'Audio: Active';
+                playChime(660, 0.1, 'sine');
+            }
+        }
+
+        function playChime(freq, dur, type='sine') {
+            if (audioMuted || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + dur);
+            } catch(e){}
+        }
+
+        // LAB 7.1: Monte Carlo Simulation
+        let winRate = 35;
+        let rrr = 4.0;
+        let riskPct = 1.0;
+        const eqCanvas = document.getElementById('equityCanvas');
+        const eqCtx = eqCanvas.getContext('2d');
+
+        function updateParams() {
+            winRate = parseFloat(document.getElementById('winRateSlider').value);
+            rrr = parseFloat(document.getElementById('rrrSlider').value);
+            riskPct = parseFloat(document.getElementById('riskSlider').value);
+
+            document.getElementById('winRateLbl').innerText = winRate + '%';
+            document.getElementById('rrrLbl').innerText = '1 : ' + rrr.toFixed(1);
+            document.getElementById('riskLbl').innerText = riskPct.toFixed(1) + '%';
+
+            const w = winRate / 100;
+            const l = 1 - w;
+            const exp = (w * rrr) - (l * 1.0);
+            const expBox = document.getElementById('expectancyVal');
+            expBox.innerText = (exp >= 0 ? '+' : '') + exp.toFixed(2) + 'R / Trade';
+            expBox.className = exp >= 0 ? "text-axiom-emerald font-bold text-sm" : "text-axiom-rose font-bold text-sm";
+        }
+
+        function runMonteCarlo() {
+            initAudio();
+            playChime(880, 0.2, 'triangle');
+
+            let equity = 1000000;
+            const initialEquity = equity;
+            const curve = [equity];
+            let peak = equity;
+            let maxDD = 0;
+
+            for(let i=0; i<50; i++) {
+                const isWin = (Math.random() * 100) < winRate;
+                const riskAmt = equity * (riskPct / 100);
+                if (isWin) {
+                    equity += riskAmt * rrr;
+                } else {
+                    equity -= riskAmt;
+                }
+                curve.push(equity);
+
+                if (equity > peak) peak = equity;
+                const curDD = ((peak - equity) / peak) * 100;
+                if (curDD > maxDD) maxDD = curDD;
+            }
+
+            const growth = ((equity - initialEquity) / initialEquity) * 100;
+            document.getElementById('finalEquityLbl').innerText = `₹${Math.round(equity).toLocaleString()} (${growth >= 0 ? '+' : ''}${growth.toFixed(1)}%)`;
+            document.getElementById('finalEquityLbl').className = growth >= 0 ? "text-axiom-emerald font-bold" : "text-axiom-rose font-bold";
+            document.getElementById('maxDDLbl').innerText = `-${maxDD.toFixed(1)}%`;
+
+            drawEquityCurve(curve);
+        }
+
+        function resetMonteCarlo() {
+            drawEquityCurve([1000000]);
+            document.getElementById('finalEquityLbl').innerText = "₹10,00,000 (0.0%)";
+            document.getElementById('maxDDLbl').innerText = "0.0%";
+        }
+
+        function drawEquityCurve(points) {
+            eqCtx.clearRect(0, 0, eqCanvas.width, eqCanvas.height);
+
+            // Grid
+            eqCtx.strokeStyle = '#161b22';
+            eqCtx.lineWidth = 1;
+            for(let x=0; x<eqCanvas.width; x+=50) {
+                eqCtx.beginPath(); eqCtx.moveTo(x,0); eqCtx.lineTo(x,eqCanvas.height); eqCtx.stroke();
+            }
+            for(let y=0; y<eqCanvas.height; y+=35) {
+                eqCtx.beginPath(); eqCtx.moveTo(0,y); eqCtx.lineTo(eqCanvas.width,y); eqCtx.stroke();
+            }
+
+            if(points.length < 2) return;
+
+            const minVal = Math.min(...points) * 0.95;
+            const maxVal = Math.max(...points) * 1.05;
+
+            function getY(val) {
+                return eqCanvas.height - 30 - ((val - minVal) / (maxVal - minVal)) * (eqCanvas.height - 60);
+            }
+
+            // Draw Initial Capital line
+            const yInit = getY(1000000);
+            eqCtx.strokeStyle = '#6e7681';
+            eqCtx.setLineDash([4, 4]);
+            eqCtx.beginPath(); eqCtx.moveTo(40, yInit); eqCtx.lineTo(eqCanvas.width - 20, yInit); eqCtx.stroke();
+            eqCtx.setLineDash([]);
+            eqCtx.fillStyle = '#6e7681';
+            eqCtx.font = '10px JetBrains Mono';
+            eqCtx.fillText('Starting Baseline (₹10L)', 50, yInit - 6);
+
+            // Plot Equity Curve
+            eqCtx.strokeStyle = points[points.length-1] >= 1000000 ? '#10b981' : '#f43f5e';
+            eqCtx.lineWidth = 2.5;
+            eqCtx.beginPath();
+
+            const stepX = (eqCanvas.width - 70) / (points.length - 1);
+            points.forEach((pt, i) => {
+                const x = 50 + i * stepX;
+                const y = getY(pt);
+                if (i === 0) eqCtx.moveTo(x, y);
+                else eqCtx.lineTo(x, y);
+            });
+            eqCtx.stroke();
+        }
+
+        // LAB 7.2: Drawdown Curve
+        const ddCanvas = document.getElementById('ddCurveCanvas');
+        const ddCtx = ddCanvas.getContext('2d');
+
+        function updateDrawdownPhysics(val) {
+            const loss = parseFloat(val);
+            const reqGain = (loss / (100 - loss)) * 100;
+
+            document.getElementById('ddLossVal').innerText = `-${loss}%`;
+            document.getElementById('reqGainVal').innerText = `+${reqGain.toFixed(1)}%`;
+
+            const wTxt = document.getElementById('ddWarningText');
+            if (loss <= 20) {
+                wTxt.innerText = `${loss}% के नुकसान को वापस पाने के लिए +${reqGain.toFixed(1)}% लाभ चाहिए। यह नियंत्रित सीमा में है।`;
+            } else if (loss <= 50) {
+                wTxt.innerText = `चेतावनी! ${loss}% नुकसान के बाद +${reqGain.toFixed(1)}% का लाभ कमाना मानसिक और गणितीय रूप से अत्यधिक कठिन है।`;
+            } else {
+                wTxt.innerText = `मृत्यु ज़ोन (Account Ruin)! ${loss}% के बाद +${reqGain.toFixed(1)}% हासिल करना असंभव है। पूंजी समाप्त!`;
+            }
+
+            drawDDCurve(loss);
+        }
+
+        function drawDDCurve(currentLoss) {
+            ddCtx.clearRect(0, 0, ddCanvas.width, ddCanvas.height);
+
+            // Grid
+            ddCtx.strokeStyle = '#161b22';
+            ddCtx.lineWidth = 1;
+            for(let x=0; x<ddCanvas.width; x+=50) {
+                ddCtx.beginPath(); ddCtx.moveTo(x,0); ddCtx.lineTo(x,ddCanvas.height); ddCtx.stroke();
+            }
+
+            ddCtx.strokeStyle = '#f43f5e';
+            ddCtx.lineWidth = 2.5;
+            ddCtx.beginPath();
+
+            for(let l=5; l<=90; l+=1) {
+                const g = (l / (100 - l)) * 100;
+                const x = 50 + (l / 90) * (ddCanvas.width - 80);
+                const y = ddCanvas.height - 30 - Math.min(g / 400, 1) * (ddCanvas.height - 60);
+                if (l === 5) ddCtx.moveTo(x, y);
+                else ddCtx.lineTo(x, y);
+            }
+            ddCtx.stroke();
+
+            // Highlight current loss
+            const curG = (currentLoss / (100 - currentLoss)) * 100;
+            const curX = 50 + (currentLoss / 90) * (ddCanvas.width - 80);
+            const curY = ddCanvas.height - 30 - Math.min(curG / 400, 1) * (ddCanvas.height - 60);
+
+            ddCtx.fillStyle = '#38bdf8';
+            ddCtx.beginPath(); ddCtx.arc(curX, curY, 6, 0, Math.PI*2); ddCtx.fill();
+        }
+
+        // LAB 7.3: Position Sizing Calculator
+        function calculateLotSize() {
+            const cap = parseFloat(document.getElementById('inpCapital').value) || 500000;
+            const rPct = parseFloat(document.getElementById('inpRiskPct').value) || 1.0;
+            const slPts = parseFloat(document.getElementById('inpSLPoints').value) || 35;
+
+            const maxRisk = cap * (rPct / 100);
+            const qty = Math.floor(maxRisk / slPts);
+            const lots = (qty / 25).toFixed(1); // Assuming 25 per lot for Nifty
+
+            document.getElementById('resRiskAmt').innerText = '₹' + Math.round(maxRisk).toLocaleString();
+            document.getElementById('resQty').innerText = qty + ' Qty';
+            document.getElementById('resLots').innerText = `(~${lots} Lots Nifty)`;
+            document.getElementById('resProfit').innerText = '+₹' + Math.round(maxRisk * 4).toLocaleString();
+        }
+
+        window.addEventListener('load', () => {
+            updateParams();
+            runMonteCarlo();
+            updateDrawdownPhysics(20);
+            calculateLotSize();
+        });
+    </script>
+</body>
+</html>

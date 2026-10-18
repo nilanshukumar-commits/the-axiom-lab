@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="hi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 4: Liquidity Engineering & Order Blocks | The Axiom Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        axiom: {
+                            900: '#07090e',
+                            850: '#0d1117',
+                            800: '#161b22',
+                            700: '#21262d',
+                            600: '#30363d',
+                            accent: '#38bdf8',
+                            emerald: '#10b981',
+                            rose: '#f43f5e',
+                            amber: '#f59e0b',
+                            violet: '#8b5cf6'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #07090e;
+            color: #e6edf3;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.05) 0%, transparent 40%);
+        }
+        .hud-glass {
+            background: rgba(13, 17, 23, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(48, 54, 61, 0.6);
+        }
+        .canvas-container {
+            position: relative;
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.85);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #07090e; }
+        ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-axiom-accent selection:text-axiom-900 pb-24">
+
+    <!-- Top Navigation HUD -->
+    <header class="sticky top-0 z-50 hud-glass border-b border-axiom-700/80 px-6 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-axiom-accent via-axiom-violet to-axiom-emerald flex items-center justify-center shadow-lg shadow-axiom-accent/20">
+                <span class="font-mono font-black text-axiom-900 text-base">AX</span>
+            </div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-mono font-semibold tracking-wider uppercase text-axiom-accent">The Axiom Lab</span>
+                    <span class="text-xs text-axiom-600">/</span>
+                    <span class="text-xs font-mono text-gray-400">Institutional Mechanics</span>
+                </div>
+                <h1 class="text-sm font-bold tracking-tight text-white flex items-center gap-2">
+                    Chapter 4: Liquidity Engineering & Order Blocks
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono bg-axiom-violet/20 text-axiom-violet border border-axiom-violet/30">MODULE 04</span>
+                </h1>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <button id="audioToggleBtn" onclick="toggleAudio()" class="px-3 py-1.5 rounded-md text-xs font-mono bg-axiom-800 hover:bg-axiom-700 border border-axiom-600 flex items-center gap-2 transition-all">
+                <span id="audioIcon" class="w-2 h-2 rounded-full bg-axiom-rose"></span>
+                <span id="audioText">Audio: Muted</span>
+            </button>
+            <a href="chapter3.html" class="px-3 py-1.5 rounded-md text-xs font-mono bg-axiom-800 hover:bg-axiom-700 border border-axiom-600 transition-all text-gray-300 hover:text-white">
+                ← Chapter 3
+            </a>
+            <a href="chapter4_case_studies.html" class="px-3 py-1.5 rounded-md text-xs font-mono bg-axiom-amber/20 text-axiom-amber border border-axiom-amber/40 hover:bg-axiom-amber/30 transition-all">
+                Case Studies Extension →
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-12">
+
+        <!-- Chapter Hero Banner -->
+        <section class="hud-glass rounded-2xl p-8 border border-axiom-700 relative overflow-hidden">
+            <div class="absolute -right-16 -top-16 w-80 h-80 bg-axiom-accent/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-16 -bottom-16 w-80 h-80 bg-axiom-violet/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="max-w-3xl relative z-10 space-y-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono bg-axiom-accent/10 text-axiom-accent border border-axiom-accent/30">
+                    <span class="animate-pulse">●</span> CORE INSTITUTIONAL CONCEPTS
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+                    Liquidity Engineering & Institutional Footprints
+                </h2>
+                <p class="text-base text-gray-300 leading-relaxed">
+                    बाज़ार कभी भी यादृच्छिक (Random) रूप से नहीं चलता। संस्थान केवल दो चीज़ों की तलाश में दौड़ते हैं: <span class="text-axiom-accent font-semibold">इंजीनियर्ड लिक्विडिटी (BSL/SSL)</span> और <span class="text-axiom-violet font-semibold">असंतुलित मूल्य (Fair Value Gaps)</span>। यदि आप चार्ट पर यह नहीं पहचान सकते कि लिक्विडिटी कहाँ जमा है, तो समझ लीजिए कि आपकी अपनी पोजीशन ही किसी संस्थान की लिक्विडिटी है।
+                </p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 text-xs font-mono">
+                    <div class="bg-axiom-900/60 p-3 rounded-lg border border-axiom-700">
+                        <div class="text-gray-400">BSL POOL</div>
+                        <div class="text-axiom-rose font-bold text-sm mt-1">Buy-Side Stops</div>
+                    </div>
+                    <div class="bg-axiom-900/60 p-3 rounded-lg border border-axiom-700">
+                        <div class="text-gray-400">SSL POOL</div>
+                        <div class="text-axiom-emerald font-bold text-sm mt-1">Sell-Side Stops</div>
+                    </div>
+                    <div class="bg-axiom-900/60 p-3 rounded-lg border border-axiom-700">
+                        <div class="text-gray-400">IMBALANCE</div>
+                        <div class="text-axiom-accent font-bold text-sm mt-1">Fair Value Gap</div>
+                    </div>
+                    <div class="bg-axiom-900/60 p-3 rounded-lg border border-axiom-700">
+                        <div class="text-gray-400">PRICING</div>
+                        <div class="text-axiom-violet font-bold text-sm mt-1">Premium / Discount</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LAB 4.1: BSL vs SSL LIQUIDITY SWEEPER & HEATMAP -->
+        <section id="lab4-1" class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-axiom-700/80 pb-4">
+                <div>
+                    <div class="text-xs font-mono text-axiom-accent tracking-wider uppercase">Interactive Lab 4.1</div>
+                    <h3 class="text-xl font-bold text-white">BSL & SSL Liquidity Pool Sweeper</h3>
+                    <p class="text-sm text-gray-400">Equal Highs (EQH) और Equal Lows (EQL) के ऊपर/नीचे जमा रिटेल स्टॉप्स का इंस्टीट्यूशनल स्वीप देखें।</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="runLiquiditySim('bsl')" class="px-4 py-2 rounded-lg text-xs font-mono font-bold bg-axiom-rose/20 text-axiom-rose border border-axiom-rose/40 hover:bg-axiom-rose/30 transition-all">
+                        Sweep BSL (Equal Highs) ↗
+                    </button>
+                    <button onclick="runLiquiditySim('ssl')" class="px-4 py-2 rounded-lg text-xs font-mono font-bold bg-axiom-emerald/20 text-axiom-emerald border border-axiom-emerald/40 hover:bg-axiom-emerald/30 transition-all">
+                        Sweep SSL (Equal Lows) ↘
+                    </button>
+                    <button onclick="resetLiquiditySim()" class="px-3 py-2 rounded-lg text-xs font-mono bg-axiom-800 text-gray-300 border border-axiom-600 hover:bg-axiom-700 transition-all">
+                        Reset
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <div class="lg:col-span-3 bg-axiom-900 rounded-xl border border-axiom-700 p-4 canvas-container">
+                    <canvas id="liqCanvas" width="800" height="420" class="w-full h-auto block rounded"></canvas>
+                </div>
+                <div class="space-y-4 text-xs font-mono">
+                    <div class="bg-axiom-900/80 p-4 rounded-xl border border-axiom-700 space-y-3">
+                        <div class="text-gray-400 font-bold uppercase tracking-wider text-[11px]">Algorithmic Status</div>
+                        <div id="liqStatus" class="text-axiom-accent font-semibold text-sm">Waiting for liquidity trigger...</div>
+                        <div class="text-gray-400 leading-relaxed text-[11px]" id="liqDesc">
+                            मार्केट में रिटेल ट्रेडर्स ने दो समान हाइट्स (Equal Highs) देखकर वहाँ रेजिस्टेंस माना और स्टॉप-लॉस ठीक ऊपर रखा है।
+                        </div>
+                    </div>
+                    <div class="bg-axiom-900/80 p-4 rounded-xl border border-axiom-700 space-y-2">
+                        <div class="text-gray-400 font-bold uppercase tracking-wider text-[11px]">Liquidity Density Meter</div>
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between text-gray-400">
+                                <span>BSL Pool (Buy Stops)</span>
+                                <span id="bslMeterVal" class="text-axiom-rose font-bold">₹1,420 Cr</span>
+                            </div>
+                            <div class="w-full bg-axiom-800 rounded-full h-2 overflow-hidden">
+                                <div id="bslMeterBar" class="bg-axiom-rose h-2 rounded-full transition-all duration-500" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        <div class="space-y-1.5 pt-2">
+                            <div class="flex justify-between text-gray-400">
+                                <span>SSL Pool (Sell Stops)</span>
+                                <span id="sslMeterVal" class="text-axiom-emerald font-bold">₹1,180 Cr</span>
+                            </div>
+                            <div class="w-full bg-axiom-800 rounded-full h-2 overflow-hidden">
+                                <div id="sslMeterBar" class="bg-axiom-emerald h-2 rounded-full transition-all duration-500" style="width: 70%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LAB 4.2: FAIR VALUE GAP (FVG) / IMBALANCE REBALANCING -->
+        <section id="lab4-2" class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-axiom-700/80 pb-4">
+                <div>
+                    <div class="text-xs font-mono text-axiom-violet tracking-wider uppercase">Interactive Lab 4.2</div>
+                    <h3 class="text-xl font-bold text-white">Fair Value Gap (FVG) & Consequent Encroachment (C.E.)</h3>
+                    <p class="text-sm text-gray-400">3-कैंडल असंतुलन (Imbalance) और 50% Consequent Encroachment री-बैलेंसिंग का डायनामिक मॉडल।</p>
+                </div>
+                <div class="flex items-center gap-3">
+                    <label class="text-xs font-mono text-gray-400">Retracement Depth:</label>
+                    <input type="range" id="fvgSlider" min="0" max="100" value="0" oninput="updateFVGSim(this.value)" class="w-36 accent-axiom-violet cursor-pointer">
+                    <span id="fvgSliderVal" class="text-xs font-mono text-axiom-violet font-bold w-12">0%</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 bg-axiom-900 rounded-xl border border-axiom-700 p-4 canvas-container">
+                    <canvas id="fvgCanvas" width="700" height="380" class="w-full h-auto block rounded"></canvas>
+                </div>
+                <div class="space-y-4 text-xs font-mono">
+                    <div class="bg-axiom-900/80 p-4 rounded-xl border border-axiom-700 space-y-3">
+                        <div class="text-gray-400 font-bold uppercase tracking-wider text-[11px]">FVG Geometry Breakdown</div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between pb-1 border-b border-axiom-800">
+                                <span class="text-gray-400">Candle 1 High:</span>
+                                <span class="text-white font-bold">₹24,820.00</span>
+                            </div>
+                            <div class="flex justify-between pb-1 border-b border-axiom-800">
+                                <span class="text-gray-400">Candle 3 Low:</span>
+                                <span class="text-white font-bold">₹24,960.00</span>
+                            </div>
+                            <div class="flex justify-between pb-1 border-b border-axiom-800">
+                                <span class="text-axiom-violet font-bold">FVG Gap Size:</span>
+                                <span class="text-axiom-violet font-bold">140 Points</span>
+                            </div>
+                            <div class="flex justify-between pb-1 border-b border-axiom-800">
+                                <span class="text-axiom-accent font-bold">50% C.E. Level:</span>
+                                <span class="text-axiom-accent font-bold">₹24,890.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-axiom-900/80 p-4 rounded-xl border border-axiom-700 space-y-2">
+                        <div class="text-gray-400 font-bold uppercase tracking-wider text-[11px]">Institutional Reaction</div>
+                        <p id="fvgVerdict" class="text-gray-300 leading-relaxed text-[11px]">
+                            स्लाइडर को आगे बढ़ाएं और देखें कि जब प्राइस 50% Consequent Encroachment (C.E.) को छूती है तो एल्गोरिद्म कैसे मिटिगेट होता है।
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LAB 4.3: ORDER BLOCK VALIDATION & MITIGATION -->
+        <section id="lab4-3" class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-6">
+            <div class="border-b border-axiom-700/80 pb-4">
+                <div class="text-xs font-mono text-axiom-emerald tracking-wider uppercase">Interactive Lab 4.3</div>
+                <h3 class="text-xl font-bold text-white">Valid Order Block vs. Retail Trap Block</h3>
+                <p class="text-sm text-gray-400">स्मार्ट मनी का हाई-प्रॉबेबिलिटी ऑर्डर ब्लॉक पहचानें: क्या इसने लिक्विडिटी ली? क्या इसके आगे FVG है?</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 font-mono text-xs">
+                <!-- Valid OB Card -->
+                <div class="bg-axiom-900/90 rounded-xl border-2 border-axiom-emerald/40 p-5 space-y-4 hover:border-axiom-emerald transition-all">
+                    <div class="flex items-center justify-between">
+                        <span class="px-2.5 py-1 rounded bg-axiom-emerald/20 text-axiom-emerald font-bold text-xs">A-GRADE ORDER BLOCK</span>
+                        <span class="text-axiom-emerald text-sm">✓ High Probability</span>
+                    </div>
+                    <div class="space-y-2 text-gray-300">
+                        <div class="flex items-start gap-2">
+                            <span class="text-axiom-emerald font-bold">1.</span>
+                            <span><strong>Liquidity Swept:</strong> इस ब्लॉक ने पिछले स्विंग लो/इक्वल लोज़ (SSL) को पहले स्वीप किया।</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-axiom-emerald font-bold">2.</span>
+                            <span><strong>Institutional Displacement:</strong> इसके तुरंत बाद आक्रामक कैंडलस्टिक और BOS क्लोज़ मिला।</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-axiom-emerald font-bold">3.</span>
+                            <span><strong>Unmitigated FVG:</strong> इसके ठीक आगे एक अन-टैप्ड फेयर वैल्यू गैप मौजूद है।</span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-axiom-850 rounded border border-axiom-emerald/30 text-axiom-emerald font-semibold text-[11px]">
+                        संस्थान यहाँ अपनी फ्लोटिंग ड्रॉडाउन पोजीशन को ब्रेक-ईवन (Mitigate) करते हैं और नया बुलिश मूव शुरू करते हैं।
+                    </div>
+                </div>
+
+                <!-- Fake Trap Card -->
+                <div class="bg-axiom-900/90 rounded-xl border-2 border-axiom-rose/40 p-5 space-y-4 hover:border-axiom-rose transition-all">
+                    <div class="flex items-center justify-between">
+                        <span class="px-2.5 py-1 rounded bg-axiom-rose/20 text-axiom-rose font-bold text-xs">RETAIL TRAP BLOCK</span>
+                        <span class="text-axiom-rose text-sm">✕ Low Probability</span>
+                    </div>
+                    <div class="space-y-2 text-gray-300">
+                        <div class="flex items-start gap-2">
+                            <span class="text-axiom-rose font-bold">1.</span>
+                            <span><strong>No Liquidity Grab:</strong> यह ब्लॉक बिना किसी पुराने हाई/लो को तोड़े बीच हवा में बना है।</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-axiom-rose font-bold">2.</span>
+                            <span><strong>Slow Movement:</strong> इसके आगे कोई मजबूत डिस्प्लेसमेंट या बॉडी BOS नहीं है।</span>
+                        </div>
+                        <div class="flex items-start gap-2">
+                            <span class="text-axiom-rose font-bold">3.</span>
+                            <span><strong>Already Mitigated:</strong> प्राइस इसे पहले ही कई बार विक्स से छू चुकी है।</span>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-axiom-850 rounded border border-axiom-rose/30 text-axiom-rose font-semibold text-[11px]">
+                        यह ब्लॉक केवल लिक्विडिटी इंड्यूसमेंट (IDM) का काम करेगा। स्मार्ट मनी इसे तोड़कर नीचे के असली ज़ोन पर जाएगी।
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LAB 4.4: PREMIUM VS DISCOUNT PRICING CALCULATOR -->
+        <section id="lab4-4" class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-6">
+            <div class="border-b border-axiom-700/80 pb-4">
+                <div class="text-xs font-mono text-axiom-accent tracking-wider uppercase">Interactive Lab 4.4</div>
+                <h3 class="text-xl font-bold text-white">Institutional Wholesale Pricing: Premium vs. Discount</h3>
+                <p class="text-sm text-gray-400">स्मार्ट मनी कभी भी महंगे (Premium) भाव पर नहीं खरीदती। 50% इक्विलिब्रीम के आधार पर सही ज़ोन की गणना करें।</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
+                <div class="bg-axiom-900 p-5 rounded-xl border border-axiom-700 space-y-4">
+                    <div class="text-gray-300 font-bold uppercase text-[11px]">Structural Swing Inputs</div>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-gray-400 mb-1">Swing High Price (100%):</label>
+                            <input type="number" id="swingHighInp" value="25200" oninput="calculatePD()" class="w-full bg-axiom-850 border border-axiom-600 rounded p-2 text-white font-bold focus:border-axiom-accent outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 mb-1">Swing Low Price (0%):</label>
+                            <input type="number" id="swingLowInp" value="24600" oninput="calculatePD()" class="w-full bg-axiom-850 border border-axiom-600 rounded p-2 text-white font-bold focus:border-axiom-accent outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-gray-400 mb-1">Current Market Price (CMP):</label>
+                            <input type="number" id="cmpInp" value="24750" oninput="calculatePD()" class="w-full bg-axiom-850 border border-axiom-600 rounded p-2 text-axiom-accent font-bold focus:border-axiom-accent outline-none">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 bg-axiom-900 p-5 rounded-xl border border-axiom-700 flex flex-col justify-between space-y-4">
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-gray-400">Institutional Valuation:</span>
+                            <span id="pdBadge" class="px-3 py-1 rounded font-bold uppercase text-xs bg-axiom-emerald/20 text-axiom-emerald border border-axiom-emerald/30">
+                                DISCOUNT ZONE (BUY ELIGIBLE)
+                            </span>
+                        </div>
+                        <div class="relative h-12 bg-axiom-800 rounded-lg overflow-hidden border border-axiom-700 flex items-center">
+                            <div class="w-1/2 h-full bg-axiom-emerald/20 border-r border-dashed border-gray-400 flex items-center justify-center text-[11px] text-axiom-emerald font-bold">
+                                DISCOUNT (0% - 50%)
+                            </div>
+                            <div class="w-1/2 h-full bg-axiom-rose/20 flex items-center justify-center text-[11px] text-axiom-rose font-bold">
+                                PREMIUM (50% - 100%)
+                            </div>
+                            <!-- CMP Marker -->
+                            <div id="cmpMarker" class="absolute top-0 bottom-0 w-1 bg-axiom-accent shadow-lg shadow-axiom-accent transition-all duration-300" style="left: 25%"></div>
+                        </div>
+                        <div class="flex justify-between text-gray-400 text-[11px]">
+                            <span>0% Low: <strong id="lblLow" class="text-white">₹24,600</strong></span>
+                            <span>50% Equilibrium: <strong id="lblEq" class="text-axiom-accent">₹24,900</strong></span>
+                            <span>100% High: <strong id="lblHigh" class="text-white">₹25,200</strong></span>
+                        </div>
+                    </div>
+
+                    <div id="pdAdvice" class="p-3 bg-axiom-850 rounded border border-axiom-700 text-gray-300 text-[11px] leading-relaxed">
+                        वर्तमान भाव इक्विलिब्रीम (₹24,900) के नीचे है। यह एक <span class="text-axiom-emerald font-bold">Discount Zone</span> है। यहाँ संस्थागत बुल्स अन-मिटिगेटेड FVG या Order Block पर लॉन्ग पोजीशन की तलाश करते हैं।
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chapter 4 Self-Audit Checklist -->
+        <section class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-4 font-mono text-xs">
+            <div class="flex items-center justify-between border-b border-axiom-700/80 pb-3">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <span class="text-axiom-accent">⚡</span> Chapter 4 Institutional Checklist
+                </h3>
+                <span class="text-gray-400">4 Critical Filters</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label class="flex items-center gap-3 p-3 bg-axiom-900 rounded-lg border border-axiom-700 cursor-pointer hover:border-axiom-accent transition-all">
+                    <input type="checkbox" class="accent-axiom-accent w-4 h-4 rounded">
+                    <span>क्या सेटअप ने पहले महत्वपूर्ण BSL या SSL लिक्विडिटी स्वीप की?</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 bg-axiom-900 rounded-lg border border-axiom-700 cursor-pointer hover:border-axiom-accent transition-all">
+                    <input type="checkbox" class="accent-axiom-accent w-4 h-4 rounded">
+                    <span>क्या चुने हुए Order Block के साथ 3-कैंडल FVG मौजूद है?</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 bg-axiom-900 rounded-lg border border-axiom-700 cursor-pointer hover:border-axiom-accent transition-all">
+                    <input type="checkbox" class="accent-axiom-accent w-4 h-4 rounded">
+                    <span>क्या मेरा बाय सेटअप 50% इक्विलिब्रीम के नीचे (Discount) है?</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 bg-axiom-900 rounded-lg border border-axiom-700 cursor-pointer hover:border-axiom-accent transition-all">
+                    <input type="checkbox" class="accent-axiom-accent w-4 h-4 rounded">
+                    <span>क्या मैंने पहले आंतरिक पुलबैक (Inducement) को फिल्टर कर दिया है?</span>
+                </label>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Web Audio API Synthesizer
+        let audioCtx = null;
+        let audioMuted = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function toggleAudio() {
+            initAudio();
+            audioMuted = !audioMuted;
+            const icon = document.getElementById('audioIcon');
+            const txt = document.getElementById('audioText');
+            if (audioMuted) {
+                icon.className = 'w-2 h-2 rounded-full bg-axiom-rose';
+                txt.innerText = 'Audio: Muted';
+            } else {
+                icon.className = 'w-2 h-2 rounded-full bg-axiom-emerald animate-pulse';
+                txt.innerText = 'Audio: Active';
+                playChime(660, 0.1, 'sine');
+            }
+        }
+
+        function playChime(freq, duration, type='sine') {
+            if (audioMuted || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e){}
+        }
+
+        // LAB 4.1: Liquidity Sweeper Canvas Simulation
+        const liqCanvas = document.getElementById('liqCanvas');
+        const lCtx = liqCanvas.getContext('2d');
+        let simState = 'idle'; // 'idle', 'bsl', 'ssl'
+        let animProgress = 0;
+
+        function drawLiquidityBase() {
+            lCtx.clearRect(0, 0, liqCanvas.width, liqCanvas.height);
+            
+            // Grid lines
+            lCtx.strokeStyle = '#161b22';
+            lCtx.lineWidth = 1;
+            for(let x=0; x<liqCanvas.width; x+=40) {
+                lCtx.beginPath(); lCtx.moveTo(x,0); lCtx.lineTo(x,liqCanvas.height); lCtx.stroke();
+            }
+            for(let y=0; y<liqCanvas.height; y+=40) {
+                lCtx.beginPath(); lCtx.moveTo(0,y); lCtx.lineTo(liqCanvas.width,y); lCtx.stroke();
+            }
+
+            // BSL Zone (Equal Highs)
+            const bslY = 110;
+            lCtx.fillStyle = 'rgba(244, 63, 94, 0.12)';
+            lCtx.fillRect(100, bslY - 30, 600, 30);
+            lCtx.strokeStyle = '#f43f5e';
+            lCtx.setLineDash([6, 6]);
+            lCtx.beginPath(); lCtx.moveTo(100, bslY); lCtx.lineTo(700, bslY); lCtx.stroke();
+            lCtx.setLineDash([]);
+            lCtx.fillStyle = '#f43f5e';
+            lCtx.font = '11px JetBrains Mono';
+            lCtx.fillText('BUY-SIDE LIQUIDITY (BSL) — Equal Highs / Retail Stops Pool', 120, bslY - 10);
+
+            // SSL Zone (Equal Lows)
+            const sslY = 320;
+            lCtx.fillStyle = 'rgba(16, 185, 129, 0.12)';
+            lCtx.fillRect(100, sslY, 600, 30);
+            lCtx.strokeStyle = '#10b981';
+            lCtx.setLineDash([6, 6]);
+            lCtx.beginPath(); lCtx.moveTo(100, sslY); lCtx.lineTo(700, sslY); lCtx.stroke();
+            lCtx.setLineDash([]);
+            lCtx.fillStyle = '#10b981';
+            lCtx.fillText('SELL-SIDE LIQUIDITY (SSL) — Equal Lows / Long Stops Pool', 120, sslY + 20);
+
+            // Base Candles
+            // Swing High 1
+            drawCandle(180, 180, 115, 230, '#10b981');
+            drawCandle(220, 140, 110, 190, '#f43f5e'); // Peak 1 at 110
+
+            // Swing Low 1
+            drawCandle(300, 260, 200, 320, '#f43f5e'); // Valley at 320
+            drawCandle(340, 290, 240, 320, '#10b981');
+
+            // Swing High 2 (EQH)
+            drawCandle(440, 150, 110, 210, '#10b981'); // Peak 2 at 110
+            drawCandle(480, 130, 112, 180, '#f43f5e');
+
+            // Swing Low 2 (EQL)
+            drawCandle(560, 280, 220, 320, '#f43f5e'); // Valley at 320
+            drawCandle(600, 290, 250, 318, '#10b981');
+
+            // Active Sweeper Wick if triggered
+            if (simState === 'bsl') {
+                const curY = 110 - animProgress * 45;
+                drawSweepCandle(660, 160, curY, 260, '#f43f5e');
+                lCtx.fillStyle = '#38bdf8';
+                lCtx.fillText('▲ ALGORITHMIC SWEEP PURGE', 620, curY - 12);
+            } else if (simState === 'ssl') {
+                const curY = 320 + animProgress * 45;
+                drawSweepCandle(660, 260, 210, curY, '#10b981');
+                lCtx.fillStyle = '#38bdf8';
+                lCtx.fillText('▼ ALGORITHMIC SSL HUNT', 620, curY + 20);
+            }
+        }
+
+        function drawCandle(x, o, h, l, color) {
+            lCtx.strokeStyle = color;
+            lCtx.lineWidth = 2;
+            lCtx.beginPath(); lCtx.moveTo(x, h); lCtx.lineTo(x, l); lCtx.stroke();
+            const top = Math.min(o, (o+h)/2);
+            const height = Math.abs(o - (o+h)/2) + 15;
+            lCtx.fillStyle = color;
+            lCtx.fillRect(x - 8, top, 16, height);
+        }
+
+        function drawSweepCandle(x, o, h, l, color) {
+            lCtx.strokeStyle = color;
+            lCtx.lineWidth = 2;
+            lCtx.beginPath(); lCtx.moveTo(x, h); lCtx.lineTo(x, l); lCtx.stroke();
+            lCtx.fillStyle = color;
+            if (simState === 'bsl') {
+                lCtx.fillRect(x - 10, 120, 20, 90);
+            } else {
+                lCtx.fillRect(x - 10, 240, 20, 70);
+            }
+        }
+
+        function runLiquiditySim(type) {
+            initAudio();
+            simState = type;
+            animProgress = 0;
+            const status = document.getElementById('liqStatus');
+            const desc = document.getElementById('liqDesc');
+
+            if (type === 'bsl') {
+                status.innerText = "Sweeping Equal Highs (BSL Purge)...";
+                status.className = "text-axiom-rose font-semibold text-sm";
+                desc.innerText = "एल्गोरिद्म ने ₹25,200 के ऊपर जाकर सभी बाय-स्टॉप्स ट्रिगर किए और रिटेल बायर्स को ट्रैप करके विशाल सेल ऑर्डर्स डंप किए।";
+                playChime(880, 0.25, 'triangle');
+            } else {
+                status.innerText = "Sweeping Equal Lows (SSL Liquidation)...";
+                status.className = "text-axiom-emerald font-semibold text-sm";
+                desc.innerText = "एल्गोरिद्म ने ₹24,600 के नीचे पैनिक सेलिंग कराकर खुदरा ट्रेडर्स के स्टॉप्स खाए और संस्थागत लॉन्ग पोजीशन बनाई।";
+                playChime(320, 0.25, 'sawtooth');
+            }
+
+            const interval = setInterval(() => {
+                animProgress += 0.05;
+                drawLiquidityBase();
+                if (animProgress >= 1) {
+                    clearInterval(interval);
+                    playChime(440, 0.4, 'sine');
+                }
+            }, 30);
+        }
+
+        function resetLiquiditySim() {
+            simState = 'idle';
+            animProgress = 0;
+            document.getElementById('liqStatus').innerText = "Waiting for liquidity trigger...";
+            document.getElementById('liqStatus').className = "text-axiom-accent font-semibold text-sm";
+            document.getElementById('liqDesc').innerText = "मार्केट में रिटेल ट्रेडर्स ने दो समान हाइट्स देखकर सपोर्ट/रेजिस्टेंस माना है।";
+            drawLiquidityBase();
+        }
+
+        // LAB 4.2: Fair Value Gap Canvas Simulation
+        const fvgCanvas = document.getElementById('fvgCanvas');
+        const fCtx = fvgCanvas.getContext('2d');
+
+        function updateFVGSim(val) {
+            document.getElementById('fvgSliderVal').innerText = val + '%';
+            const depth = val / 100;
+            drawFVG(depth);
+
+            const verdict = document.getElementById('fvgVerdict');
+            if (val == 0) {
+                verdict.innerText = "इम्बैलेंस पूरी तरह खाली (Open) है। अभी तक कोई मिटिगेशन नहीं हुआ।";
+            } else if (val < 50) {
+                verdict.innerText = `प्राइस FVG में ${val}% तक प्रवेश कर चुकी है। शुरुआती बायर्स आ रहे हैं।`;
+            } else if (val == 50) {
+                verdict.innerText = "⚡ 50% Consequent Encroachment (C.E.) हिट! यह एल्गोरिद्म का सबसे सटीक री-बैलेंसिंग लेवल है।";
+                playChime(554, 0.15, 'sine');
+            } else {
+                verdict.innerText = `FVG ${val}% री-बैलेंस हो चुका है। इम्बैलेंस समाप्त होकर मूल्य में संतुलन आ गया है।`;
+            }
+        }
+
+        function drawFVG(depth) {
+            fCtx.clearRect(0, 0, fvgCanvas.width, fvgCanvas.height);
+
+            // Candle 1 (Bullish)
+            fCtx.strokeStyle = '#10b981';
+            fCtx.lineWidth = 2;
+            fCtx.beginPath(); fCtx.moveTo(140, 220); fCtx.lineTo(140, 310); fCtx.stroke();
+            fCtx.fillStyle = '#10b981';
+            fCtx.fillRect(128, 240, 24, 60);
+            const c1High = 220;
+
+            // Candle 2 (Huge Institutional Impulse)
+            fCtx.beginPath(); fCtx.moveTo(260, 60); fCtx.lineTo(260, 280); fCtx.stroke();
+            fCtx.fillRect(244, 90, 32, 170);
+
+            // Candle 3
+            fCtx.beginPath(); fCtx.moveTo(380, 100); fCtx.lineTo(380, 200); fCtx.stroke();
+            fCtx.fillRect(368, 110, 24, 50);
+            const c3Low = 140;
+
+            // FVG Box between c3Low and c1High
+            fCtx.fillStyle = 'rgba(139, 92, 246, 0.18)';
+            fCtx.fillRect(140, c3Low, 480, (c1High - c3Low));
+            fCtx.strokeStyle = '#8b5cf6';
+            fCtx.setLineDash([4, 4]);
+            fCtx.strokeRect(140, c3Low, 480, (c1High - c3Low));
+
+            // 50% Consequent Encroachment Line
+            const ceY = (c3Low + c1High) / 2;
+            fCtx.strokeStyle = '#38bdf8';
+            fCtx.setLineDash([2, 2]);
+            fCtx.beginPath(); fCtx.moveTo(140, ceY); fCtx.lineTo(620, ceY); fCtx.stroke();
+            fCtx.setLineDash([]);
+            fCtx.fillStyle = '#38bdf8';
+            fCtx.font = '10px JetBrains Mono';
+            fCtx.fillText('50% C.E. Level (₹24,890)', 480, ceY - 6);
+
+            // Mitigating Price Retracement Line
+            const currentMitigationY = c3Low + depth * (c1High - c3Low);
+            fCtx.strokeStyle = '#f59e0b';
+            fCtx.lineWidth = 3;
+            fCtx.beginPath();
+            fCtx.moveTo(420, 110);
+            fCtx.lineTo(490, currentMitigationY);
+            fCtx.stroke();
+
+            // Trace point
+            fCtx.fillStyle = '#f59e0b';
+            fCtx.beginPath();
+            fCtx.arc(490, currentMitigationY, 5, 0, Math.PI*2);
+            fCtx.fill();
+        }
+
+        // LAB 4.4: Premium vs Discount Calculator
+        function calculatePD() {
+            const high = parseFloat(document.getElementById('swingHighInp').value) || 25200;
+            const low = parseFloat(document.getElementById('swingLowInp').value) || 24600;
+            const cmp = parseFloat(document.getElementById('cmpInp').value) || 24900;
+
+            const eq = low + (high - low) * 0.5;
+            document.getElementById('lblHigh').innerText = '₹' + high.toLocaleString();
+            document.getElementById('lblLow').innerText = '₹' + low.toLocaleString();
+            document.getElementById('lblEq').innerText = '₹' + eq.toLocaleString();
+
+            const range = high - low;
+            let pct = ((cmp - low) / range) * 100;
+            pct = Math.max(0, Math.min(100, pct));
+            document.getElementById('cmpMarker').style.left = pct + '%';
+
+            const badge = document.getElementById('pdBadge');
+            const advice = document.getElementById('pdAdvice');
+
+            if (cmp < eq) {
+                badge.innerText = "DISCOUNT ZONE (BUY ELIGIBLE)";
+                badge.className = "px-3 py-1 rounded font-bold uppercase text-xs bg-axiom-emerald/20 text-axiom-emerald border border-axiom-emerald/30";
+                advice.innerHTML = `वर्तमान भाव (₹${cmp}) इक्विलिब्रीम (₹${eq}) के नीचे है। यह एक <span class="text-axiom-emerald font-bold">Discount Zone</span> है। यहाँ संस्थागत बुल्स अन-मिटिगेटेड FVG या Order Block पर लॉन्ग पोजीशन की तलाश करते हैं।`;
+            } else if (cmp > eq) {
+                badge.innerText = "PREMIUM ZONE (SELL / SHORT ELIGIBLE)";
+                badge.className = "px-3 py-1 rounded font-bold uppercase text-xs bg-axiom-rose/20 text-axiom-rose border border-axiom-rose/30";
+                advice.innerHTML = `वर्तमान भाव (₹${cmp}) इक्विलिब्रीम (₹${eq}) के ऊपर है। यह एक <span class="text-axiom-rose font-bold">Premium Zone</span> है। यहाँ खरीदारी करना जोखिम भरा है। संस्थान यहाँ मुनाफावसूली या शॉर्ट सेलिंग करते हैं।`;
+            } else {
+                badge.innerText = "FAIR VALUE EQUILIBRIUM (50%)";
+                badge.className = "px-3 py-1 rounded font-bold uppercase text-xs bg-axiom-accent/20 text-axiom-accent border border-axiom-accent/30";
+                advice.innerHTML = `भाव ठीक 50% पर है। यहाँ कोई दिशात्मक बढ़त नहीं है। प्राइस के डिस्काउंट या प्रीमियम ज़ोन में जाने का इंतजार करें।`;
+            }
+        }
+
+        // Init on load
+        window.addEventListener('load', () => {
+            drawLiquidityBase();
+            drawFVG(0);
+            calculatePD();
+        });
+    </script>
+</body>
+</html>

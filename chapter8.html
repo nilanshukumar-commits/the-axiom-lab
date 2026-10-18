@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="hi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 8: Cognitive Biases & Probabilistic Mindset | The Axiom Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        axiom: {
+                            900: '#07090e',
+                            850: '#0d1117',
+                            800: '#161b22',
+                            700: '#21262d',
+                            600: '#30363d',
+                            accent: '#38bdf8',
+                            emerald: '#10b981',
+                            rose: '#f43f5e',
+                            amber: '#f59e0b',
+                            violet: '#8b5cf6'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #07090e;
+            color: #e6edf3;
+            background-image: 
+                radial-gradient(circle at 12% 18%, rgba(244, 63, 94, 0.05) 0%, transparent 45%),
+                radial-gradient(circle at 88% 82%, rgba(139, 92, 246, 0.05) 0%, transparent 45%);
+        }
+        .hud-glass {
+            background: rgba(13, 17, 23, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(48, 54, 61, 0.6);
+        }
+        .canvas-container {
+            position: relative;
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.9);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #07090e; }
+        ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #f43f5e; }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-axiom-rose selection:text-white pb-24">
+
+    <!-- Top Navigation HUD -->
+    <header class="sticky top-0 z-50 hud-glass border-b border-axiom-700/80 px-6 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-axiom-rose via-axiom-violet to-axiom-accent flex items-center justify-center shadow-lg shadow-axiom-rose/20">
+                <span class="font-mono font-black text-white text-base">M8</span>
+            </div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-mono font-semibold tracking-wider uppercase text-axiom-rose">The Axiom Lab</span>
+                    <span class="text-xs text-axiom-600">/</span>
+                    <span class="text-xs font-mono text-gray-400">Psychological Mastery</span>
+                </div>
+                <h1 class="text-sm font-bold tracking-tight text-white flex items-center gap-2">
+                    Chapter 8: Cognitive Biases & Probabilistic Mindset
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono bg-axiom-rose/20 text-axiom-rose border border-axiom-rose/30">MODULE 08</span>
+                </h1>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <button id="audioToggleBtn" onclick="toggleAudio()" class="px-3 py-1.5 rounded-md text-xs font-mono bg-axiom-800 hover:bg-axiom-700 border border-axiom-600 flex items-center gap-2 transition-all">
+                <span id="audioIcon" class="w-2 h-2 rounded-full bg-axiom-rose"></span>
+                <span id="audioText">Audio: Muted</span>
+            </button>
+            <a href="chapter7.html" class="px-3 py-1.5 rounded-md text-xs font-mono bg-axiom-800 hover:bg-axiom-700 border border-axiom-600 transition-all text-gray-300 hover:text-white">
+                ← Chapter 7
+            </a>
+            <a href="#lab8-1" class="px-3 py-1.5 rounded-md text-xs font-mono bg-axiom-rose text-white font-bold hover:brightness-110 shadow-lg shadow-axiom-rose/20 transition-all">
+                Mark Douglas Machine ↓
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-12">
+
+        <!-- Chapter Hero Banner -->
+        <section class="hud-glass rounded-2xl p-8 border border-axiom-700 relative overflow-hidden">
+            <div class="absolute -right-16 -top-16 w-80 h-80 bg-axiom-rose/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-16 -bottom-16 w-80 h-80 bg-axiom-violet/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="max-w-3xl relative z-10 space-y-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono bg-axiom-rose/10 text-axiom-rose border border-axiom-rose/30">
+                    <span class="animate-pulse">●</span> NEURO-DISCIPLINE ARCHITECTURE
+                </div>
+                <h2 class="text-3xl sm:text-4xl font-extrabold tracking-tight text-white">
+                    Cognitive Biases & The Mark Douglas Mindset
+                </h2>
+                <p class="text-base text-gray-300 leading-relaxed">
+                    चार्ट केवल मार्केट को नहीं दिखाता, वह आपके अवचेतन मस्तिष्क (Subconscious) का आईना है। अधिकांश ट्रेडर्स तकनीकी विश्लेषण (Technical Analysis) की कमी से नहीं, बल्कि <span class="text-axiom-rose font-semibold">Revenge Trading</span>, <span class="text-axiom-amber font-semibold">Gambler's Fallacy</span> और <span class="text-axiom-violet font-semibold">Confirmation Bias</span> के कारण अपनी पूंजी गंवाते हैं। मार्क डगलस के 5 मौलिक सत्यों (Fundamental Truths) के माध्यम से हर ट्रेड को एक निष्पक्ष सांख्यिकीय घटना (Statistical Sample) मानना सीखें।
+                </p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 text-xs font-mono">
+                    <div class="bg-axiom-900/60 p-3 rounded-lg border border-axiom-700">
+                        <div class="text-gray-400">PROBABILITY</div>
+                        <div class="text-axiom-emerald font-bold text-sm mt-1">Independent Trials</div>
+                    </div>
+                    <div class="bg-axiom-900/60 p-3 rounded-lg border border-axiom-700">
+                        <div class="text-gray-400">GAMBLER'S TRAP</div>
+                        <div class="text-axiom-rose font-bold text-sm mt-1">Law of Averages Myth</div>
+                    </div>
+                    <div class="bg-axiom-900/60 p-3 rounded-lg border border-axiom-700">
+                        <div class="text-gray-400">TILT SHIELD</div>
+                        <div class="text-axiom-amber font-bold text-sm mt-1">Cool-down Breaker</div>
+                    </div>
+                    <div class="bg-axiom-900/60 p-3 rounded-lg border border-axiom-700">
+                        <div class="text-gray-400">OUTCOME BIAS</div>
+                        <div class="text-axiom-accent font-bold text-sm mt-1">Process vs Luck</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LAB 8.1: MARK DOUGLAS 20-TRADE PROBABILITY MACHINE -->
+        <section id="lab8-1" class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-axiom-700/80 pb-4">
+                <div>
+                    <div class="text-xs font-mono text-axiom-emerald tracking-wider uppercase">Interactive Lab 8.1</div>
+                    <h3 class="text-xl font-bold text-white">The Mark Douglas 20-Sample Probability Machine</h3>
+                    <p class="text-sm text-gray-400">60% बढ़त वाले सिस्टम में भी 5 लगातार नुकसान पूरी तरह सामान्य हैं। प्रत्येक परिणाम स्वतंत्र (Independent) होता है।</p>
+                </div>
+                <div class="flex items-center gap-2 font-mono text-xs">
+                    <button onclick="runSampleSequence()" class="px-4 py-2 rounded-lg bg-axiom-emerald text-axiom-900 font-bold hover:brightness-110 shadow-lg shadow-axiom-emerald/20 transition-all">
+                        ⚡ Generate 20 Independent Outcomes
+                    </button>
+                    <button onclick="resetSampleSequence()" class="px-3 py-2 rounded-lg bg-axiom-800 text-gray-300 border border-axiom-600 hover:bg-axiom-700 transition-all">
+                        Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Visual Coin Grid & Statistics -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 font-mono text-xs">
+                <!-- 20 Trial Grid -->
+                <div class="lg:col-span-3 bg-axiom-900 p-5 rounded-xl border border-axiom-700 space-y-4">
+                    <div class="flex justify-between items-center text-gray-400 text-[11px]">
+                        <span>20-TRADE SEQUENCE (60% EDGE SIMULATION):</span>
+                        <span id="streakBadge" class="text-axiom-rose font-bold">Max Losing Streak: 0</span>
+                    </div>
+
+                    <!-- Coin Slots Grid (2 rows of 10) -->
+                    <div id="coinGrid" class="grid grid-cols-5 sm:grid-cols-10 gap-2.5">
+                        <!-- 20 slots dynamically populated -->
+                    </div>
+
+                    <div class="p-3 bg-axiom-850 rounded border border-axiom-700 text-gray-300 text-[11px] leading-relaxed">
+                        <strong class="text-axiom-accent">Mark Douglas's Rule:</strong> "There is a random distribution between wins and losses for any given set of variables that define an edge." एक सिक्का यह याद नहीं रखता कि पिछली बार क्या आया था!
+                    </div>
+                </div>
+
+                <!-- Stats Card -->
+                <div class="bg-axiom-900 p-5 rounded-xl border border-axiom-700 space-y-3 flex flex-col justify-between">
+                    <div class="space-y-3">
+                        <div class="text-gray-400 font-bold uppercase text-[11px]">Sequence Metrics</div>
+                        <div class="space-y-2 text-[11px]">
+                            <div class="flex justify-between pb-1 border-b border-axiom-800">
+                                <span class="text-gray-400">Wins (Profit):</span>
+                                <span id="lblWins" class="text-axiom-emerald font-bold">0 (0%)</span>
+                            </div>
+                            <div class="flex justify-between pb-1 border-b border-axiom-800">
+                                <span class="text-gray-400">Losses (Risk):</span>
+                                <span id="lblLosses" class="text-axiom-rose font-bold">0 (0%)</span>
+                            </div>
+                            <div class="flex justify-between pb-1 border-b border-axiom-800">
+                                <span class="text-gray-400">Net RRR Return:</span>
+                                <span id="lblNetR" class="text-axiom-accent font-bold">0.0 R</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-3 bg-axiom-850 rounded border border-axiom-emerald/30 text-axiom-emerald text-[10px] leading-relaxed">
+                        भले ही शुरुआत में लगातार 4 स्टॉप-लॉस हिट हों, यदि आप 20 ट्रेड्स तक बिना बदले नियमों पर टिके रहते हैं, तो गणितीय बढ़त जीत सुनिश्चित करती है।
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LAB 8.2: REVENGE TRADING NEUTRALIZER & TILT LOCKOUT TERMINAL -->
+        <section id="lab8-2" class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-6">
+            <div class="border-b border-axiom-700/80 pb-4">
+                <div class="text-xs font-mono text-axiom-rose tracking-wider uppercase">Interactive Lab 8.2</div>
+                <h3 class="text-xl font-bold text-white">Revenge Trading Circuit Breaker (Terminal Lockout)</h3>
+                <p class="text-sm text-gray-400">लगातार 2 नुकसान के बाद जब दिमाग में 'रिवेंज' जागता है, तो यह सिस्टम तुरंत स्क्रीन लॉक कर देता है।</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
+                <!-- Action Controls -->
+                <div class="bg-axiom-900 p-5 rounded-xl border border-axiom-700 space-y-4">
+                    <div class="text-gray-300 font-bold uppercase text-[11px]">Simulate Emotional Triggers</div>
+                    <div class="space-y-2">
+                        <button onclick="logTradeLoss()" class="w-full py-2.5 rounded-lg bg-axiom-rose/20 text-axiom-rose border border-axiom-rose/40 font-bold hover:bg-axiom-rose/30 transition-all text-left px-3">
+                            ✕ Log Stop Loss Hit (-1R)
+                        </button>
+                        <button onclick="logImpulsiveAction()" class="w-full py-2.5 rounded-lg bg-axiom-amber/20 text-axiom-amber border border-axiom-amber/40 font-bold hover:bg-axiom-amber/30 transition-all text-left px-3">
+                            ⚠ Increased Lot Size to Recover
+                        </button>
+                        <button onclick="resetTiltTerminal()" class="w-full py-2 rounded-lg bg-axiom-800 text-gray-400 border border-axiom-700 hover:bg-axiom-700 transition-all">
+                            Reset Tilt Engine
+                        </button>
+                    </div>
+
+                    <div class="space-y-1.5 pt-2">
+                        <div class="flex justify-between text-gray-400">
+                            <span>Tilt Stress Index:</span>
+                            <span id="tiltVal" class="text-axiom-emerald font-bold">10% (Calm)</span>
+                        </div>
+                        <div class="w-full bg-axiom-800 rounded-full h-2 overflow-hidden">
+                            <div id="tiltBar" class="bg-axiom-emerald h-2 rounded-full transition-all duration-300" style="width: 10%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Lockdown Monitor Screen -->
+                <div id="terminalScreen" class="lg:col-span-2 bg-axiom-950 p-6 rounded-xl border-2 border-axiom-700 flex flex-col justify-between space-y-4 relative overflow-hidden">
+                    <div class="flex justify-between items-center border-b border-axiom-800 pb-3">
+                        <span class="text-gray-400 flex items-center gap-2">
+                            <span id="terminalStatusDot" class="w-2.5 h-2.5 rounded-full bg-axiom-emerald"></span>
+                            TERMINAL STATUS: <strong id="terminalStatusTxt" class="text-axiom-emerald">OPERATIONAL</strong>
+                        </span>
+                        <span id="lockoutTimer" class="text-xs text-gray-500 font-bold">NO LOCKOUT</span>
+                    </div>
+
+                    <div id="terminalLogs" class="space-y-1.5 text-[11px] text-gray-400 h-28 overflow-y-auto">
+                        <div>[SYSTEM] Pre-frontal cortex online. Emotional amygdala quiet. Ready for execution.</div>
+                    </div>
+
+                    <div id="terminalAlertBox" class="p-3 bg-axiom-900 rounded border border-axiom-700 text-gray-300 text-[11px]">
+                        <strong>Neuro-Shield Active:</strong> 2 लगातार स्टॉप-लॉस के बाद सिस्टम ऑटोमैटिक 30 मिनट का हार्ड लॉकआउट लागू कर देगा।
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LAB 8.3: 4 DEADLY COGNITIVE BIASES DIAGNOSTICS -->
+        <section class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-6 font-mono text-xs">
+            <div class="border-b border-axiom-700/80 pb-4">
+                <div class="text-xs text-axiom-violet tracking-wider uppercase">Cognitive Warfare</div>
+                <h3 class="text-xl font-bold text-white">The 4 Biases Destroying Retail Traders</h3>
+                <p class="text-sm text-gray-400">पहचानें कि आपका दिमाग वास्तविक समय में आपको कैसे धोखा देता है।</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Gambler's Fallacy -->
+                <div class="bg-axiom-900/90 p-5 rounded-xl border border-axiom-rose/30 space-y-3 hover:border-axiom-rose transition-all">
+                    <div class="flex items-center justify-between">
+                        <span class="px-2.5 py-1 rounded bg-axiom-rose/20 text-axiom-rose font-bold text-xs">1. GAMBLER'S FALLACY</span>
+                        <span class="text-axiom-rose text-[10px]">The "Due" Illusion</span>
+                    </div>
+                    <p class="text-gray-300 leading-relaxed">
+                        <em>"मार्केट 4 दिन से लगातार गिर रहा है, अब तो इसे ऊपर जाना ही पड़ेगा!"</em> या <em>"मेरे 3 स्टॉप लॉस कट चुके हैं, अगला तो पक्का विन होगा!"</em>
+                    </p>
+                    <div class="p-3 bg-axiom-850 rounded border border-axiom-rose/20 text-axiom-rose text-[11px]">
+                        <strong>The Antidote:</strong> मार्केट को इस बात से कोई फर्क नहीं पड़ता कि पिछला ट्रेड क्या था। हर कैंडल एक नया, स्वतंत्र ब्रह्मांड है।
+                    </div>
+                </div>
+
+                <!-- Outcome Bias -->
+                <div class="bg-axiom-900/90 p-5 rounded-xl border border-axiom-amber/30 space-y-3 hover:border-axiom-amber transition-all">
+                    <div class="flex items-center justify-between">
+                        <span class="px-2.5 py-1 rounded bg-axiom-amber/20 text-axiom-amber font-bold text-xs">2. OUTCOME BIAS</span>
+                        <span class="text-axiom-amber text-[10px]">Result vs Quality</span>
+                    </div>
+                    <p class="text-gray-300 leading-relaxed">
+                        नियम तोड़कर, बिना स्टॉप लॉस के ट्रेड लेना और किस्मत से ₹50,000 का मुनाफा कमा लेना, फिर सोचना: <em>"मैं तो बहुत स्मार्ट ट्रेडर हूँ!"</em>
+                    </p>
+                    <div class="p-3 bg-axiom-850 rounded border border-axiom-amber/20 text-axiom-amber text-[11px]">
+                        <strong>The Antidote:</strong> खराब प्रक्रिया (Bad Process) से मिला मुनाफा असल में एक धीमा ज़हर है। केवल नियमों के पालन को ही सफलता मानें।
+                    </div>
+                </div>
+
+                <!-- Confirmation Bias -->
+                <div class="bg-axiom-900/90 p-5 rounded-xl border border-axiom-violet/30 space-y-3 hover:border-axiom-violet transition-all">
+                    <div class="flex items-center justify-between">
+                        <span class="px-2.5 py-1 rounded bg-axiom-violet/20 text-axiom-violet font-bold text-xs">3. CONFIRMATION BIAS</span>
+                        <span class="text-axiom-violet text-[10px]">Selective Blindness</span>
+                    </div>
+                    <p class="text-gray-300 leading-relaxed">
+                        एक बार लॉन्ग पोजीशन बना लेने के बाद, चार्ट पर केवल बुलिश FVG देखना और सामने दिख रहे विशाल Bearish CHoCH को अनदेखा कर देना।
+                    </p>
+                    <div class="p-3 bg-axiom-850 rounded border border-axiom-violet/20 text-axiom-violet text-[11px]">
+                        <strong>The Antidote:</strong> ट्रेड लेने से पहले खुद से पूछें: <em>"यह ट्रेड कब अमान्य (Invalid) होगा?"</em> और इनवैलिडेशन लेवल पहले मार्क करें।
+                    </div>
+                </div>
+
+                <!-- Sunk Cost Fallacy -->
+                <div class="bg-axiom-900/90 p-5 rounded-xl border border-axiom-accent/30 space-y-3 hover:border-axiom-accent transition-all">
+                    <div class="flex items-center justify-between">
+                        <span class="px-2.5 py-1 rounded bg-axiom-accent/20 text-axiom-accent font-bold text-xs">4. SUNK COST FALLACY</span>
+                        <span class="text-axiom-accent text-[10px]">Loss Aversion Trap</span>
+                    </div>
+                    <p class="text-gray-300 leading-relaxed">
+                        स्टॉप-लॉस हिट होने के करीब आने पर उसे और पीछे खिसका देना, क्योंकि दिमाग घाटे को स्वीकार (Acknowledge) करने से इनकार करता है।
+                    </p>
+                    <div class="p-3 bg-axiom-850 rounded border border-axiom-accent/20 text-axiom-accent text-[11px]">
+                        <strong>The Antidote:</strong> स्टॉप-लॉस को किसी बिजनेस का 'ऑपरेटिंग खर्च' समझें। स्टॉप-लॉस कटना कोई अपमान नहीं, बल्कि अनुशासन है।
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Chapter 8 Pre-Flight Checklist -->
+        <section class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-4 font-mono text-xs">
+            <div class="flex items-center justify-between border-b border-axiom-700/80 pb-3">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                    <span class="text-axiom-rose">⚡</span> Mark Douglas 5 Fundamental Truths Audit
+                </h3>
+                <span class="text-gray-400">Subconscious Reprogramming</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label class="flex items-center gap-3 p-3 bg-axiom-900 rounded-lg border border-axiom-700 cursor-pointer hover:border-axiom-rose transition-all">
+                    <input type="checkbox" class="accent-axiom-rose w-4 h-4 rounded">
+                    <span><strong>सत्य 1:</strong> बाज़ार में किसी भी क्षण कुछ भी घटित हो सकता है।</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 bg-axiom-900 rounded-lg border border-axiom-700 cursor-pointer hover:border-axiom-rose transition-all">
+                    <input type="checkbox" class="accent-axiom-rose w-4 h-4 rounded">
+                    <span><strong>सत्य 2:</strong> पैसा कमाने के लिए यह जानने की बिल्कुल ज़रूरत नहीं है कि आगे क्या होगा।</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 bg-axiom-900 rounded-lg border border-axiom-700 cursor-pointer hover:border-axiom-rose transition-all">
+                    <input type="checkbox" class="accent-axiom-rose w-4 h-4 rounded">
+                    <span><strong>सत्य 3:</strong> बढ़त (Edge) केवल एक चीज़ की दूसरी चीज़ पर उच्च संभावना (Probability) है।</span>
+                </label>
+                <label class="flex items-center gap-3 p-3 bg-axiom-900 rounded-lg border border-axiom-700 cursor-pointer hover:border-axiom-rose transition-all">
+                    <input type="checkbox" class="accent-axiom-rose w-4 h-4 rounded">
+                    <span><strong>सत्य 4:</strong> लाभ और हानि का वितरण (Distribution) पूरी तरह यादृच्छिक (Random) होता है।</span>
+                </label>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        let audioCtx = null;
+        let audioMuted = true;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function toggleAudio() {
+            initAudio();
+            audioMuted = !audioMuted;
+            const icon = document.getElementById('audioIcon');
+            const txt = document.getElementById('audioText');
+            if (audioMuted) {
+                icon.className = 'w-2 h-2 rounded-full bg-axiom-rose';
+                txt.innerText = 'Audio: Muted';
+            } else {
+                icon.className = 'w-2 h-2 rounded-full bg-axiom-emerald animate-pulse';
+                txt.innerText = 'Audio: Active';
+                playChime(660, 0.1, 'sine');
+            }
+        }
+
+        function playChime(freq, dur, type='sine') {
+            if (audioMuted || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + dur);
+            } catch(e){}
+        }
+
+        // LAB 8.1: Mark Douglas 20-Coin Grid Simulator
+        function initCoinGrid() {
+            const grid = document.getElementById('coinGrid');
+            grid.innerHTML = '';
+            for(let i=1; i<=20; i++) {
+                const div = document.createElement('div');
+                div.id = `coin-${i}`;
+                div.className = 'h-14 rounded-lg bg-axiom-850 border border-axiom-700 flex flex-col items-center justify-center font-mono text-[11px] text-gray-500';
+                div.innerHTML = `<span>#${i}</span><span class="text-[9px] text-gray-600">Pending</span>`;
+                grid.appendChild(div);
+            }
+        }
+
+        function runSampleSequence() {
+            initAudio();
+            playChime(554, 0.15, 'triangle');
+
+            let wins = 0;
+            let losses = 0;
+            let currentLosingStreak = 0;
+            let maxLosingStreak = 0;
+            let netR = 0;
+
+            for(let i=1; i<=20; i++) {
+                const isWin = Math.random() < 0.60;
+                const slot = document.getElementById(`coin-${i}`);
+
+                if (isWin) {
+                    wins++;
+                    netR += 3.0; // Assuming 1:3 RRR
+                    currentLosingStreak = 0;
+                    slot.className = 'h-14 rounded-lg bg-axiom-emerald/20 border-2 border-axiom-emerald flex flex-col items-center justify-center font-mono text-[11px] text-axiom-emerald font-bold shadow-lg shadow-axiom-emerald/10';
+                    slot.innerHTML = `<span>#${i}</span><span class="text-[10px] text-white">WIN (+3R)</span>`;
+                } else {
+                    losses++;
+                    netR -= 1.0;
+                    currentLosingStreak++;
+                    if (currentLosingStreak > maxLosingStreak) maxLosingStreak = currentLosingStreak;
+                    slot.className = 'h-14 rounded-lg bg-axiom-rose/20 border-2 border-axiom-rose flex flex-col items-center justify-center font-mono text-[11px] text-axiom-rose font-bold shadow-lg shadow-axiom-rose/10';
+                    slot.innerHTML = `<span>#${i}</span><span class="text-[10px] text-white">LOSS (-1R)</span>`;
+                }
+            }
+
+            document.getElementById('lblWins').innerText = `${wins} (${((wins/20)*100).toFixed(0)}%)`;
+            document.getElementById('lblLosses').innerText = `${losses} (${((losses/20)*100).toFixed(0)}%)`;
+            document.getElementById('lblNetR').innerText = `${netR >= 0 ? '+' : ''}${netR.toFixed(1)} R`;
+            document.getElementById('streakBadge').innerText = `Max Consecutive Losses: ${maxLosingStreak}`;
+        }
+
+        function resetSampleSequence() {
+            initCoinGrid();
+            document.getElementById('lblWins').innerText = '0 (0%)';
+            document.getElementById('lblLosses').innerText = '0 (0%)';
+            document.getElementById('lblNetR').innerText = '0.0 R';
+            document.getElementById('streakBadge').innerText = 'Max Losing Streak: 0';
+        }
+
+        // LAB 8.2: Tilt Lockout Terminal
+        let lossCount = 0;
+        let tiltScore = 10;
+        let lockoutActive = false;
+
+        function logTradeLoss() {
+            initAudio();
+            lossCount++;
+            tiltScore += 45;
+            playChime(300, 0.25, 'sawtooth');
+            addTerminalLog(`[LOSS DETECTED] Stop-Loss hit (-1R). Consecutive losses: ${lossCount}. Amygdala arousal rising.`);
+            updateTiltUI();
+        }
+
+        function logImpulsiveAction() {
+            initAudio();
+            tiltScore += 50;
+            playChime(220, 0.4, 'sawtooth');
+            addTerminalLog(`[ALARM: RULE VIOLATION] Lot size doubled after loss. Revenge mindset detected!`);
+            updateTiltUI();
+        }
+
+        function addTerminalLog(msg) {
+            const box = document.getElementById('terminalLogs');
+            const d = document.createElement('div');
+            d.innerText = msg;
+            box.appendChild(d);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        function updateTiltUI() {
+            tiltScore = Math.min(100, Math.max(0, tiltScore));
+            const bar = document.getElementById('tiltBar');
+            const lbl = document.getElementById('tiltVal');
+
+            bar.style.width = tiltScore + '%';
+
+            if (tiltScore < 40) {
+                bar.className = 'bg-axiom-emerald h-2 rounded-full transition-all duration-300';
+                lbl.innerText = `${tiltScore}% (Calm / Objective)`;
+                lbl.className = 'text-axiom-emerald font-bold';
+            } else if (tiltScore < 80) {
+                bar.className = 'bg-axiom-amber h-2 rounded-full transition-all duration-300';
+                lbl.innerText = `${tiltScore}% (Warning: Emotional Arousal)`;
+                lbl.className = 'text-axiom-amber font-bold';
+            } else {
+                bar.className = 'bg-axiom-rose h-2 rounded-full transition-all duration-300';
+                lbl.innerText = `${tiltScore}% (CRITICAL: REVENGE STATE)`;
+                lbl.className = 'text-axiom-rose font-bold animate-pulse';
+                triggerLockout();
+            }
+        }
+
+        function triggerLockout() {
+            if (lockoutActive) return;
+            lockoutActive = true;
+            playChime(150, 0.8, 'sawtooth');
+
+            const screen = document.getElementById('terminalScreen');
+            const dot = document.getElementById('terminalStatusDot');
+            const statusTxt = document.getElementById('terminalStatusTxt');
+            const timerTxt = document.getElementById('lockoutTimer');
+            const alertBox = document.getElementById('terminalAlertBox');
+
+            screen.className = 'lg:col-span-2 bg-axiom-950 p-6 rounded-xl border-2 border-axiom-rose flex flex-col justify-between space-y-4 relative overflow-hidden shadow-2xl shadow-axiom-rose/20';
+            dot.className = 'w-2.5 h-2.5 rounded-full bg-axiom-rose animate-ping';
+            statusTxt.innerText = 'HARD CIRCUIT LOCKOUT ACTIVE';
+            statusTxt.className = 'text-axiom-rose font-bold';
+            timerTxt.innerText = 'LOCKOUT: 30:00 MIN COOL-DOWN';
+            timerTxt.className = 'text-xs text-axiom-rose font-black animate-pulse';
+
+            alertBox.className = 'p-3 bg-axiom-rose/20 rounded border border-axiom-rose text-white text-[11px] leading-relaxed';
+            alertBox.innerHTML = '<strong>SYSTEM SHUTDOWN:</strong> अमिग्डाला हावी हो चुका है। स्क्रीन बंद करें, टर्मिनल से दूर जाएं और पानी पिएं। जब तक 30 मिनट पूरे नहीं होते, नया ट्रेड लेना प्रतिबंधित है!';
+
+            addTerminalLog(`[CIRCUIT BREAKER TRIGGERED] Terminal execution suspended to prevent capital annihilation.`);
+        }
+
+        function resetTiltTerminal() {
+            lossCount = 0;
+            tiltScore = 10;
+            lockoutActive = false;
+
+            const screen = document.getElementById('terminalScreen');
+            const dot = document.getElementById('terminalStatusDot');
+            const statusTxt = document.getElementById('terminalStatusTxt');
+            const timerTxt = document.getElementById('lockoutTimer');
+            const alertBox = document.getElementById('terminalAlertBox');
+
+            screen.className = 'lg:col-span-2 bg-axiom-950 p-6 rounded-xl border-2 border-axiom-700 flex flex-col justify-between space-y-4 relative overflow-hidden';
+            dot.className = 'w-2.5 h-2.5 rounded-full bg-axiom-emerald';
+            statusTxt.innerText = 'OPERATIONAL';
+            statusTxt.className = 'text-axiom-emerald font-bold';
+            timerTxt.innerText = 'NO LOCKOUT';
+            timerTxt.className = 'text-xs text-gray-500 font-bold';
+
+            alertBox.className = 'p-3 bg-axiom-900 rounded border border-axiom-700 text-gray-300 text-[11px]';
+            alertBox.innerHTML = '<strong>Neuro-Shield Active:</strong> 2 लगातार स्टॉप-लॉस के बाद सिस्टम ऑटोमैटिक 30 मिनट का हार्ड लॉकआउट लागू कर देगा।';
+
+            document.getElementById('terminalLogs').innerHTML = '<div>[SYSTEM] Terminal reset. Prefrontal logic restored. Zero emotional bias.</div>';
+            updateTiltUI();
+        }
+
+        window.addEventListener('load', () => {
+            initCoinGrid();
+            updateTiltUI();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1390 @@
+<!DOCTYPE html>
+<html lang="hi" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Axiom Lab | Chapter 2: The Neurobiology of Trading & Capital</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            obsidian: '#07090e',
+            terminalBg: '#0b0f17',
+            surface: '#121824',
+            surfaceBorder: '#1e293b',
+            pfcCyan: '#06b6d4',
+            pfcEmerald: '#10b981',
+            amygdalaRose: '#f43f5e',
+            warningAmber: '#f59e0b',
+            electricViolet: '#8b5cf6',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #07090e; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: #06b6d4; }
+
+    .glass-panel {
+      background: rgba(18, 24, 36, 0.78);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(30, 41, 59, 0.85);
+    }
+    .glow-cyan { box-shadow: 0 0 30px -6px rgba(6, 182, 212, 0.3); }
+    .glow-rose { box-shadow: 0 0 30px -6px rgba(244, 63, 94, 0.35); }
+    .glow-amber { box-shadow: 0 0 30px -6px rgba(245, 158, 11, 0.3); }
+
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 0.2; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .pulse-ring-anim { animation: pulse-ring 2s infinite ease-in-out; }
+  </style>
+</head>
+
+<body class="bg-obsidian text-slate-200 font-sans min-h-screen selection:bg-pfcCyan selection:text-black">
+
+  <!-- Scroll Progress Indicator -->
+  <div id="scrollProgress" class="fixed top-0 left-0 h-1 bg-gradient-to-r from-pfcCyan via-pfcEmerald to-amygdalaRose z-50 transition-all duration-75 w-0"></div>
+
+  <!-- Header / Navigation -->
+  <header class="sticky top-0 z-40 glass-panel border-b border-surfaceBorder px-4 sm:px-8 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-pfcCyan via-pfcEmerald to-electricViolet flex items-center justify-center font-mono font-black text-black text-base shadow-lg shadow-pfcCyan/20">
+        Ψ
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="font-mono text-xs text-pfcCyan tracking-widest font-bold uppercase">The Axiom Lab</span>
+          <span class="px-1.5 py-0.5 text-[10px] font-mono rounded bg-electricViolet/20 text-electricViolet border border-electricViolet/40">Ch. 02 Neural Core</span>
+        </div>
+        <h1 class="text-xs sm:text-sm font-semibold tracking-wide text-slate-100 hidden sm:block">Neurobiology of Trading & Capital Preservation</h1>
+      </div>
+    </div>
+
+    <!-- Navigation Links -->
+    <nav class="hidden md:flex items-center gap-6 text-xs font-mono text-slate-400">
+      <a href="#overview" class="hover:text-pfcCyan transition-colors">01. Neural Matrix</a>
+      <a href="#brain-sim" class="hover:text-pfcEmerald transition-colors flex items-center gap-1">
+        <span class="w-1.5 h-1.5 rounded-full bg-pfcEmerald animate-pulse"></span> Bio-Feedback
+      </a>
+      <a href="#dopamine-lab" class="hover:text-warningAmber transition-colors">02. Dopamine Casino</a>
+      <a href="#prospect-theory" class="hover:text-pfcCyan transition-colors">03. Loss Aversion</a>
+      <a href="#circuit-breaker" class="hover:text-amygdalaRose transition-colors">04. Circuit Breaker</a>
+      <a href="#diagnostic" class="hover:text-slate-100 transition-colors">05. Pre-Flight Test</a>
+    </nav>
+
+    <!-- Audio & Utility Controls -->
+    <div class="flex items-center gap-2">
+      <button id="soundToggle" onclick="toggleSound()" class="px-2.5 py-1.5 rounded-lg border border-surfaceBorder bg-surface text-slate-300 hover:text-pfcCyan transition-colors text-xs font-mono flex items-center gap-1.5">
+        <svg id="soundIcon" class="w-3.5 h-3.5 text-pfcCyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+        </svg>
+        <span id="soundLabel">BIO SFX: ON</span>
+      </button>
+
+      <a href="index.html" class="px-2.5 py-1.5 rounded-lg border border-surfaceBorder bg-surface text-slate-300 hover:text-pfcEmerald transition-colors text-xs font-mono flex items-center gap-1" title="Go to Chapter 1 Portal">
+        <span>← Ch.01</span>
+      </a>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
+
+    <!-- Hero / Conceptual Overview -->
+    <section id="overview" class="relative pt-4 pb-2">
+      <div class="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-electricViolet/10 via-obsidian to-obsidian"></div>
+      
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pfcCyan/10 border border-pfcCyan/30 text-pfcCyan text-xs font-mono mb-4">
+        <span class="w-2 h-2 rounded-full bg-pfcCyan animate-ping"></span>
+        NEURO-FINANCIAL LAB // MODULE 02
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-8 space-y-4">
+          <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+            The Neurobiology of <span class="text-transparent bg-clip-text bg-gradient-to-r from-pfcCyan via-pfcEmerald to-amygdalaRose">Trading & Capital</span>
+          </h1>
+          <p class="text-slate-300 text-sm sm:text-base leading-relaxed">
+            जब आपके ट्रेड में फ्लोटिंग लॉस बढ़ता है, तो आपका दिमाग घाटे को सिर्फ अंकों में नहीं देखता। विकासवादी न्यूरोलॉजी के अनुसार, मस्तिष्क का <strong class="text-amygdalaRose">Amygdala</strong> इसे एक जंगली शिकारी (Physical Threat) के हमले की तरह महसूस करता है। इस स्थिति में तर्कशील <strong class="text-pfcCyan">Prefrontal Cortex</strong> बंद हो जाता है, और व्यक्ति आत्मघाती रिवेंज ट्रेडिंग करने लगता है।
+          </p>
+
+          <blockquote class="border-l-2 border-pfcCyan pl-4 py-1 text-slate-400 italic text-xs sm:text-sm bg-surface/50 rounded-r">
+            "ट्रेडिंग में सबसे बड़ा खतरा चार्ट पर नहीं, आपकी खोपड़ी के अंदर 1.4 किलोग्राम के उस जैविक अंग में छिपा है जो अनिश्चितता को बर्दाश्त नहीं कर सकता।"
+            <span class="block text-pfcCyan font-mono not-italic text-xs mt-1">— Mark Douglas & Daniel Kahneman Synthesis</span>
+          </blockquote>
+
+          <div class="flex flex-wrap gap-2 pt-2">
+            <span class="px-2.5 py-1 text-xs rounded bg-surface border border-surfaceBorder text-slate-300 font-mono">Amygdala Hijacking</span>
+            <span class="px-2.5 py-1 text-xs rounded bg-surface border border-surfaceBorder text-slate-300 font-mono">Dopamine Slot Cascade</span>
+            <span class="px-2.5 py-1 text-xs rounded bg-surface border border-surfaceBorder text-slate-300 font-mono">Prospect Loss Aversion (2.25x)</span>
+            <span class="px-2.5 py-1 text-xs rounded bg-surface border border-surfaceBorder text-slate-300 font-mono">Cortisol Executive Freeze</span>
+          </div>
+        </div>
+
+        <!-- Metric Cards -->
+        <div class="lg:col-span-4 grid grid-cols-2 gap-3">
+          <div class="glass-panel p-4 rounded-xl border border-surfaceBorder">
+            <span class="text-[10px] font-mono text-amygdalaRose uppercase tracking-wider block">Loss Pain Bias ($\lambda$)</span>
+            <span class="text-2xl sm:text-3xl font-mono font-bold text-white mt-1 block">2.25×</span>
+            <span class="text-[11px] text-slate-400 mt-1 block leading-tight">Pain of loss vs joy of equal gain</span>
+          </div>
+
+          <div class="glass-panel p-4 rounded-xl border border-surfaceBorder">
+            <span class="text-[10px] font-mono text-pfcCyan uppercase tracking-wider block">PFC Reactivation Delay</span>
+            <span class="text-2xl sm:text-3xl font-mono font-bold text-white mt-1 block">22 Min</span>
+            <span class="text-[11px] text-slate-400 mt-1 block leading-tight">Post-tilt cortisol clearance window</span>
+          </div>
+
+          <div class="glass-panel p-4 rounded-xl border border-surfaceBorder">
+            <span class="text-[10px] font-mono text-warningAmber uppercase tracking-wider block">Scalping Dopamine Spike</span>
+            <span class="text-2xl sm:text-3xl font-mono font-bold text-white mt-1 block">+380%</span>
+            <span class="text-[11px] text-slate-400 mt-1 block leading-tight">Equivalent to casino slot machine</span>
+          </div>
+
+          <div class="glass-panel p-4 rounded-xl border border-surfaceBorder">
+            <span class="text-[10px] font-mono text-pfcEmerald uppercase tracking-wider block">Target Heart Rate</span>
+            <span class="text-2xl sm:text-3xl font-mono font-bold text-white mt-1 block">&lt;72 BPM</span>
+            <span class="text-[11px] text-slate-400 mt-1 block leading-tight">Optimal high-PFC execution band</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 1: The Bio-Feedback Brain Simulator -->
+    <section id="brain-sim" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-surfaceBorder pb-3">
+        <div>
+          <span class="text-xs font-mono text-pfcCyan uppercase">Interactive Lab 2.1</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-white">Neural Bio-Feedback Simulator (Amygdala vs PFC)</h2>
+        </div>
+        <p class="text-xs text-slate-400 font-mono">Observe how floating drawdown systematically hijacks rational executive functioning</p>
+      </div>
+
+      <div class="glass-panel p-6 rounded-2xl border border-surfaceBorder space-y-6">
+        <!-- Live State Toggles and Scenario Selectors -->
+        <div class="flex flex-wrap items-center justify-between gap-4 bg-terminalBg p-4 rounded-xl border border-surfaceBorder">
+          <div class="flex flex-wrap gap-2">
+            <button onclick="setNeuroState('calm')" id="btnCalm" class="px-3.5 py-1.5 rounded-lg text-xs font-mono border border-pfcCyan bg-pfcCyan/20 text-pfcCyan font-semibold transition-all">
+              State A: Calm Execution (PFC Active)
+            </button>
+            <button onclick="setNeuroState('stress')" id="btnStress" class="px-3.5 py-1.5 rounded-lg text-xs font-mono border border-surfaceBorder bg-surface text-slate-400 hover:text-white transition-all">
+              State B: Drawdown Stress (-4%)
+            </button>
+            <button onclick="setNeuroState('hijack')" id="btnHijack" class="px-3.5 py-1.5 rounded-lg text-xs font-mono border border-surfaceBorder bg-surface text-slate-400 hover:text-white transition-all">
+              State C: Amygdala Redline (-12% / SL Removed)
+            </button>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-mono text-slate-400">Heart Tone:</span>
+            <button onclick="triggerHeartbeatManual()" class="px-2.5 py-1 text-xs font-mono rounded bg-surface border border-surfaceBorder hover:border-pfcCyan text-slate-300">
+              Listen Pulse
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <!-- Brain Canvas Visualizer -->
+          <div class="lg:col-span-7 relative h-[380px] bg-obsidian rounded-xl overflow-hidden border border-surfaceBorder flex items-center justify-center">
+            <canvas id="brainCanvas" class="w-full h-full block"></canvas>
+            
+            <div id="neuralOverlayBadge" class="absolute top-4 left-4 p-3 rounded-lg glass-panel border border-pfcCyan/40 text-xs font-mono space-y-1">
+              <div class="flex items-center gap-2">
+                <span id="stateDot" class="w-2.5 h-2.5 rounded-full bg-pfcCyan animate-pulse"></span>
+                <span id="stateTitle" class="font-bold text-pfcCyan">PREFRONTAL CORTEX DOMINANT</span>
+              </div>
+              <p id="stateDesc" class="text-[11px] text-slate-300 max-w-xs">Cognitive clarity high. Risk-reward calculation intact. Trade execution conforms to statistical edge.</p>
+            </div>
+          </div>
+
+          <!-- Real-Time Biomarker Readouts -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="space-y-2 bg-terminalBg p-4 rounded-xl border border-surfaceBorder">
+              <div class="flex justify-between items-center text-xs font-mono">
+                <span class="text-slate-300">Simulate Unrealized Drawdown:</span>
+                <span id="floatingLossVal" class="font-bold text-pfcEmerald">0.0% (Risk Neutral)</span>
+              </div>
+              <input type="range" id="drawdownSlider" min="0" max="15" step="0.5" value="0" oninput="onDrawdownSliderChange(this.value)" class="w-full accent-pfcCyan cursor-pointer">
+              <div class="flex justify-between text-[10px] font-mono text-slate-500">
+                <span>0% Safe</span>
+                <span>-5% High Alert</span>
+                <span>-15% Full Tilt</span>
+              </div>
+            </div>
+
+            <!-- Vital Stats Gauges -->
+            <div class="grid grid-cols-2 gap-3">
+              <div class="p-3.5 rounded-xl bg-terminalBg border border-surfaceBorder">
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] font-mono text-slate-400 uppercase">Heart Rate</span>
+                  <span id="heartRateVal" class="text-base font-mono font-bold text-pfcCyan">64 BPM</span>
+                </div>
+                <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div id="heartRateBar" class="bg-pfcCyan h-full transition-all duration-300" style="width: 30%"></div>
+                </div>
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-terminalBg border border-surfaceBorder">
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] font-mono text-slate-400 uppercase">Cortisol (Stress)</span>
+                  <span id="cortisolVal" class="text-base font-mono font-bold text-pfcEmerald">8.2 μg/dL</span>
+                </div>
+                <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div id="cortisolBar" class="bg-pfcEmerald h-full transition-all duration-300" style="width: 25%"></div>
+                </div>
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-terminalBg border border-surfaceBorder">
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] font-mono text-slate-400 uppercase">Executive PFC Power</span>
+                  <span id="pfcPowerVal" class="text-base font-mono font-bold text-pfcCyan">94%</span>
+                </div>
+                <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div id="pfcPowerBar" class="bg-pfcCyan h-full transition-all duration-300" style="width: 94%"></div>
+                </div>
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-terminalBg border border-surfaceBorder">
+                <div class="flex justify-between items-center">
+                  <span class="text-[10px] font-mono text-slate-400 uppercase">Revenge Impulsivity</span>
+                  <span id="impulseVal" class="text-base font-mono font-bold text-pfcEmerald">Low (3%)</span>
+                </div>
+                <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                  <div id="impulseBar" class="bg-pfcEmerald h-full transition-all duration-300" style="width: 3%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Practical takeaway banner -->
+            <div id="neuroAdviceBox" class="p-3.5 rounded-xl bg-surface border border-surfaceBorder text-xs text-slate-300 font-mono leading-relaxed">
+              <strong class="text-pfcCyan block mb-1">Prefrontal Guardrail:</strong>
+              जब तक कोर्टिसोल नॉर्मल है, आपका दिमाग स्टॉप-लॉस को स्वीकार करता है। 5% से अधिक अनकवर लॉस होते ही बायोलॉजिकल पैनिक शुरू हो जाता है।
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Dopamine Casino vs Systematic Trading Simulator -->
+    <section id="dopamine-lab" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-surfaceBorder pb-3">
+        <div>
+          <span class="text-xs font-mono text-warningAmber uppercase">Interactive Lab 2.2</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-white">The Dopamine Slot-Machine Simulator</h2>
+        </div>
+        <p class="text-xs text-slate-400 font-mono">Why 1-Minute Scalping triggers the identical neuro-chemical loop to Las Vegas Slot Machines</p>
+      </div>
+
+      <div class="glass-panel p-6 rounded-2xl border border-surfaceBorder grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div class="lg:col-span-5 space-y-4">
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            कैसीनो स्लॉट मशीन और 1-मिनट की ओवर-लीवरेज्ड स्कैल्पिंग दोनों एक ही मनोवैज्ञानिक सिद्धांत पर काम करते हैं: <strong class="text-warningAmber">Variable Ratio Reinforcement Schedule (अनियमित इनाम प्रणाली)</strong>।
+          </p>
+          <p class="text-xs text-slate-400 leading-relaxed">
+            जब आपको पता नहीं होता कि अगला क्लिक ₹5,000 देगा या ₹5,000 छीनेगा, तो न्यूरॉन्स में डोपामाइन की बाढ़ आ जाती है। यदि अचानक बड़ा लॉस होता है, तो डोपामाइन बेसलाइन से नीचे गिर जाता है—जिसे दिमाग बर्दाश्त नहीं कर पाता और तुरंत एक और बड़ा ऑर्डर लगाने के लिए मजबूर करता है।
+          </p>
+
+          <div class="space-y-3 bg-terminalBg p-4 rounded-xl border border-surfaceBorder">
+            <span class="text-xs font-mono text-slate-300 block font-semibold">Test Neuro-Transmitter Response:</span>
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="triggerDopamineAction('scalp-win')" class="p-2.5 rounded-lg border border-warningAmber/40 bg-warningAmber/10 hover:bg-warningAmber/20 text-warningAmber text-xs font-mono font-semibold transition-all">
+                ⚡ Quick 1m Scalp (+₹8k)
+              </button>
+              <button onclick="triggerDopamineAction('scalp-loss')" class="p-2.5 rounded-lg border border-amygdalaRose/40 bg-amygdalaRose/10 hover:bg-amygdalaRose/20 text-amygdalaRose text-xs font-mono font-semibold transition-all">
+                💥 Fast Scalp Wipeout (-₹12k)
+              </button>
+              <button onclick="triggerDopamineAction('systematic')" class="col-span-2 p-2.5 rounded-lg border border-pfcCyan/40 bg-pfcCyan/10 hover:bg-pfcCyan/20 text-pfcCyan text-xs font-mono font-semibold transition-all">
+                🛡️ Patient HTF Setup (Systemic RRR 1:3)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dopamine Visual Curve & Neuro-transmitter Chart -->
+        <div class="lg:col-span-7 space-y-4">
+          <div class="flex items-center justify-between text-xs font-mono">
+            <span class="text-slate-400">Synaptic Dopamine Concentration vs Baseline:</span>
+            <span id="dopamineStateLabel" class="text-warningAmber font-bold">Baseline (Normal Equilibrium)</span>
+          </div>
+
+          <div class="relative w-full h-[260px] bg-obsidian rounded-xl border border-surfaceBorder overflow-hidden p-2">
+            <canvas id="dopamineCanvas" class="w-full h-full block"></canvas>
+          </div>
+
+          <div class="grid grid-cols-3 gap-3 text-center text-xs font-mono">
+            <div class="p-3 rounded-xl bg-terminalBg border border-surfaceBorder">
+              <span class="text-slate-400 block text-[10px] uppercase">Current Level</span>
+              <span id="dopamineLevelTxt" class="text-base font-bold text-warningAmber mt-1 block">100%</span>
+            </div>
+            <div class="p-3 rounded-xl bg-terminalBg border border-surfaceBorder">
+              <span class="text-slate-400 block text-[10px] uppercase">Craving Intensity</span>
+              <span id="cravingTxt" class="text-base font-bold text-slate-300 mt-1 block">Moderate</span>
+            </div>
+            <div class="p-3 rounded-xl bg-terminalBg border border-surfaceBorder">
+              <span class="text-slate-400 block text-[10px] uppercase">Cognitive Fatigue</span>
+              <span id="fatigueTxt" class="text-base font-bold text-pfcEmerald mt-1 block">Low (Fresh)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Prospect Theory & Sunk Cost Interactive Curve -->
+    <section id="prospect-theory" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-surfaceBorder pb-3">
+        <div>
+          <span class="text-xs font-mono text-pfcCyan uppercase">Interactive Lab 2.3</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-white">Prospect Theory Value Curve (Kahneman & Tversky)</h2>
+        </div>
+        <p class="text-xs text-slate-400 font-mono">Mathematical proof of why ₹10,000 Loss hurts 2.25x more than ₹10,000 Profit satisfies</p>
+      </div>
+
+      <div class="glass-panel p-6 rounded-2xl border border-surfaceBorder grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <!-- Theory and Sliders -->
+        <div class="lg:col-span-5 space-y-4">
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+            नोबेल पुरस्कार विजेता डैनियल काहनेमैन (Daniel Kahneman) के अनुसार, मानव मस्तिष्क का वैल्यू फंक्शन रैखिक (Linear) नहीं बल्कि असममित S-Curve होता है:
+          </p>
+
+          <div class="p-3 rounded-xl bg-terminalBg border border-surfaceBorder text-xs font-mono text-slate-300 space-y-2">
+            <div class="text-pfcCyan font-bold">$V(x) = x^\alpha \text{ for Gains} \quad (\alpha \approx 0.88)$</div>
+            <div class="text-amygdalaRose font-bold">$V(x) = -\lambda (-x)^\beta \text{ for Losses} \quad (\lambda \approx 2.25)$</div>
+          </div>
+
+          <div class="space-y-3 bg-terminalBg p-4 rounded-xl border border-surfaceBorder">
+            <div class="flex justify-between text-xs font-mono">
+              <span class="text-slate-300">Select P&L Value:</span>
+              <span id="pnlValueLabel" class="font-bold text-pfcCyan">₹0</span>
+            </div>
+            <input type="range" id="pnlSlider" min="-50000" max="50000" step="1000" value="0" oninput="updateProspectCurve(parseFloat(this.value))" class="w-full accent-pfcCyan cursor-pointer">
+            <div class="flex justify-between text-[10px] font-mono text-slate-500">
+              <span class="text-amygdalaRose">-₹50k Loss</span>
+              <span>₹0 Breakeven</span>
+              <span class="text-pfcEmerald">+₹50k Gain</span>
+            </div>
+          </div>
+
+          <div class="p-3.5 rounded-xl bg-surface border border-surfaceBorder text-xs font-mono space-y-1">
+            <div class="flex justify-between">
+              <span class="text-slate-400">Psychological Utility Score:</span>
+              <span id="utilityScore" class="font-bold text-white">0 Units</span>
+            </div>
+            <p id="prospectExplainer" class="text-[11px] text-slate-400 mt-1">
+              स्लाइडर को हिलाकर देखें कि घाटे का दर्द लाभ के सुख की तुलना में दोगुने से भी अधिक तेजी से कैसे नीचे गिरता है।
+            </p>
+          </div>
+        </div>
+
+        <!-- Dynamic S-Curve Interactive Canvas -->
+        <div class="lg:col-span-7 space-y-2">
+          <div class="relative w-full h-[320px] bg-obsidian rounded-xl border border-surfaceBorder overflow-hidden p-2">
+            <canvas id="prospectCanvas" class="w-full h-full block"></canvas>
+            
+            <div class="absolute bottom-3 left-3 text-[10px] font-mono text-amygdalaRose pointer-events-none">
+              Loss Domain: Extreme Pain ($\lambda = 2.25$)
+            </div>
+            <div class="absolute top-3 right-3 text-[10px] font-mono text-pfcEmerald pointer-events-none">
+              Gain Domain: Diminishing Joy ($\alpha = 0.88$)
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Tilt & Revenge Trading Breaker (Interactive Terminal Simulator) -->
+    <section id="circuit-breaker" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-surfaceBorder pb-3">
+        <div>
+          <span class="text-xs font-mono text-amygdalaRose uppercase">Interactive Lab 2.4</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-white">The Emotional Circuit Breaker (Tilt Lockout)</h2>
+        </div>
+        <p class="text-xs text-slate-400 font-mono">Institutional protocol: Automatic hardware/software lockdown when psychological metrics redline</p>
+      </div>
+
+      <div class="glass-panel p-6 rounded-2xl border border-surfaceBorder space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          
+          <!-- Controls and Inputs -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="space-y-3 bg-terminalBg p-4 rounded-xl border border-surfaceBorder">
+              <span class="text-xs font-mono text-slate-300 block font-semibold">Simulate Operator Condition:</span>
+              
+              <div>
+                <label class="text-[11px] font-mono text-slate-400 block mb-1">Consecutive Unplanned Losses:</label>
+                <div class="flex gap-2">
+                  <button onclick="setConsecutiveLosses(1)" class="loss-btn flex-1 py-1.5 text-xs font-mono rounded bg-surface border border-surfaceBorder hover:border-slate-400">1</button>
+                  <button onclick="setConsecutiveLosses(2)" class="loss-btn flex-1 py-1.5 text-xs font-mono rounded bg-surface border border-surfaceBorder hover:border-slate-400">2</button>
+                  <button onclick="setConsecutiveLosses(3)" class="loss-btn flex-1 py-1.5 text-xs font-mono rounded bg-surface border border-surfaceBorder hover:border-slate-400">3</button>
+                  <button onclick="setConsecutiveLosses(4)" class="loss-btn flex-1 py-1.5 text-xs font-mono rounded bg-surface border border-surfaceBorder hover:border-slate-400">4+</button>
+                </div>
+              </div>
+
+              <div>
+                <label class="text-[11px] font-mono text-slate-400 block mb-1">Subjective Emotional Urge:</label>
+                <select id="emotionalStateSelect" onchange="calcTiltRisk()" class="w-full py-1.5 px-2.5 rounded bg-surface border border-surfaceBorder text-xs font-mono text-slate-200 focus:outline-none focus:border-pfcCyan">
+                  <option value="calm">Calm & Objective (Following Checklist)</option>
+                  <option value="anxious">Anxious (Afraid of Missing out / Losing)</option>
+                  <option value="irritated">Irritated (Frustrated by recent wick out)</option>
+                  <option value="vengeful">Vengeful (Wanting money back from market NOW)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="text-[11px] font-mono text-slate-400 block mb-1">Current Position Sizing vs Plan:</label>
+                <select id="leverageSelect" onchange="calcTiltRisk()" class="w-full py-1.5 px-2.5 rounded bg-surface border border-surfaceBorder text-xs font-mono text-slate-200 focus:outline-none focus:border-pfcCyan">
+                  <option value="1">Standard Planned Risk (0.5% - 1.0%)</option>
+                  <option value="2">Doubled Size to recover loss (2.0%)</option>
+                  <option value="4">Max Margin Martingale (5.0%+)</option>
+                </select>
+              </div>
+
+              <button onclick="calcTiltRisk()" class="w-full py-2.5 rounded-lg bg-surface border border-surfaceBorder hover:border-pfcCyan text-xs font-mono text-slate-200 transition-all font-semibold">
+                Evaluate Emotional Threat Index
+              </button>
+            </div>
+          </div>
+
+          <!-- Simulated Institutional Locked Terminal -->
+          <div class="lg:col-span-7">
+            <div id="terminalScreen" class="relative bg-terminalBg rounded-xl border border-surfaceBorder p-5 font-mono text-xs space-y-3 min-h-[300px] flex flex-col justify-between transition-all">
+              
+              <div class="flex items-center justify-between border-b border-surfaceBorder/80 pb-3">
+                <div class="flex items-center gap-2">
+                  <span id="terminalStatusLight" class="w-2.5 h-2.5 rounded-full bg-pfcEmerald animate-pulse"></span>
+                  <span id="terminalStatusText" class="font-bold text-slate-200">TERMINAL ACTIVE: EXECUTION PERMITTED</span>
+                </div>
+                <span class="text-[10px] text-slate-500">AXIOM SAFETY PROTOCOL v2.4</span>
+              </div>
+
+              <div class="space-y-2 text-[11px]">
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Operator Tilt Index:</span>
+                  <span id="tiltScoreVal" class="font-bold text-pfcEmerald">12 / 100 (Safe Zone)</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Cortisol Stress Prediction:</span>
+                  <span id="cortisolRiskVal" class="text-slate-300">Basal (No Impairment)</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-400">Hard-Lock Intervention:</span>
+                  <span id="hardLockVal" class="text-pfcCyan">DISARMED</span>
+                </div>
+                <div class="p-3 bg-obsidian/70 rounded-lg border border-surfaceBorder text-slate-400 text-[10px] leading-relaxed" id="terminalLog">
+                  [SYS:READY] Risk parameters within optimal bounds. Continue disciplined order flow execution.
+                </div>
+              </div>
+
+              <!-- Lockdown Banner (Conditional) -->
+              <div id="lockdownBanner" class="hidden p-4 rounded-xl bg-amygdalaRose/15 border border-amygdalaRose text-center space-y-2 glow-rose">
+                <div class="text-amygdalaRose font-bold text-sm tracking-widest animate-pulse">
+                  ⚠️ PROTOCOL HARD STOP TRIGGERED ⚠️
+                </div>
+                <p class="text-[11px] text-slate-300">
+                  मस्तिष्क का Amygdala उत्तेजित हो चुका है। रिवेंज ट्रेडिंग और अकाउंट ब्लो-ऑफ से बचने के लिए टर्मिनल 60 मिनट के लिए लॉक किया गया है।
+                </p>
+                <div class="text-xs text-warningAmber font-bold font-mono">
+                  LOCKOUT REMAINING: <span id="lockTimer">59:59</span>
+                </div>
+              </div>
+
+              <div class="flex justify-end gap-2 pt-2 border-t border-surfaceBorder/60">
+                <button onclick="resetTiltBreaker()" class="px-3 py-1.5 rounded bg-surface hover:bg-slate-800 border border-surfaceBorder text-slate-300 text-[10px] transition-all">
+                  Manual System Reset
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 5: The Neuro-Chemical Diagnostic Test & Pre-Flight Quiz -->
+    <section id="diagnostic" class="space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 border-b border-surfaceBorder pb-3">
+        <div>
+          <span class="text-xs font-mono text-pfcCyan uppercase">Interactive Lab 2.5</span>
+          <h2 class="text-xl sm:text-2xl font-bold text-white">Pre-Flight Neuro-Diagnostic Audit</h2>
+        </div>
+        <span class="text-xs text-slate-400 font-mono">Verify PFC Dominance Before Opening Any Trade</span>
+      </div>
+
+      <div class="glass-panel p-6 rounded-2xl border border-surfaceBorder grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <!-- Diagnostic Questions -->
+        <div class="lg:col-span-7 space-y-6">
+          <div class="space-y-1">
+            <span class="text-xs font-mono text-pfcCyan" id="diagCounter">Evaluation 1 of 4</span>
+            <h3 class="text-sm sm:text-base font-semibold text-white" id="diagQuestionText">
+              जब आप अभी स्क्रीन को देख रहे हैं, तो आपके अंदर क्या विचार सबसे ज्यादा प्रबल है?
+            </h3>
+          </div>
+
+          <div class="space-y-2.5" id="diagOptionsContainer">
+            <!-- Dynamically injected -->
+          </div>
+
+          <div id="diagFeedback" class="hidden p-3.5 rounded-xl border text-xs font-mono leading-relaxed"></div>
+        </div>
+
+        <!-- 5-Point Daily Mental Checklist -->
+        <div class="lg:col-span-5 bg-terminalBg p-5 rounded-2xl border border-surfaceBorder space-y-4">
+          <div class="flex items-center justify-between border-b border-surfaceBorder pb-2">
+            <h4 class="text-xs font-mono uppercase tracking-wider text-pfcCyan font-bold">Bio-Chemical Checklist</h4>
+            <span class="text-[10px] font-mono text-slate-400">Must check all 5</span>
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <label class="flex items-start gap-3 cursor-pointer group">
+              <input type="checkbox" onchange="neuroCheckUpdate()" class="neuro-check mt-0.5 rounded bg-surface border-surfaceBorder text-pfcCyan focus:ring-0">
+              <span class="text-slate-300 group-hover:text-white transition-colors">मेरी पिछली रात 7+ घंटे की गहरी नींद पूरी हुई है (Adenosine cleared)।</span>
+            </label>
+
+            <label class="flex items-start gap-3 cursor-pointer group">
+              <input type="checkbox" onchange="neuroCheckUpdate()" class="neuro-check mt-0.5 rounded bg-surface border-surfaceBorder text-pfcCyan focus:ring-0">
+              <span class="text-slate-300 group-hover:text-white transition-colors">मैं पिछले ट्रेड के नुकसान से परेशान होकर बदला लेने के मूड में नहीं हूँ।</span>
+            </label>
+
+            <label class="flex items-start gap-3 cursor-pointer group">
+              <input type="checkbox" onchange="neuroCheckUpdate()" class="neuro-check mt-0.5 rounded bg-surface border-surfaceBorder text-pfcCyan focus:ring-0">
+              <span class="text-slate-300 group-hover:text-white transition-colors">मेरी शारीरिक धड़कन (Resting Heart Rate) सामान्य और शांत है।</span>
+            </label>
+
+            <label class="flex items-start gap-3 cursor-pointer group">
+              <input type="checkbox" onchange="neuroCheckUpdate()" class="neuro-check mt-0.5 rounded bg-surface border-surfaceBorder text-pfcCyan focus:ring-0">
+              <span class="text-slate-300 group-hover:text-white transition-colors">यदि इस ट्रेड में स्टॉप लॉस हिट होता है, तो मैं भावनात्मक रूप से विचलित नहीं होऊंगा।</span>
+            </label>
+
+            <label class="flex items-start gap-3 cursor-pointer group">
+              <input type="checkbox" onchange="neuroCheckUpdate()" class="neuro-check mt-0.5 rounded bg-surface border-surfaceBorder text-pfcCyan focus:ring-0">
+              <span class="text-slate-300 group-hover:text-white transition-colors">मैंने आज के अधिकतम दैनिक घाटे (Daily Loss Limit) का सख्त नियम तय कर लिया है।</span>
+            </label>
+          </div>
+
+          <div id="neuroCheckStatus" class="p-3 rounded-xl bg-obsidian border border-surfaceBorder text-center text-xs font-mono text-slate-400">
+            Neuro Status: <span class="text-amygdalaRose font-bold">Unchecked (0/5)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter 2 Core Mental Models Executive Cheatsheet -->
+    <section class="glass-panel p-6 sm:p-8 rounded-2xl border border-surfaceBorder space-y-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-surfaceBorder pb-4">
+        <div>
+          <span class="text-xs font-mono text-electricViolet uppercase tracking-widest">Neuro-Scientific Principles</span>
+          <h2 class="text-xl font-bold text-white mt-0.5">Chapter 2 Master Mental Framework</h2>
+        </div>
+        <button onclick="copyNeuroRules()" id="copyNeuroBtn" class="px-3.5 py-1.5 rounded-lg border border-surfaceBorder bg-surface hover:text-pfcCyan text-xs font-mono text-slate-300 transition-all flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+          <span id="copyNeuroTxt">Copy Neuro-Rules</span>
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-xs text-slate-300">
+        <div class="space-y-2">
+          <h4 class="font-mono text-pfcCyan font-semibold uppercase tracking-wide">1. The Biological Threat Inversion</h4>
+          <p class="leading-relaxed">
+            घाटा होने पर दिमाग कोर्टिसोल और एड्रेनालाईन छोड़ता है ताकि आप 'लड़े या भागे'। ट्रेडिंग में न लड़ना संभव है, न भागना। केवल पूर्व-निर्धारित गणितीय स्टॉप-लॉस ही मस्तिष्क को पैनिक से बचा सकता है।
+          </p>
+        </div>
+        <div class="space-y-2">
+          <h4 class="font-mono text-warningAmber font-semibold uppercase tracking-wide">2. The Dopamine Crash Rule</h4>
+          <p class="leading-relaxed">
+            तेज अप्रत्याशित जीत के तुरंत बाद नया ट्रेड कभी न लें। अत्यधिक डोपामाइन आपको अजेय महसूस कराता है और आपका रिस्क पैरामीटर 5 गुना बढ़ जाता है। जीत के बाद 15 मिनट स्क्रीन बंद करें।
+          </p>
+        </div>
+        <div class="space-y-2">
+          <h4 class="font-mono text-amygdalaRose font-semibold uppercase tracking-wide">3. The 2.25x Loss Pain Defense</h4>
+          <p class="leading-relaxed">
+            क्योंकि घाटा 2.25 गुना अधिक दुखदायी होता है, खुदरा ट्रेडर स्टॉप लॉस हटाकर उम्मीद (Hope) में बैठ जाता है। प्रोफेशनल ट्रेडर इस बात को समझकर रिस्क को हमेशा 1% से कम पर फिक्स रखता है।
+          </p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-surfaceBorder py-8 text-center text-xs font-mono text-slate-500 space-y-2">
+    <p>THE AXIOM LAB &bull; SMART MONEY CONCEPTS & NEURO-PSYCHOLOGY OPEN ARCHITECTURE</p>
+    <p class="text-[11px] text-slate-600">Chapter 2: The Neurobiology of Trading & Capital Preservation. Deployable on GitHub Pages.</p>
+  </footer>
+
+  <!-- Web Audio API Synthesizer Script -->
+  <script>
+    let audioCtx = null;
+    let soundEnabled = true;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playTone(freq, type, duration, vol = 0.08) {
+      if (!soundEnabled) return;
+      try {
+        initAudio();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type || 'sine';
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    function playHeartbeatSound(bpm = 70) {
+      if (!soundEnabled) return;
+      try {
+        initAudio();
+        const now = audioCtx.currentTime;
+        // First lub
+        const osc1 = audioCtx.createOscillator();
+        const g1 = audioCtx.createGain();
+        osc1.type = 'triangle';
+        osc1.frequency.setValueAtTime(65, now);
+        osc1.frequency.exponentialRampToValueAtTime(40, now + 0.12);
+        g1.gain.setValueAtTime(0.15, now);
+        g1.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        osc1.connect(g1);
+        g1.connect(audioCtx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.12);
+
+        // Second dub
+        const osc2 = audioCtx.createOscillator();
+        const g2 = audioCtx.createGain();
+        osc2.type = 'triangle';
+        osc2.frequency.setValueAtTime(80, now + 0.16);
+        osc2.frequency.exponentialRampToValueAtTime(45, now + 0.28);
+        g2.gain.setValueAtTime(0.12, now + 0.16);
+        g2.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+        osc2.connect(g2);
+        g2.connect(audioCtx.destination);
+        osc2.start(now + 0.16);
+        osc2.stop(now + 0.28);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function playTiltSiren() {
+      if (!soundEnabled) return;
+      playTone(320, 'sawtooth', 0.2, 0.1);
+      setTimeout(() => playTone(240, 'sawtooth', 0.3, 0.12), 150);
+    }
+
+    function toggleSound() {
+      soundEnabled = !soundEnabled;
+      document.getElementById('soundLabel').innerText = soundEnabled ? 'BIO SFX: ON' : 'BIO SFX: OFF';
+      document.getElementById('soundToggle').classList.toggle('text-pfcCyan', soundEnabled);
+      if (soundEnabled) playTone(540, 'sine', 0.12);
+    }
+
+    function triggerHeartbeatManual() {
+      playHeartbeatSound();
+    }
+
+    // Scroll Progress Bar
+    window.addEventListener('scroll', () => {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById('scrollProgress').style.width = scrolled + '%';
+    });
+
+    // ==========================================
+    // MODULE 2.1: BRAIN BIO-FEEDBACK SIMULATOR
+    // ==========================================
+    const brainCanvas = document.getElementById('brainCanvas');
+    const bCtx = brainCanvas.getContext('2d');
+    let neuroState = 'calm'; // calm, stress, hijack
+    let brainAnimId = null;
+    let brainStep = 0;
+
+    function resizeBrainCanvas() {
+      const rect = brainCanvas.getBoundingClientRect();
+      brainCanvas.width = rect.width * window.devicePixelRatio;
+      brainCanvas.height = rect.height * window.devicePixelRatio;
+      bCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+      drawBrainVisualizer();
+    }
+    window.addEventListener('resize', resizeBrainCanvas);
+
+    function setNeuroState(state) {
+      neuroState = state;
+      const btnC = document.getElementById('btnCalm');
+      const btnS = document.getElementById('btnStress');
+      const btnH = document.getElementById('btnHijack');
+      const slider = document.getElementById('drawdownSlider');
+
+      [btnC, btnS, btnH].forEach(b => {
+        b.className = "px-3.5 py-1.5 rounded-lg text-xs font-mono border border-surfaceBorder bg-surface text-slate-400 hover:text-white transition-all";
+      });
+
+      if (state === 'calm') {
+        playTone(480, 'sine', 0.15);
+        btnC.className = "px-3.5 py-1.5 rounded-lg text-xs font-mono border border-pfcCyan bg-pfcCyan/20 text-pfcCyan font-semibold transition-all";
+        slider.value = 0;
+        updateNeuroMetrics(0);
+      } else if (state === 'stress') {
+        playTone(340, 'triangle', 0.18);
+        btnS.className = "px-3.5 py-1.5 rounded-lg text-xs font-mono border border-warningAmber bg-warningAmber/20 text-warningAmber font-semibold transition-all";
+        slider.value = 4.5;
+        updateNeuroMetrics(4.5);
+      } else if (state === 'hijack') {
+        playTiltSiren();
+        btnH.className = "px-3.5 py-1.5 rounded-lg text-xs font-mono border border-amygdalaRose bg-amygdalaRose/20 text-amygdalaRose font-semibold transition-all";
+        slider.value = 12;
+        updateNeuroMetrics(12);
+      }
+    }
+
+    function onDrawdownSliderChange(val) {
+      const v = parseFloat(val);
+      if (v < 3.5) neuroState = 'calm';
+      else if (v < 8.5) neuroState = 'stress';
+      else neuroState = 'hijack';
+
+      updateNeuroMetrics(v);
+    }
+
+    function updateNeuroMetrics(lossVal) {
+      const flTxt = document.getElementById('floatingLossVal');
+      const hrTxt = document.getElementById('heartRateVal');
+      const hrBar = document.getElementById('heartRateBar');
+      const cortTxt = document.getElementById('cortisolVal');
+      const cortBar = document.getElementById('cortisolBar');
+      const pfcTxt = document.getElementById('pfcPowerVal');
+      const pfcBar = document.getElementById('pfcPowerBar');
+      const impTxt = document.getElementById('impulseVal');
+      const impBar = document.getElementById('impulseBar');
+
+      const sDot = document.getElementById('stateDot');
+      const sTitle = document.getElementById('stateTitle');
+      const sDesc = document.getElementById('stateDesc');
+      const advBox = document.getElementById('neuroAdviceBox');
+
+      flTxt.innerText = lossVal === 0 ? "0.0% (Risk Neutral)" : `-${lossVal.toFixed(1)}% Floating Drawdown`;
+
+      if (lossVal < 3.5) {
+        flTxt.className = "font-bold text-pfcEmerald";
+        hrTxt.innerText = "64 BPM"; hrTxt.className = "text-base font-mono font-bold text-pfcCyan";
+        hrBar.style.width = "28%"; hrBar.className = "bg-pfcCyan h-full transition-all duration-300";
+        cortTxt.innerText = "8.2 μg/dL"; cortTxt.className = "text-base font-mono font-bold text-pfcEmerald";
+        cortBar.style.width = "25%"; cortBar.className = "bg-pfcEmerald h-full transition-all duration-300";
+        pfcTxt.innerText = "94%"; pfcTxt.className = "text-base font-mono font-bold text-pfcCyan";
+        pfcBar.style.width = "94%"; pfcBar.className = "bg-pfcCyan h-full transition-all duration-300";
+        impTxt.innerText = "Low (4%)"; impTxt.className = "text-base font-mono font-bold text-pfcEmerald";
+        impBar.style.width = "4%"; impBar.className = "bg-pfcEmerald h-full transition-all duration-300";
+
+        sDot.className = "w-2.5 h-2.5 rounded-full bg-pfcCyan animate-pulse";
+        sTitle.innerText = "PREFRONTAL CORTEX DOMINANT"; sTitle.className = "font-bold text-pfcCyan";
+        sDesc.innerText = "तर्कशील संज्ञान सक्रिय। स्टॉप-लॉस की पूर्व-स्वीकृति मौजूद है। कोई भावनात्मक उथल-पुथल नहीं।";
+        advBox.innerHTML = "<strong class='text-pfcCyan block mb-1'>Prefrontal Guardrail:</strong> मस्तिष्क शांत है। सिस्टम के नियमों के अनुसार 1:3 RRR निष्पादित करें।";
+      } else if (lossVal < 8.5) {
+        flTxt.className = "font-bold text-warningAmber";
+        hrTxt.innerText = "88 BPM"; hrTxt.className = "text-base font-mono font-bold text-warningAmber";
+        hrBar.style.width = "55%"; hrBar.className = "bg-warningAmber h-full transition-all duration-300";
+        cortTxt.innerText = "18.4 μg/dL"; cortTxt.className = "text-base font-mono font-bold text-warningAmber";
+        cortBar.style.width = "60%"; cortBar.className = "bg-warningAmber h-full transition-all duration-300";
+        pfcTxt.innerText = "52%"; pfcTxt.className = "text-base font-mono font-bold text-warningAmber";
+        pfcBar.style.width = "52%"; pfcBar.className = "bg-warningAmber h-full transition-all duration-300";
+        impTxt.innerText = "Elevated (48%)"; impTxt.className = "text-base font-mono font-bold text-warningAmber";
+        impBar.style.width = "48%"; impBar.className = "bg-warningAmber h-full transition-all duration-300";
+
+        sDot.className = "w-2.5 h-2.5 rounded-full bg-warningAmber animate-ping";
+        sTitle.innerText = "AMYGDALA STRESS WARNING"; sTitle.className = "font-bold text-warningAmber";
+        sDesc.innerText = "तनाव हार्मोन कोर्टिसोल का स्तर बढ़ रहा है। ट्रेडर चार्ट पर 'उम्मीद' (Hope) ढूंढने लगा है।";
+        advBox.innerHTML = "<strong class='text-warningAmber block mb-1'>High-Alert Warning:</strong> स्टॉप-लॉस को चौड़ा करने का मन कर रहा है? यह Amygdala का पहला ट्रैप है। अपनी स्क्रीन को तुरंत लॉक करें।";
+      } else {
+        flTxt.className = "font-bold text-amygdalaRose";
+        hrTxt.innerText = "128 BPM"; hrTxt.className = "text-base font-mono font-bold text-amygdalaRose";
+        hrBar.style.width = "95%"; hrBar.className = "bg-amygdalaRose h-full transition-all duration-300";
+        cortTxt.innerText = "38.7 μg/dL"; cortTxt.className = "text-base font-mono font-bold text-amygdalaRose";
+        cortBar.style.width = "95%"; cortBar.className = "bg-amygdalaRose h-full transition-all duration-300";
+        pfcTxt.innerText = "11%"; pfcTxt.className = "text-base font-mono font-bold text-amygdalaRose";
+        pfcBar.style.width = "11%"; pfcBar.className = "bg-amygdalaRose h-full transition-all duration-300";
+        impTxt.innerText = "CRITICAL (92%)"; impTxt.className = "text-base font-mono font-bold text-amygdalaRose";
+        impBar.style.width = "92%"; impBar.className = "bg-amygdalaRose h-full transition-all duration-300";
+
+        sDot.className = "w-2.5 h-2.5 rounded-full bg-amygdalaRose animate-ping";
+        sTitle.innerText = "FULL AMYGDALA HIJACK (BLIND REVENGE)"; sTitle.className = "font-bold text-amygdalaRose";
+        sDesc.innerText = "मस्तिष्क पूर्ण शारीरिक खतरे (Fight-or-Flight) मोड में है। सोचने की क्षमता शून्य, बदला लेने की इच्छा 92%।";
+        advBox.innerHTML = "<strong class='text-amygdalaRose block mb-1'>Biological Emergency:</strong> Prefrontal Cortex पूरी तरह से ऑफलाइन हो चुका है। इस समय लिया गया कोई भी निर्णय अकाउंट को वाइपआउट कर देगा।";
+      }
+    }
+
+    function drawBrainVisualizer() {
+      const w = brainCanvas.getBoundingClientRect().width;
+      const h = brainCanvas.getBoundingClientRect().height;
+      bCtx.clearRect(0, 0, w, h);
+
+      brainStep += 0.04;
+      const cx = w * 0.52;
+      const cy = h * 0.52;
+
+      // Draw Stylized Brain Outline
+      bCtx.strokeStyle = '#1e293b';
+      bCtx.lineWidth = 2;
+      bCtx.beginPath();
+      // Outer frontal lobe curve
+      bCtx.ellipse(cx - 20, cy - 10, 110, 85, 0, 0, Math.PI * 2);
+      bCtx.stroke();
+
+      // Draw Internal Neural Grid Connections
+      bCtx.strokeStyle = '#151f30';
+      bCtx.lineWidth = 1;
+      for (let r = 30; r < 100; r += 20) {
+        bCtx.beginPath();
+        bCtx.arc(cx - 20, cy - 10, r, 0, Math.PI * 2);
+        bCtx.stroke();
+      }
+
+      // 1. PREFRONTAL CORTEX (Frontal Area: Left in lateral view)
+      const pfcX = cx - 85;
+      const pfcY = cy - 25;
+      const pfcAlpha = neuroState === 'calm' ? 0.85 : (neuroState === 'stress' ? 0.45 : 0.15);
+
+      bCtx.save();
+      bCtx.fillStyle = `rgba(6, 182, 212, ${pfcAlpha * 0.25})`;
+      bCtx.beginPath();
+      bCtx.arc(pfcX, pfcY, 38 + Math.sin(brainStep) * 3, 0, Math.PI * 2);
+      bCtx.fill();
+
+      bCtx.strokeStyle = `rgba(6, 182, 212, ${pfcAlpha})`;
+      bCtx.lineWidth = 2.5;
+      bCtx.beginPath();
+      bCtx.arc(pfcX, pfcY, 32, 0, Math.PI * 2);
+      bCtx.stroke();
+
+      bCtx.fillStyle = '#06b6d4';
+      bCtx.font = 'bold 10px JetBrains Mono';
+      bCtx.fillText('PREFRONTAL CORTEX', pfcX - 45, pfcY - 42);
+      bCtx.font = '9px JetBrains Mono';
+      bCtx.fillStyle = '#94a3b8';
+      bCtx.fillText('(Rational Logic & Edge)', pfcX - 45, pfcY - 30);
+      bCtx.restore();
+
+      // 2. AMYGDALA (Limbic Area: Center Core)
+      const amyX = cx + 5;
+      const amyY = cy + 15;
+      const amyIntensity = neuroState === 'calm' ? 0.2 : (neuroState === 'stress' ? 0.6 : 1.0);
+      const amyRadius = 24 + amyIntensity * 12 + Math.sin(brainStep * 2) * (amyIntensity * 5);
+
+      bCtx.save();
+      bCtx.fillStyle = `rgba(244, 63, 94, ${amyIntensity * 0.35})`;
+      bCtx.beginPath();
+      bCtx.arc(amyX, amyY, amyRadius, 0, Math.PI * 2);
+      bCtx.fill();
+
+      bCtx.strokeStyle = `rgba(244, 63, 94, ${Math.max(0.4, amyIntensity)})`;
+      bCtx.lineWidth = 2.5;
+      bCtx.beginPath();
+      bCtx.arc(amyX, amyY, 20 + amyIntensity * 6, 0, Math.PI * 2);
+      bCtx.stroke();
+
+      bCtx.fillStyle = '#f43f5e';
+      bCtx.font = 'bold 10px JetBrains Mono';
+      bCtx.fillText('AMYGDALA', amyX - 25, amyY + 38);
+      bCtx.font = '9px JetBrains Mono';
+      bCtx.fillStyle = '#94a3b8';
+      bCtx.fillText('(Threat & Revenge Hub)', amyX - 35, amyY + 50);
+      bCtx.restore();
+
+      // Neural Pathway Connection between PFC and Amygdala
+      bCtx.beginPath();
+      bCtx.moveTo(pfcX, pfcY);
+      bCtx.quadraticCurveTo(cx - 30, cy - 20, amyX, amyY);
+      bCtx.lineWidth = 2;
+      bCtx.setLineDash([4, 4]);
+      bCtx.strokeStyle = neuroState === 'calm' ? '#06b6d4' : (neuroState === 'stress' ? '#f59e0b' : '#f43f5e');
+      bCtx.stroke();
+      bCtx.setLineDash([]);
+
+      brainAnimId = requestAnimationFrame(drawBrainVisualizer);
+    }
+
+    // ==========================================
+    // MODULE 2.2: DOPAMINE CASINO ENGINE
+    // ==========================================
+    const dopCanvas = document.getElementById('dopamineCanvas');
+    const dCtx = dopCanvas.getContext('2d');
+    let dopData = [100, 102, 98, 101, 100, 100];
+
+    function drawDopamineCurve() {
+      const rect = dopCanvas.getBoundingClientRect();
+      dopCanvas.width = rect.width * window.devicePixelRatio;
+      dopCanvas.height = rect.height * window.devicePixelRatio;
+      dCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+      const w = rect.width;
+      const h = rect.height;
+      dCtx.clearRect(0, 0, w, h);
+
+      // Baseline reference at y = h * 0.6
+      const baseLineY = h * 0.6;
+      dCtx.strokeStyle = '#1e293b';
+      dCtx.setLineDash([3, 3]);
+      dCtx.beginPath();
+      dCtx.moveTo(30, baseLineY);
+      dCtx.lineTo(w - 20, baseLineY);
+      dCtx.stroke();
+      dCtx.setLineDash([]);
+
+      dCtx.fillStyle = '#64748b';
+      dCtx.font = '10px JetBrains Mono';
+      dCtx.fillText('100% Homeostasis Baseline', 35, baseLineY - 6);
+
+      // Plot Dopamine concentration curve
+      const stepX = (w - 70) / (dopData.length - 1);
+      const minVal = 20;
+      const maxVal = 400;
+
+      const getY = (val) => h - ((val - minVal) / (maxVal - minVal)) * (h - 40) - 20;
+
+      dCtx.beginPath();
+      dCtx.lineWidth = 2.5;
+      dCtx.strokeStyle = dopData[dopData.length - 1] > 110 ? '#f59e0b' : (dopData[dopData.length - 1] < 80 ? '#f43f5e' : '#06b6d4');
+
+      for (let i = 0; i < dopData.length; i++) {
+        const x = 35 + i * stepX;
+        const y = getY(dopData[i]);
+        if (i === 0) dCtx.moveTo(x, y);
+        else dCtx.lineTo(x, y);
+      }
+      dCtx.stroke();
+
+      // Current End Point
+      const lastX = 35 + (dopData.length - 1) * stepX;
+      const lastY = getY(dopData[dopData.length - 1]);
+      dCtx.fillStyle = dCtx.strokeStyle;
+      dCtx.beginPath();
+      dCtx.arc(lastX, lastY, 4.5, 0, Math.PI * 2);
+      dCtx.fill();
+    }
+
+    function triggerDopamineAction(action) {
+      const lbl = document.getElementById('dopamineStateLabel');
+      const lvlTxt = document.getElementById('dopamineLevelTxt');
+      const crvTxt = document.getElementById('cravingTxt');
+      const ftgTxt = document.getElementById('fatigueTxt');
+
+      if (action === 'scalp-win') {
+        playTone(720, 'sine', 0.25);
+        dopData.push(220, 360, 310, 240);
+        if (dopData.length > 20) dopData = dopData.slice(-14);
+
+        lbl.innerText = "Dopamine Flood (+360% Above Normal)";
+        lbl.className = "text-warningAmber font-bold";
+        lvlTxt.innerText = "360%"; lvlTxt.className = "text-base font-bold text-warningAmber mt-1 block";
+        crvTxt.innerText = "Intense (Need more wins)"; crvTxt.className = "text-base font-bold text-warningAmber mt-1 block";
+        ftgTxt.innerText = "Adrenaline Overdrive";
+      } else if (action === 'scalp-loss') {
+        playTone(180, 'sawtooth', 0.35);
+        dopData.push(140, 45, 38, 42);
+        if (dopData.length > 20) dopData = dopData.slice(-14);
+
+        lbl.innerText = "Dopamine Crash (-62% Below Baseline)";
+        lbl.className = "text-amygdalaRose font-bold";
+        lvlTxt.innerText = "38%"; lvlTxt.className = "text-base font-bold text-amygdalaRose mt-1 block";
+        crvTxt.innerText = "EXTREME REVENGE TILT"; crvTxt.className = "text-base font-bold text-amygdalaRose mt-1 block";
+        ftgTxt.innerText = "Severe Emotional Exhaustion";
+      } else if (action === 'systematic') {
+        playTone(520, 'sine', 0.18);
+        dopData.push(105, 102, 100, 101);
+        if (dopData.length > 20) dopData = dopData.slice(-14);
+
+        lbl.innerText = "Steady Stoic Equilibrium (PFC Protected)";
+        lbl.className = "text-pfcCyan font-bold";
+        lvlTxt.innerText = "101%"; lvlTxt.className = "text-base font-bold text-pfcCyan mt-1 block";
+        crvTxt.innerText = "Negligible (Process Oriented)"; crvTxt.className = "text-base font-bold text-pfcEmerald mt-1 block";
+        ftgTxt.innerText = "Sustainable (Zero Burnout)";
+      }
+      drawDopamineCurve();
+    }
+
+    // ==========================================
+    // MODULE 2.3: PROSPECT THEORY S-CURVE
+    // ==========================================
+    const pCanvas = document.getElementById('prospectCanvas');
+    const pCtx = pCanvas.getContext('2d');
+    let currentPnl = 0;
+
+    function updateProspectCurve(pnl) {
+      currentPnl = pnl;
+      const label = document.getElementById('pnlValueLabel');
+      const utilEl = document.getElementById('utilityScore');
+      const expEl = document.getElementById('prospectExplainer');
+
+      label.innerText = (pnl >= 0 ? "+₹" : "-₹") + Math.abs(pnl).toLocaleString('en-IN');
+      label.className = pnl > 0 ? "font-bold text-pfcEmerald" : (pnl < 0 ? "font-bold text-amygdalaRose" : "font-bold text-pfcCyan");
+
+      // Calculate Kahneman-Tversky Utility
+      let utility = 0;
+      if (pnl >= 0) {
+        utility = Math.pow(pnl / 1000, 0.88);
+      } else {
+        utility = -2.25 * Math.pow(Math.abs(pnl) / 1000, 0.88);
+      }
+      utilEl.innerText = (utility >= 0 ? "+" : "") + utility.toFixed(1) + " Psych Units";
+      utilEl.className = utility >= 0 ? "font-bold text-pfcEmerald" : "font-bold text-amygdalaRose";
+
+      if (pnl === 0) {
+        expEl.innerText = "₹0 पर कोई भावनात्मक विचलन नहीं। आप निष्पक्ष हैं।";
+      } else if (pnl > 0) {
+        expEl.innerText = `+₹${pnl.toLocaleString('en-IN')} का लाभ आपको +${utility.toFixed(1)} यूनिट की संतुष्टि दे रहा है। ध्यान दें कि आगे लाभ बढ़ने पर सुख की गति धीमी हो जाती है।`;
+      } else {
+        const lossAbs = Math.abs(pnl);
+        const gainEquiv = Math.pow(lossAbs / 1000, 0.88);
+        expEl.innerText = `-₹${lossAbs.toLocaleString('en-IN')} का नुकसान मस्तिष्क को ${Math.abs(utility).toFixed(1)} दर्द की यूनिट्स दे रहा है—जो समान लाभ के सुख (${gainEquiv.toFixed(1)} Units) से ठीक 2.25 गुना अधिक तीव्र है!`;
+      }
+
+      drawProspectCurve();
+    }
+
+    function drawProspectCurve() {
+      const rect = pCanvas.getBoundingClientRect();
+      pCanvas.width = rect.width * window.devicePixelRatio;
+      pCanvas.height = rect.height * window.devicePixelRatio;
+      pCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+      const w = rect.width;
+      const h = rect.height;
+      pCtx.clearRect(0, 0, w, h);
+
+      const originX = w * 0.5;
+      const originY = h * 0.5;
+
+      // Draw Axes
+      pCtx.strokeStyle = '#232f48';
+      pCtx.lineWidth = 1.5;
+
+      // X-Axis (Real P&L)
+      pCtx.beginPath();
+      pCtx.moveTo(25, originY);
+      pCtx.lineTo(w - 25, originY);
+      pCtx.stroke();
+
+      // Y-Axis (Subjective Value)
+      pCtx.beginPath();
+      pCtx.moveTo(originX, 20);
+      pCtx.lineTo(originX, h - 20);
+      pCtx.stroke();
+
+      // Axis Labels
+      pCtx.fillStyle = '#64748b';
+      pCtx.font = '10px JetBrains Mono';
+      pCtx.fillText('+₹ Financial Gain', w - 120, originY - 8);
+      pCtx.fillText('-₹ Financial Loss', 30, originY - 8);
+      pCtx.fillText('+V (Pleasure)', originX + 8, 28);
+      pCtx.fillText('-V (Pain)', originX + 8, h - 26);
+
+      // Plot Kahneman S-Curve
+      pCtx.lineWidth = 2.8;
+
+      // 1. Gain side (Concave, mild slope)
+      pCtx.strokeStyle = '#10b981';
+      pCtx.beginPath();
+      pCtx.moveTo(originX, originY);
+      for (let x = 0; x <= (w * 0.44); x += 2) {
+        const normX = (x / (w * 0.44)) * 50; // 0 to 50k
+        const normY = Math.pow(normX, 0.88) * 3.2; // scale for canvas
+        pCtx.lineTo(originX + x, originY - normY);
+      }
+      pCtx.stroke();
+
+      // 2. Loss side (Convex, steep slope: 2.25x lambda)
+      pCtx.strokeStyle = '#f43f5e';
+      pCtx.beginPath();
+      pCtx.moveTo(originX, originY);
+      for (let x = 0; x <= (w * 0.44); x += 2) {
+        const normX = (x / (w * 0.44)) * 50;
+        const normY = 2.25 * Math.pow(normX, 0.88) * 3.2; // 2.25 steep factor
+        pCtx.lineTo(originX - x, originY + normY);
+      }
+      pCtx.stroke();
+
+      // Plot Current Selected P&L Position Marker
+      const selectedOffset = (currentPnl / 50000) * (w * 0.44);
+      let curY = originY;
+      if (currentPnl >= 0) {
+        const normX = (Math.abs(selectedOffset) / (w * 0.44)) * 50;
+        curY = originY - Math.pow(normX, 0.88) * 3.2;
+      } else {
+        const normX = (Math.abs(selectedOffset) / (w * 0.44)) * 50;
+        curY = originY + 2.25 * Math.pow(normX, 0.88) * 3.2;
+      }
+
+      pCtx.fillStyle = currentPnl >= 0 ? '#10b981' : '#f43f5e';
+      pCtx.beginPath();
+      pCtx.arc(originX + selectedOffset, curY, 6, 0, Math.PI * 2);
+      pCtx.fill();
+
+      // Dashed projection to axes
+      pCtx.setLineDash([3, 3]);
+      pCtx.strokeStyle = '#64748b';
+      pCtx.beginPath();
+      pCtx.moveTo(originX + selectedOffset, curY);
+      pCtx.lineTo(originX + selectedOffset, originY);
+      pCtx.moveTo(originX + selectedOffset, curY);
+      pCtx.lineTo(originX, curY);
+      pCtx.stroke();
+      pCtx.setLineDash([]);
+    }
+
+    // ==========================================
+    // MODULE 2.4: EMOTIONAL CIRCUIT BREAKER
+    // ==========================================
+    let consecutiveLosses = 1;
+    let lockTimerInterval = null;
+
+    function setConsecutiveLosses(n) {
+      consecutiveLosses = n;
+      document.querySelectorAll('.loss-btn').forEach((b, idx) => {
+        if (idx + 1 === n) {
+          b.className = "loss-btn flex-1 py-1.5 text-xs font-mono rounded bg-pfcCyan/20 border border-pfcCyan text-pfcCyan font-bold";
+        } else {
+          b.className = "loss-btn flex-1 py-1.5 text-xs font-mono rounded bg-surface border border-surfaceBorder hover:border-slate-400";
+        }
+      });
+      calcTiltRisk();
+    }
+
+    function calcTiltRisk() {
+      const state = document.getElementById('emotionalStateSelect').value;
+      const leverage = parseInt(document.getElementById('leverageSelect').value);
+
+      let score = 0;
+      // Loss contribution
+      score += consecutiveLosses * 16;
+
+      // Emotion contribution
+      if (state === 'calm') score += 5;
+      else if (state === 'anxious') score += 20;
+      else if (state === 'irritated') score += 35;
+      else if (state === 'vengeful') score += 55;
+
+      // Leverage contribution
+      score += (leverage - 1) * 20;
+
+      score = Math.min(100, Math.max(5, score));
+
+      const tiltVal = document.getElementById('tiltScoreVal');
+      const light = document.getElementById('terminalStatusLight');
+      const statusTxt = document.getElementById('terminalStatusText');
+      const cortTxt = document.getElementById('cortisolRiskVal');
+      const hardTxt = document.getElementById('hardLockVal');
+      const log = document.getElementById('terminalLog');
+      const banner = document.getElementById('lockdownBanner');
+
+      tiltVal.innerText = `${score} / 100`;
+
+      if (score < 40) {
+        tiltVal.className = "font-bold text-pfcEmerald";
+        light.className = "w-2.5 h-2.5 rounded-full bg-pfcEmerald animate-pulse";
+        statusTxt.innerText = "TERMINAL ACTIVE: EXECUTION PERMITTED";
+        cortTxt.innerText = "Basal (No Impairment)";
+        hardTxt.innerText = "DISARMED"; hardTxt.className = "text-pfcCyan";
+        banner.classList.add('hidden');
+        log.innerText = `[SYS:STABLE] Operator tilt index is ${score}/100. Trade execution parameters remain within green bounds.`;
+      } else if (score < 70) {
+        tiltVal.className = "font-bold text-warningAmber";
+        light.className = "w-2.5 h-2.5 rounded-full bg-warningAmber animate-ping";
+        statusTxt.innerText = "WARNING: HIGH EMOTIONAL FRICTION";
+        cortTxt.innerText = "Elevated (Decision Degradation 40%)";
+        hardTxt.innerText = "PRE-ARMED"; hardTxt.className = "text-warningAmber";
+        banner.classList.add('hidden');
+        log.innerText = `[SYS:ALERT] High risk of deviation from rulebook detected. Position sizing restricted. Mandatory 5m break recommended.`;
+      } else {
+        // Redline: Hard Stop Lockout
+        tiltVal.className = "font-bold text-amygdalaRose";
+        light.className = "w-2.5 h-2.5 rounded-full bg-amygdalaRose animate-ping";
+        statusTxt.innerText = "LOCKDOWN: AMYGDALA BREACH CONFIRMED";
+        cortTxt.innerText = "Critical Redline (Severe Tunnel Vision)";
+        hardTxt.innerText = "ENGAGED (LOCKED)"; hardTxt.className = "text-amygdalaRose font-bold";
+        banner.classList.remove('hidden');
+        log.innerText = `[CRITICAL_HALT] Operator tilt is ${score}/100. Sizing expanded post consecutive losses. Hard circuit breaker triggered to protect equity.`;
+        
+        playTiltSiren();
+        startLockoutCountdown();
+      }
+    }
+
+    function startLockoutCountdown() {
+      if (lockTimerInterval) clearInterval(lockTimerInterval);
+      let sec = 3599;
+      lockTimerInterval = setInterval(() => {
+        sec--;
+        if (sec <= 0) {
+          clearInterval(lockTimerInterval);
+          return;
+        }
+        const m = Math.floor(sec / 60);
+        const s = sec % 60;
+        document.getElementById('lockTimer').innerText = `${m}:${s < 10 ? '0' : ''}${s}`;
+      }, 1000);
+    }
+
+    function resetTiltBreaker() {
+      if (lockTimerInterval) clearInterval(lockTimerInterval);
+      setConsecutiveLosses(1);
+      document.getElementById('emotionalStateSelect').value = 'calm';
+      document.getElementById('leverageSelect').value = '1';
+      document.getElementById('lockdownBanner').classList.add('hidden');
+      calcTiltRisk();
+      playTone(580, 'sine', 0.15);
+    }
+
+    // ==========================================
+    // MODULE 2.5: DIAGNOSTIC AUDIT & QUIZ
+    // ==========================================
+    const diagData = [
+      {
+        q: "जब आप अभी स्क्रीन को देख रहे हैं, तो आपके अंदर क्या विचार सबसे ज्यादा प्रबल है?",
+        options: [
+          { text: "मुझे पिछले ट्रेड का लॉस किसी भी तरह इस कैंडल में कवर करना है।", pfc: false, exp: "यह विशुद्ध Amygdala संचालित बदला (Revenge) है। ट्रेड न लें।" },
+          { text: "मैं शांत हूँ, यदि सेटअप मेरे नियमों में फिट होगा तभी मैं एंट्री करूँगा।", pfc: true, exp: "सटीक! Prefrontal Cortex सक्रिय है और प्रक्रिया पर केंद्रित है।" },
+          { text: "अगर यह मूव मिस हो गया तो आज का दिन बर्बाद हो जाएगा (FOMO)।", pfc: false, exp: "FOMO डर पर आधारित पूर्वाग्रह है। बाजार हमेशा नए अवसर देता है।" }
+        ]
+      },
+      {
+        q: "प्राइस आपके स्टॉप-लॉस से सिर्फ 5 पॉइंट दूर है। इस समय आपकी स्वाभाविक जैविक प्रवृत्ति क्या करने की हो रही है?",
+        options: [
+          { text: "स्टॉप-लॉस को थोड़ा नीचे खिसका दूँ ताकि मार्केट मुझे बाहर न कर सके।", pfc: false, exp: "यह Sunk Cost और Loss Aversion (2.25x) का क्लासिक आत्मघाती ट्रैप है।" },
+          { text: "स्टॉप-लॉस को वहीं रहने दूँ, क्योंकि गलत साबित होना बिजनेस की सामान्य लागत है।", pfc: true, exp: "शानदार! आप अनिश्चितता को बिना अहंकार के स्वीकार कर रहे हैं।" }
+        ]
+      },
+      {
+        q: "लगातार 2 ट्रेड्स में 1:3 का बड़ा प्रॉफिट होने के तुरंत बाद आपको क्या करना चाहिए?",
+        options: [
+          { text: "लॉट साइज दोगुना करके तुरंत अगला ट्रेड ढूँढना चाहिए क्योंकि आज मेरा दिन है।", pfc: false, exp: "डोपामाइन का नशा आपको अजेय महसूस करा रहा है। इसके बाद अकाउंट ब्लो-ऑफ होता है।" },
+          { text: "टर्मिनल बंद करके 15-20 मिनट वॉक पर जाना चाहिए ताकि डोपामाइन बेसलाइन पर लौटे।", pfc: true, exp: "अद्भुत अनुशासन! बड़े मुनाफे के बाद स्क्रीन छोड़ना शीर्ष 1% ट्रेडर्स की आदत है।" }
+        ]
+      },
+      {
+        q: "यदि किसी ट्रेड में स्टॉप लॉस हिट हो जाता है, तो न्यूरोबायोलॉजिकल दृष्टि से उस नुकसान की भरपाई का सही तरीका क्या है?",
+        options: [
+          { text: "तुरंत विपरीत दिशा में उलटा ट्रेड लगाना (Martingale)।", pfc: false, exp: "कोर्टिसोल स्पाइक आपको अंधा कर चुका है। उलटा ट्रेड और भारी लॉस देगा।" },
+          { text: "कम से कम 20 मिनट तक कोई ट्रेड न लेना जब तक Amygdala शांत न हो जाए।", pfc: true, exp: "बिल्कुल सही! तनाव हार्मोन को रक्तप्रवाह से साफ होने में 20-22 मिनट लगते हैं।" }
+        ]
+      }
+    ];
+
+    let currentDiagIdx = 0;
+
+    function renderDiagnostic() {
+      const q = diagData[currentDiagIdx];
+      document.getElementById('diagCounter').innerText = `Evaluation ${currentDiagIdx + 1} of ${diagData.length}`;
+      document.getElementById('diagQuestionText').innerText = q.q;
+
+      const cont = document.getElementById('diagOptionsContainer');
+      cont.innerHTML = '';
+
+      q.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.className = "w-full text-left p-3 rounded-xl border border-surfaceBorder bg-surface/70 hover:border-pfcCyan text-xs text-slate-300 transition-all font-mono";
+        btn.innerText = `${String.fromCharCode(65 + idx)}. ${opt.text}`;
+        btn.onclick = () => onSelectDiagnosticAnswer(opt.pfc, opt.exp);
+        cont.appendChild(btn);
+      });
+      document.getElementById('diagFeedback').classList.add('hidden');
+    }
+
+    function onSelectDiagnosticAnswer(isPfc, exp) {
+      const fb = document.getElementById('diagFeedback');
+      fb.classList.remove('hidden');
+
+      if (isPfc) {
+        playTone(680, 'sine', 0.2);
+        fb.className = "p-3.5 rounded-xl border border-pfcEmerald/40 bg-pfcEmerald/10 text-pfcEmerald text-xs font-mono space-y-1";
+        fb.innerHTML = `<strong>✓ PREFRONTAL ALIGNED:</strong> ${exp}`;
+        setTimeout(() => {
+          if (currentDiagIdx < diagData.length - 1) {
+            currentDiagIdx++;
+            renderDiagnostic();
+          } else {
+            fb.innerHTML += "<div class='mt-2 font-bold text-pfcCyan'>🧠 NEURO CERTIFICATION: Rational Operator Mindset Verified!</div>";
+          }
+        }, 1800);
+      } else {
+        playTiltSiren();
+        fb.className = "p-3.5 rounded-xl border border-amygdalaRose/40 bg-amygdalaRose/10 text-amygdalaRose text-xs font-mono space-y-1";
+        fb.innerHTML = `<strong>✕ AMYGDALA BIAS DETECTED:</strong> ${exp}`;
+      }
+    }
+
+    function neuroCheckUpdate() {
+      const checks = document.querySelectorAll('.neuro-check');
+      let count = 0;
+      checks.forEach(c => { if (c.checked) count++; });
+
+      const status = document.getElementById('neuroCheckStatus');
+      if (count === 5) {
+        playTone(784, 'sine', 0.2);
+        status.innerHTML = 'Neuro Status: <span class="text-pfcEmerald font-bold">ALL GREEN &bull; PFC READY TO OPERATE (5/5)</span>';
+        status.className = "p-3 rounded-xl bg-pfcEmerald/10 border border-pfcEmerald text-center text-xs font-mono glow-cyan";
+      } else {
+        status.innerHTML = `Neuro Status: <span class="text-amygdalaRose font-bold">Unchecked (${count}/5)</span>`;
+        status.className = "p-3 rounded-xl bg-obsidian border border-surfaceBorder text-center text-xs font-mono text-slate-400";
+      }
+    }
+
+    function copyNeuroRules() {
+      const text = `THE AXIOM LAB: CHAPTER 2 NEURO-PSYCHOLOGY RULES
+1. The 2.25x Loss Principle: Losses hurt 2.25x more than equal gains. Never move a stop-loss to avoid pain.
+2. The 20-Minute Cortisol Rule: After any unplanned stop-loss, step away from screens for 20 minutes for amygdala calm.
+3. Dopamine Reset Rule: After a fast profitable scalp, wait 15 minutes to clear hyper-dopamine before taking next setup.
+4. Hard Sizing Cap: Never risk >1% per trade regardless of how "certain" the setup feels.`;
+
+      const el = document.createElement('textarea');
+      el.value = text;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+
+      playTone(660, 'sine', 0.15);
+      const btnTxt = document.getElementById('copyNeuroTxt');
+      btnTxt.innerText = 'Copied to Clipboard!';
+      setTimeout(() => { btnTxt.innerText = 'Copy Neuro-Rules'; }, 2000);
+    }
+
+    // Window Init
+    window.onload = function() {
+      resizeBrainCanvas();
+      drawDopamineCurve();
+      updateProspectCurve(0);
+      setConsecutiveLosses(1);
+      renderDiagnostic();
+    };
+  </script>
+</body>
+</html>
