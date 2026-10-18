@@ -57,39 +57,39 @@
 </head>
 <body class="font-sans antialiased selection:bg-axiom-accent selection:text-axiom-900 pb-24">
 
-    <!-- Header HUD with Creator Profile & Name -->
-    <header class="sticky top-0 z-50 hud-glass border-b border-axiom-700/80 px-6 py-3.5 flex items-center justify-between">
+    <!-- Header HUD with Larger Creator Profile & Name -->
+    <header class="sticky top-0 z-50 hud-glass border-b border-axiom-700/80 px-6 py-4 flex items-center justify-between">
         <div class="flex items-center space-x-4">
-            <!-- Profile Photo with Gradient Glow Ring -->
-            <div class="relative group">
-                <div class="w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-axiom-accent via-axiom-violet to-axiom-emerald shadow-lg shadow-axiom-accent/20 flex items-center justify-center">
+            <!-- Enhanced Larger Profile Photo (64px) with Gradient Ring -->
+            <div class="relative group shrink-0">
+                <div class="w-16 h-16 rounded-full p-[2.5px] bg-gradient-to-tr from-axiom-accent via-axiom-violet to-axiom-emerald shadow-xl shadow-axiom-accent/25 flex items-center justify-center">
                     <img 
                         src="profile.jpg" 
                         alt="Nilanshu Kumar" 
                         class="w-full h-full object-cover rounded-full bg-axiom-800"
                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
                     />
-                    <!-- Fallback Avatar if image not loaded yet -->
-                    <div class="hidden w-full h-full rounded-full bg-axiom-900 items-center justify-center font-mono font-black text-axiom-accent text-sm">
+                    <!-- Fallback Avatar -->
+                    <div class="hidden w-full h-full rounded-full bg-axiom-900 items-center justify-center font-mono font-black text-axiom-accent text-base">
                         NK
                     </div>
                 </div>
-                <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-axiom-emerald border-2 border-axiom-900 rounded-full" title="Active Author"></span>
+                <span class="absolute bottom-0.5 right-0.5 w-4 h-4 bg-axiom-emerald border-2 border-axiom-900 rounded-full shadow" title="Active Author"></span>
             </div>
 
             <div>
                 <div class="flex items-center space-x-2">
                     <!-- Creator Name with Verified Badge -->
-                    <span class="text-sm font-bold text-white tracking-wide flex items-center gap-1.5">
+                    <span class="text-base font-extrabold text-white tracking-wide flex items-center gap-1.5">
                         Nilanshu Kumar
-                        <svg class="w-3.5 h-3.5 text-axiom-accent inline" fill="currentColor" viewBox="0 0 20 20">
+                        <svg class="w-4 h-4 text-axiom-accent inline" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
                         </svg>
                     </span>
                     <span class="text-xs text-axiom-600">/</span>
                     <span class="text-xs font-mono text-gray-400">Physics Teacher by Profession • Trader by Choice</span>
                 </div>
-                <div class="text-[11px] font-mono text-axiom-accent tracking-wide">
+                <div class="text-xs font-mono text-axiom-accent tracking-wide mt-0.5">
                     The Axiom Lab • First-Principles Modeling & Institutional Mechanics
                 </div>
             </div>
