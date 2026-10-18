@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="hi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 4 Extension: SMC Institutional Case Studies Lab | The Axiom Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        axiom: {
+                            900: '#07090e',
+                            850: '#0d1117',
+                            800: '#161b22',
+                            700: '#21262d',
+                            600: '#30363d',
+                            accent: '#38bdf8',
+                            emerald: '#10b981',
+                            rose: '#f43f5e',
+                            amber: '#f59e0b',
+                            violet: '#8b5cf6'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #07090e;
+            color: #e6edf3;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.04) 0%, transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(139, 92, 246, 0.04) 0%, transparent 45%);
+        }
+        .hud-glass {
+            background: rgba(13, 17, 23, 0.8);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(48, 54, 61, 0.6);
+        }
+        .canvas-container {
+            position: relative;
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.85);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #07090e; }
+        ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #38bdf8; }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-axiom-accent selection:text-axiom-900 pb-20">
+
+    <!-- Header HUD -->
+    <header class="sticky top-0 z-50 hud-glass border-b border-axiom-700/80 px-6 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-axiom-amber via-axiom-rose to-axiom-accent flex items-center justify-center shadow-lg shadow-axiom-amber/20">
+                <span class="font-mono font-black text-axiom-900 text-base">CS</span>
+            </div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-mono font-semibold tracking-wider uppercase text-axiom-amber">The Axiom Lab</span>
+                    <span class="text-xs text-axiom-600">/</span>
+                    <span class="text-xs font-mono text-gray-400">Chapter 4 Extension</span>
+                </div>
+                <h1 class="text-sm font-bold tracking-tight text-white flex items-center gap-2">
+                    5 Real-Market Case Studies Simulator
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono bg-axiom-amber/20 text-axiom-amber border border-axiom-amber/30">HANDS-ON LAB</span>
+                </h1>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <button id="audioToggleBtn" onclick="toggleAudio()" class="px-3 py-1.5 rounded-md text-xs font-mono bg-axiom-800 hover:bg-axiom-700 border border-axiom-600 flex items-center gap-2 transition-all">
+                <span id="audioIcon" class="w-2 h-2 rounded-full bg-axiom-rose"></span>
+                <span id="audioText">Audio: Muted</span>
+            </button>
+            <a href="chapter4.html" class="px-3 py-1.5 rounded-md text-xs font-mono bg-axiom-800 hover:bg-axiom-700 border border-axiom-600 text-gray-300 hover:text-white transition-all">
+                ← Chapter 4 Core
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+
+        <!-- Intro Banner -->
+        <section class="hud-glass rounded-2xl p-6 border border-axiom-700 relative overflow-hidden">
+            <div class="max-w-3xl space-y-2">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-mono bg-axiom-amber/10 text-axiom-amber border border-axiom-amber/30">
+                    <span class="animate-pulse">●</span> INSTITUTIONAL REPLAY & ANALYSIS ENGINE
+                </div>
+                <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
+                    5 Real-Market Case Studies: Execution Playground
+                </h2>
+                <p class="text-sm text-gray-300 leading-relaxed">
+                    सिद्धांत (Theory) को वास्तविक बाज़ार में परखे बिना महारत हासिल नहीं की जा सकती। नीचे दिए गए 5 केस स्टडीज को सेलेक्ट करें, कैंडलस्टिक प्लेबैक चलाएं, और देखें कि संस्थागत एल्गोरिद्म लिक्विडिटी ट्रैप और मिटिगेशन को कैसे अंजाम देता है।
+                </p>
+            </div>
+        </section>
+
+        <!-- Selector Tabs -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 font-mono text-xs">
+            <button onclick="switchCase(0)" id="tab0" class="case-tab active p-3 rounded-xl border border-axiom-accent bg-axiom-accent/10 text-axiom-accent font-bold text-left transition-all">
+                <div class="text-[10px] text-gray-400">CASE 01</div>
+                <div class="truncate text-white mt-1">Nifty 50</div>
+                <div class="text-[10px] text-axiom-emerald mt-0.5">SSL Sweep + FVG</div>
+            </button>
+            <button onclick="switchCase(1)" id="tab1" class="case-tab p-3 rounded-xl border border-axiom-700 bg-axiom-850/60 text-gray-400 font-bold text-left hover:border-axiom-600 transition-all">
+                <div class="text-[10px] text-gray-500">CASE 02</div>
+                <div class="truncate text-gray-200 mt-1">BankNifty</div>
+                <div class="text-[10px] text-axiom-rose mt-0.5">Judas Swing OB</div>
+            </button>
+            <button onclick="switchCase(2)" id="tab2" class="case-tab p-3 rounded-xl border border-axiom-700 bg-axiom-850/60 text-gray-400 font-bold text-left hover:border-axiom-600 transition-all">
+                <div class="text-[10px] text-gray-500">CASE 03</div>
+                <div class="truncate text-gray-200 mt-1">EUR/USD</div>
+                <div class="text-[10px] text-axiom-violet mt-0.5">HTF 50% C.E.</div>
+            </button>
+            <button onclick="switchCase(3)" id="tab3" class="case-tab p-3 rounded-xl border border-axiom-700 bg-axiom-850/60 text-gray-400 font-bold text-left hover:border-axiom-600 transition-all">
+                <div class="text-[10px] text-gray-500">CASE 04</div>
+                <div class="truncate text-gray-200 mt-1">Crude Oil</div>
+                <div class="text-[10px] text-axiom-amber mt-0.5">Breaker Flip</div>
+            </button>
+            <button onclick="switchCase(4)" id="tab4" class="case-tab p-3 rounded-xl border border-axiom-700 bg-axiom-850/60 text-gray-400 font-bold text-left hover:border-axiom-600 transition-all">
+                <div class="text-[10px] text-gray-500">CASE 05</div>
+                <div class="truncate text-gray-200 mt-1">Bitcoin</div>
+                <div class="text-[10px] text-axiom-accent mt-0.5">IDM Weekend Bait</div>
+            </button>
+        </div>
+
+        <!-- Interactive Stage -->
+        <section class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-6">
+            <!-- Stage Controls -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-axiom-700/80 pb-4">
+                <div>
+                    <span id="caseBadge" class="px-2.5 py-0.5 rounded text-[10px] font-mono bg-axiom-accent/20 text-axiom-accent border border-axiom-accent/30 font-bold">NIFTY 50 • 15M CHART</span>
+                    <h3 id="caseTitle" class="text-xl font-bold text-white mt-1">Sell-Side Liquidity Sweep into 15m Bullish FVG</h3>
+                    <p id="caseSubtitle" class="text-xs text-gray-400 mt-0.5">Equal Lows breakdown trap $
+ightarrow$ Displacement $
+ightarrow$ Consequent Encroachment tap</p>
+                </div>
+                <div class="flex items-center gap-2 font-mono text-xs">
+                    <button onclick="prevStep()" class="px-3 py-2 rounded-lg bg-axiom-800 hover:bg-axiom-700 border border-axiom-600 text-gray-200">
+                        ← Prev Step
+                    </button>
+                    <button onclick="nextStep()" class="px-4 py-2 rounded-lg bg-axiom-accent text-axiom-900 font-bold hover:brightness-110 shadow-lg shadow-axiom-accent/20">
+                        Next Phase →
+                    </button>
+                    <button onclick="autoPlay()" id="playBtn" class="px-3 py-2 rounded-lg bg-axiom-800 hover:bg-axiom-700 border border-axiom-600 text-gray-200">
+                        ▶ Replay
+                    </button>
+                </div>
+            </div>
+
+            <!-- Canvas & Metrics -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Interactive Chart Canvas -->
+                <div class="lg:col-span-3 bg-axiom-900 rounded-xl border border-axiom-700 p-4 canvas-container relative">
+                    <canvas id="csCanvas" width="860" height="440" class="w-full h-auto block rounded"></canvas>
+                    <div id="stepTag" class="absolute top-6 left-6 px-3 py-1 rounded-md text-[11px] font-mono bg-axiom-900/90 border border-axiom-accent text-axiom-accent font-bold">
+                        PHASE 1: LIQUIDITY FORMATION
+                    </div>
+                </div>
+
+                <!-- Case Breakdown Sidebar -->
+                <div class="space-y-4 font-mono text-xs">
+                    <!-- Trade Math Card -->
+                    <div class="bg-axiom-900/80 p-4 rounded-xl border border-axiom-700 space-y-3">
+                        <div class="text-gray-400 font-bold uppercase tracking-wider text-[11px]">Trade Execution Matrix</div>
+                        <div class="space-y-2 text-[11px]">
+                            <div class="flex justify-between pb-1 border-b border-axiom-800">
+                                <span class="text-gray-400">Entry Price:</span>
+                                <span id="mEntry" class="text-white font-bold">₹24,792.00</span>
+                            </div>
+                            <div class="flex justify-between pb-1 border-b border-axiom-800">
+                                <span class="text-gray-400">Stop-Loss (SL):</span>
+                                <span id="mSL" class="text-axiom-rose font-bold">₹24,760.00 (-32 pts)</span>
+                            </div>
+                            <div class="flex justify-between pb-1 border-b border-axiom-800">
+                                <span class="text-gray-400">Target (TP):</span>
+                                <span id="mTP" class="text-axiom-emerald font-bold">₹24,960.00 (+168 pts)</span>
+                            </div>
+                            <div class="flex justify-between pb-1 border-b border-axiom-800">
+                                <span class="text-axiom-accent font-bold">Risk-Reward:</span>
+                                <span id="mRRR" class="text-axiom-accent font-bold">1 : 5.25</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Institutional Logic Step -->
+                    <div class="bg-axiom-900/80 p-4 rounded-xl border border-axiom-700 space-y-2">
+                        <div class="text-gray-400 font-bold uppercase tracking-wider text-[11px]">Phase Narrative</div>
+                        <p id="narrativeText" class="text-gray-300 leading-relaxed text-[11px]">
+                            मार्केट ₹24,800 के स्तर पर दो बार सपोर्ट लेकर ऊपर जाता है। खुदरा बुल्स इसे 'Double Bottom' मानकर अंधाधुंध बाय करते हैं।
+                        </p>
+                    </div>
+
+                    <!-- Psychology Callout -->
+                    <div class="bg-axiom-900/80 p-4 rounded-xl border border-axiom-amber/30 space-y-2">
+                        <div class="text-axiom-amber font-bold uppercase tracking-wider text-[11px]">Psychology & Trap Alert</div>
+                        <p id="psychText" class="text-gray-300 text-[11px] leading-relaxed">
+                            रिटेल ट्रेडर्स का स्टॉप लॉस ₹24,780 के ठीक नीचे जमा हो चुका है। स्मार्ट मनी इस लिक्विडिटी का इंतजार कर रही है।
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Web Audio Synthesizer
+        let audioCtx = null;
+        let audioMuted = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function toggleAudio() {
+            initAudio();
+            audioMuted = !audioMuted;
+            const icon = document.getElementById('audioIcon');
+            const txt = document.getElementById('audioText');
+            if (audioMuted) {
+                icon.className = 'w-2 h-2 rounded-full bg-axiom-rose';
+                txt.innerText = 'Audio: Muted';
+            } else {
+                icon.className = 'w-2 h-2 rounded-full bg-axiom-emerald animate-pulse';
+                txt.innerText = 'Audio: Active';
+                playChime(660, 0.1, 'sine');
+            }
+        }
+
+        function playChime(freq, duration, type='sine') {
+            if (audioMuted || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e){}
+        }
+
+        // Case Studies Data Models
+        const caseStudies = [
+            {
+                badge: "NIFTY 50 • 15M CHART",
+                title: "Sell-Side Liquidity Sweep into 15m Bullish FVG",
+                subtitle: "Equal Lows breakdown trap → Displacement → Consequent Encroachment tap",
+                entry: "₹24,792.00",
+                sl: "₹24,760.00 (-32 pts)",
+                tp: "₹24,960.00 (+168 pts)",
+                rrr: "1 : 5.25",
+                steps: [
+                    {
+                        tag: "PHASE 1: LIQUIDITY FORMATION (EQL)",
+                        narrative: "मार्केट ₹24,800 के स्तर पर दो बार सपोर्ट लेकर ऊपर जाता है। खुदरा बुल्स इसे 'Double Bottom' मानकर बाय करते हैं और स्टॉप ₹24,780 पर रखते हैं।",
+                        psych: "रिटेल ट्रेडर्स का स्टॉप लॉस ₹24,780 के नीचे जमा हो चुका है। स्मार्ट मनी इस लिक्विडिटी का इंतजार कर रही है।",
+                        candleCount: 6,
+                        freq: 440
+                    },
+                    {
+                        tag: "PHASE 2: THE LIQUIDITY PURGE / SWEEP",
+                        narrative: "एक भारी रेड कैंडल ₹24,780 के नीचे जाती है और ₹24,765 तक सेल-स्टॉप्स खाती है। ब्रेकडाउन सेलर्स भी यहाँ ट्रैप होते हैं।",
+                        psych: "पैनिक सेलिंग! रिटेल बुल्स बाहर हो चुके हैं और ब्रेकडाउन सेलर्स उत्साह में शॉर्ट कर रहे हैं।",
+                        candleCount: 8,
+                        freq: 280
+                    },
+                    {
+                        tag: "PHASE 3: INSTITUTIONAL DISPLACEMENT & FVG",
+                        narrative: "अगली दो हरी कैंडलें तेज उछाल देती हैं, एक 25-पॉइंट का Bullish FVG (₹24,780 - ₹24,805) छूटता है और 15m BOS ऊपर हो जाता है।",
+                        psych: "स्मार्ट मनी का डिस्प्लेसमेंट। ब्रेकडाउन सेलर्स गहरे घाटे में फंस चुके हैं।",
+                        candleCount: 11,
+                        freq: 660
+                    },
+                    {
+                        tag: "PHASE 4: 50% C.E. RETEST & EXPANSION",
+                        narrative: "प्राइस वापस 50% Consequent Encroachment (₹24,792) को छूती है। हमारा लिमिट ऑर्डर एक्जीक्यूट होता है और प्राइस ₹24,960 टारगेट तक भागती है।",
+                        psych: "अनुशासित ट्रेडर्स ने डिस्काउंट ज़ोन में 1:5.25 RRR के साथ संस्थागत फ्लो में प्रॉफिट बुक किया।",
+                        candleCount: 15,
+                        freq: 880
+                    }
+                ],
+                candles: [
+                    {o:24850, h:24870, l:24820, c:24830, color:'#f43f5e'},
+                    {o:24830, h:24840, l:24800, c:24810, color:'#f43f5e'},
+                    {o:24810, h:24860, l:24805, c:24855, color:'#10b981'},
+                    {o:24855, h:24880, l:24840, c:24870, color:'#10b981'},
+                    {o:24870, h:24875, l:24810, c:24820, color:'#f43f5e'},
+                    {o:24820, h:24835, l:24800, c:24815, color:'#f43f5e'}, // EQL at 24800
+                    // Phase 2
+                    {o:24815, h:24820, l:24765, c:24775, color:'#f43f5e'}, // Sweep candle!
+                    {o:24775, h:24810, l:24770, c:24805, color:'#10b981'},
+                    // Phase 3
+                    {o:24805, h:24890, l:24800, c:24880, color:'#10b981'}, // Huge impulse
+                    {o:24880, h:24920, l:24875, c:24915, color:'#10b981'},
+                    {o:24915, h:24925, l:24860, c:24865, color:'#f43f5e'},
+                    // Phase 4
+                    {o:24865, h:24870, l:24792, c:24810, color:'#f43f5e'}, // Tap FVG at 24792
+                    {o:24810, h:24880, l:24805, c:24875, color:'#10b981'},
+                    {o:24875, h:24930, l:24860, c:24925, color:'#10b981'},
+                    {o:24925, h:24965, l:24910, c:24960, color:'#10b981'}  // Target Hit
+                ],
+                levels: [
+                    {price: 24800, label: "Equal Lows (EQL)", color: "#10b981", dash: [4,4]},
+                    {price: 24765, label: "Sweep Low (SSL Cleared)", color: "#f43f5e", dash: [2,2]},
+                    {price: 24792, label: "50% C.E. FVG Entry", color: "#38bdf8", dash: []},
+                    {price: 24960, label: "Target High (TP)", color: "#10b981", dash: []}
+                ]
+            },
+            {
+                badge: "BANKNIFTY • 15M CHART",
+                title: "Asia Range Judas Swing into Bearish Order Block",
+                subtitle: "London Open BSL grab → CHoCH → Unmitigated Bearish OB tap",
+                entry: "₹51,440.00",
+                sl: "₹51,520.00 (+80 pts)",
+                tp: "₹50,900.00 (-540 pts)",
+                rrr: "1 : 6.75",
+                steps: [
+                    {
+                        tag: "PHASE 1: ASIA CONSOLIDATION RANGE",
+                        narrative: "सुबह एशियन सेशन में बैंक निफ्टी ₹51,200 और ₹51,450 के बीच टाइट रेंज में फंसा रहता है। दोनों तरफ लिक्विडिटी तैयार होती है।",
+                        psych: "ट्रेडर्स रेंज ब्रेकआउट का बेसब्री से इंतजार कर रहे हैं।",
+                        candleCount: 5,
+                        freq: 400
+                    },
+                    {
+                        tag: "PHASE 2: LONDON OPEN JUDAS SWING",
+                        narrative: "लंदन ओपन होते ही एक आक्रामक हरी कैंडल ₹51,450 को तोड़कर ₹51,480 तक जाती है। ब्रेकआउट बायर्स ट्रैप होते हैं।",
+                        psych: "FOMO! बायर्स को लगता है कि मार्केट 52,000 की तरफ उड़ने वाला है।",
+                        candleCount: 8,
+                        freq: 750
+                    },
+                    {
+                        tag: "PHASE 3: SHARP DISPLACEMENT & CHoCH",
+                        narrative: "कैंडल ऊपर विक छोड़कर ₹51,400 के नीचे क्लोज होती है और अगली रेड कैंडल 15m लो को ब्रेक कर देती है (CHoCH)। अंतिम ग्रीन कैंडल Bearish OB बनती है।",
+                        psych: "मार्केट का कैरेक्टर बदल चुका है। स्मार्ट मनी ने अपने बड़े सेल ऑर्डर्स इंजेक्ट कर दिए हैं।",
+                        candleCount: 11,
+                        freq: 320
+                    },
+                    {
+                        tag: "PHASE 4: MITIGATION TAP & CRASH",
+                        narrative: "प्राइस वापस ₹51,440 पर अन-मिटिगेटेड OB को टैप करती है। हमारा शॉर्ट ऑर्डर एक्टिव होता है और मार्केट ₹50,900 तक क्रैश करता है।",
+                        psych: "स्मार्ट मनी अपने ड्रॉडाउन ऑर्डर्स को ब्रेक-ईवन करती है और 1:6.75 RRR का बड़ा ड्रॉप देती है।",
+                        candleCount: 15,
+                        freq: 880
+                    }
+                ],
+                candles: [
+                    {o:51250, h:51350, l:51220, c:51320, color:'#10b981'},
+                    {o:51320, h:51440, l:51300, c:51420, color:'#10b981'},
+                    {o:51420, h:51430, l:51310, c:51330, color:'#f43f5e'},
+                    {o:51330, h:51410, l:51280, c:51390, color:'#10b981'},
+                    {o:51390, h:51445, l:51350, c:51430, color:'#10b981'}, // High 51445
+                    // Phase 2 Judas
+                    {o:51430, h:51485, l:51420, c:51475, color:'#10b981'}, // Judas peak
+                    {o:51475, h:51480, l:51380, c:51390, color:'#f43f5e'}, 
+                    {o:51390, h:51410, l:51270, c:51290, color:'#f43f5e'}, // CHoCH break
+                    // Phase 3
+                    {o:51290, h:51310, l:51180, c:51210, color:'#f43f5e'},
+                    {o:51210, h:51350, l:51200, c:51330, color:'#10b981'},
+                    {o:51330, h:51445, l:51320, c:51440, color:'#10b981'}, // OB Tap at 51440
+                    // Phase 4
+                    {o:51440, h:51445, l:51280, c:51290, color:'#f43f5e'},
+                    {o:51290, h:51300, l:51120, c:51140, color:'#f43f5e'},
+                    {o:51140, h:51160, l:50980, c:51010, color:'#f43f5e'},
+                    {o:51010, h:51020, l:50880, c:50900, color:'#f43f5e'}  // Target 50900 Hit
+                ],
+                levels: [
+                    {price: 51450, label: "Asia High (BSL Pool)", color: "#f43f5e", dash: [4,4]},
+                    {price: 51485, label: "Judas Swing High", color: "#f59e0b", dash: [2,2]},
+                    {price: 51440, label: "Bearish OB Entry", color: "#38bdf8", dash: []},
+                    {price: 50900, label: "Target (TP)", color: "#10b981", dash: []}
+                ]
+            },
+            {
+                badge: "EUR/USD • 4H / 15M CHART",
+                title: "Daily Discount FVG Rebalancing into HTF Trend",
+                subtitle: "Macro Trend Alignment → 50% Consequent Encroachment → 15m CHoCH",
+                entry: "1.08000",
+                sl: "1.07700 (-30 pips)",
+                tp: "1.09500 (+150 pips)",
+                rrr: "1 : 5.00",
+                steps: [
+                    {
+                        tag: "PHASE 1: DAILY DISCOUNT FVG IDENTIFICATION",
+                        narrative: "EUR/USD बुलिश ट्रेंड में है और डेली चार्ट पर 1.0780 से 1.0820 के बीच 3 दिन पुराना एक अन-टैप्ड FVG मौजूद है।",
+                        psych: "शुरुआती ट्रेडर गिरते हुए मार्केट में पैनिक से सेल करते हैं, जबकि प्रो ट्रेडर्स डिस्काउंट ज़ोन का इंतजार करते हैं।",
+                        candleCount: 5,
+                        freq: 440
+                    },
+                    {
+                        tag: "PHASE 2: 50% C.E. LEVEL TOUCH",
+                        narrative: "प्राइस 1.08000 (50% Consequent Encroachment) पर आती है और तुरंत रिजेक्शन विक छोड़ती है।",
+                        psych: "एल्गोरिद्म ने अपनी इन-एफिशिएंसी को शून्य कर दिया है।",
+                        candleCount: 8,
+                        freq: 554
+                    },
+                    {
+                        tag: "PHASE 3: 15M CONFIRMATION CHoCH",
+                        narrative: "15-मिनट चार्ट पर अंतिम सेलिंग कैंडल का हाई टूटता है (CHoCH) और एक नया बुलिश ऑर्डर ब्लॉक तैयार होता है।",
+                        psych: "कन्फर्मेशन मिल चुकी है! अंधाधुंध बाय करने के बजाय स्ट्रक्चरल यू-टर्न के बाद एंट्री।",
+                        candleCount: 11,
+                        freq: 660
+                    },
+                    {
+                        tag: "PHASE 4: MACRO EXPANSION TO DAILY HIGH",
+                        narrative: "प्राइस 1.09500 के पुराने डेली हाई (Buy-Side Liquidity) की ओर रॉकेट की तरह भागती है। 1:5 RRR हासिल।",
+                        psych: "हायर टाइमफ्रेम लिक्विडिटी हमेशा छोटे लेवल्स पर भारी पड़ती है।",
+                        candleCount: 15,
+                        freq: 880
+                    }
+                ],
+                candles: [
+                    {o:1.0860, h:1.0870, l:1.0840, c:1.0845, color:'#f43f5e'},
+                    {o:1.0845, h:1.0850, l:1.0825, c:1.0830, color:'#f43f5e'},
+                    {o:1.0830, h:1.0835, l:1.0815, c:1.0820, color:'#f43f5e'},
+                    {o:1.0820, h:1.0825, l:1.0805, c:1.0810, color:'#f43f5e'},
+                    {o:1.0810, h:1.0815, l:1.0798, c:1.0802, color:'#f43f5e'}, // touches 1.0800
+                    // Phase 2
+                    {o:1.0802, h:1.0822, l:1.0795, c:1.0818, color:'#10b981'}, // Rejection wick
+                    {o:1.0818, h:1.0840, l:1.0810, c:1.0835, color:'#10b981'},
+                    {o:1.0835, h:1.0865, l:1.0830, c:1.0860, color:'#10b981'}, // CHoCH
+                    // Phase 3
+                    {o:1.0860, h:1.0870, l:1.0825, c:1.0830, color:'#f43f5e'}, // Retest OB
+                    {o:1.0830, h:1.0880, l:1.0828, c:1.0875, color:'#10b981'},
+                    {o:1.0875, h:1.0910, l:1.0870, c:1.0905, color:'#10b981'},
+                    // Phase 4
+                    {o:1.0905, h:1.0930, l:1.0895, c:1.0925, color:'#10b981'},
+                    {o:1.0925, h:1.0945, l:1.0915, c:1.0940, color:'#10b981'},
+                    {o:1.0940, h:1.0955, l:1.0930, c:1.0950, color:'#10b981'},
+                    {o:1.0950, h:1.0960, l:1.0940, c:1.0958, color:'#10b981'}
+                ],
+                levels: [
+                    {price: 1.0820, label: "FVG Top", color: "#8b5cf6", dash: [4,4]},
+                    {price: 1.0800, label: "50% C.E. FVG Rebalance", color: "#38bdf8", dash: []},
+                    {price: 1.0780, label: "FVG Bottom", color: "#8b5cf6", dash: [4,4]},
+                    {price: 1.0950, label: "BSL Target High", color: "#10b981", dash: []}
+                ]
+            },
+            {
+                badge: "CRUDE OIL (MCX) • 15M CHART",
+                title: "Failed Bullish Order Block to Breaker Block Flip",
+                subtitle: "Support failure → Trapped buyers mitigate → Clean continuation short",
+                entry: "₹6,195.00",
+                sl: "₹6,225.00 (+30 pts)",
+                tp: "₹6,020.00 (-175 pts)",
+                rrr: "1 : 5.83",
+                steps: [
+                    {
+                        tag: "PHASE 1: FORMER BULLISH ORDER BLOCK",
+                        narrative: "₹6,200 पर एक मजबूत बुलिश ऑर्डर ब्लॉक था जहाँ बायर्स ने पहले मार्केट को संभाला था।",
+                        psych: "रिटेल बायर्स सोचते हैं कि ₹6,200 एक अटूट सपोर्ट है।",
+                        candleCount: 5,
+                        freq: 440
+                    },
+                    {
+                        tag: "PHASE 2: THE AGGRESSIVE BREACH",
+                        narrative: "अचानक आई इन्वेंट्री डेटा के बाद एक विशाल लाल कैंडल ₹6,200 को चीरती हुई ₹6,150 पर क्लोज होती है।",
+                        psych: "सपोर्ट फेल! ₹6,200 पर बाय करने वाले ट्रेडर्स भारी घाटे में फंस चुके हैं।",
+                        candleCount: 8,
+                        freq: 260
+                    },
+                    {
+                        tag: "PHASE 3: BREAKER BLOCK RETEST",
+                        narrative: "प्राइस वापस ₹6,195 पर आती है। फंसे हुए बायर्स अपने लॉस को 0 (Break-even) पर काटने के लिए एग्जिट करते हैं।",
+                        psych: "बायर्स का एग्जिट = Sell Orders! यही फ्लो Breaker Block को सबसे तगड़ा रेजिस्टेंस बनाता है।",
+                        candleCount: 11,
+                        freq: 660
+                    },
+                    {
+                        tag: "PHASE 4: EXPANSION CRASH TO SSL",
+                        narrative: "मार्केट ₹6,195 से दोबारा धड़ाम होता है और ₹6,020 तक गिरता है। 1:5.83 RRR बुक।",
+                        psych: "एक फेल्ड ज़ोन जब फ्लिप होता है तो वह सबसे कम रिस्क वाली एंट्री प्रदान करता है।",
+                        candleCount: 15,
+                        freq: 880
+                    }
+                ],
+                candles: [
+                    {o:6220, h:6240, l:6210, c:6230, color:'#10b981'},
+                    {o:6230, h:6235, l:6200, c:6205, color:'#f43f5e'},
+                    {o:6205, h:6250, l:6200, c:6245, color:'#10b981'}, // Support at 6200
+                    {o:6245, h:6250, l:6215, c:6220, color:'#f43f5e'},
+                    {o:6220, h:6230, l:6195, c:6202, color:'#f43f5e'},
+                    // Phase 2 Breach
+                    {o:6202, h:6205, l:6145, c:6150, color:'#f43f5e'}, // Huge red bar
+                    {o:6150, h:6160, l:6130, c:6135, color:'#f43f5e'},
+                    {o:6135, h:6170, l:6130, c:6165, color:'#10b981'},
+                    // Phase 3 Retest
+                    {o:6165, h:6198, l:6160, c:6195, color:'#10b981'}, // Breaker Tap 6195
+                    {o:6195, h:6200, l:6150, c:6155, color:'#f43f5e'}, // Sharp rejection
+                    {o:6155, h:6160, l:6110, c:6115, color:'#f43f5e'},
+                    // Phase 4
+                    {o:6115, h:6125, l:6070, c:6075, color:'#f43f5e'},
+                    {o:6075, h:6085, l:6040, c:6045, color:'#f43f5e'},
+                    {o:6045, h:6050, l:6015, c:6020, color:'#f43f5e'},
+                    {o:6020, h:6030, l:6005, c:6010, color:'#f43f5e'}
+                ],
+                levels: [
+                    {price: 6200, label: "Breaker Block Level", color: "#f59e0b", dash: []},
+                    {price: 6195, label: "Short Entry on Retest", color: "#38bdf8", dash: [2,2]},
+                    {price: 6020, label: "SSL Target TP", color: "#10b981", dash: []}
+                ]
+            },
+            {
+                badge: "BITCOIN (BTC/USDT) • 1H CHART",
+                title: "Weekend Inducement (IDM) Liquidity Trap",
+                subtitle: "Low volume range bait → Monday Open Liquidity Sweep → Macro OB reaction",
+                entry: "$64,480.00",
+                sl: "$64,750.00 (+$270)",
+                tp: "$62,800.00 (-$1,680)",
+                rrr: "1 : 6.22",
+                steps: [
+                    {
+                        tag: "PHASE 1: WEEKEND INDUCEMENT RANGE",
+                        narrative: "वीकेंड में कम वॉल्यूम के साथ $64,200 पर एक छोटा स्विंग हाई बनता है। रिटेल ट्रेडर्स इसे रेजिस्टेंस मानते हैं।",
+                        psych: "वीकेंड की रेंज हमेशा एक छलावा (Bait) होती है।",
+                        candleCount: 5,
+                        freq: 440
+                    },
+                    {
+                        tag: "PHASE 2: MONDAY ASIA LIQUIDITY PURGE",
+                        narrative: "सोमवार ओपन होते ही प्राइस $64,520 तक जाती है (Inducement & BSL Swept), लेकिन $64,600 के 4H Bearish OB को छूते ही रुक जाती है।",
+                        psych: "ब्रेकआउट बायर्स ट्रैप! संस्थाएं अपने सेल ऑर्डर्स भर रही हैं।",
+                        candleCount: 8,
+                        freq: 700
+                    },
+                    {
+                        tag: "PHASE 3: 15M BEARISH DISPLACEMENT",
+                        narrative: "कैंडल लंबी विक छोड़कर $64,300 के नीचे बंद होती है। 15-मिनट पर CHoCH कन्फर्म होता है।",
+                        psych: "ट्रैप पूरा हुआ। अब कोई बायर नहीं बचा, सिर्फ पैनिक सेलर्स हैं।",
+                        candleCount: 11,
+                        freq: 320
+                    },
+                    {
+                        tag: "PHASE 4: EXPANSION CRASH TO WEEKLY SSL",
+                        narrative: "मार्केट बिना रुके $62,800 के वीकली सेल-साइड लिक्विडिटी पूल को हिट करता है। 1:6.22 RRR पूर्ण।",
+                        psych: "इंड्यूसमेंट को समझना और उस पर ट्रेड न करना ही एक प्रो ट्रेडर का सबसे बड़ा हुनर है।",
+                        candleCount: 15,
+                        freq: 880
+                    }
+                ],
+                candles: [
+                    {o:63800, h:64100, l:63750, c:64050, color:'#10b981'},
+                    {o:64050, h:64220, l:63950, c:64200, color:'#10b981'}, // IDM High 64200
+                    {o:64200, h:64210, l:63900, c:63950, color:'#f43f5e'},
+                    {o:63950, h:64150, l:63850, c:64100, color:'#10b981'},
+                    {o:64100, h:64225, l:64000, c:64180, color:'#10b981'},
+                    // Phase 2 Sweep
+                    {o:64180, h:64580, l:64150, c:64520, color:'#10b981'}, // Sweep wick to 64580
+                    {o:64520, h:64540, l:64250, c:64280, color:'#f43f5e'},
+                    {o:64280, h:64320, l:63980, c:64020, color:'#f43f5e'}, // CHoCH
+                    // Phase 3 Retest
+                    {o:64020, h:64490, l:64010, c:64480, color:'#10b981'}, // Tap 64480
+                    {o:64480, h:64490, l:63850, c:63890, color:'#f43f5e'},
+                    {o:63890, h:63950, l:63500, c:63550, color:'#f43f5e'},
+                    // Phase 4 Crash
+                    {o:63550, h:63600, l:63100, c:63150, color:'#f43f5e'},
+                    {o:63150, h:63200, l:62850, c:62900, color:'#f43f5e'},
+                    {o:62900, h:62950, l:62780, c:62800, color:'#f43f5e'},
+                    {o:62800, h:62850, l:62650, c:62700, color:'#f43f5e'}
+                ],
+                levels: [
+                    {price: 64200, label: "Weekend Inducement (IDM)", color: "#f59e0b", dash: [4,4]},
+                    {price: 64580, label: "Liquidity Sweep High", color: "#f43f5e", dash: [2,2]},
+                    {price: 64480, label: "Bearish OB Entry", color: "#38bdf8", dash: []},
+                    {price: 62800, label: "Weekly SSL Target", color: "#10b981", dash: []}
+                ]
+            }
+        ];
+
+        let currentCaseIdx = 0;
+        let currentStepIdx = 0;
+        const csCanvas = document.getElementById('csCanvas');
+        const ctx = csCanvas.getContext('2d');
+
+        function switchCase(idx) {
+            initAudio();
+            currentCaseIdx = idx;
+            currentStepIdx = 0;
+
+            // Update Tab styles
+            for(let i=0; i<5; i++) {
+                const tab = document.getElementById(`tab${i}`);
+                if (i === idx) {
+                    tab.className = "case-tab active p-3 rounded-xl border border-axiom-accent bg-axiom-accent/10 text-axiom-accent font-bold text-left transition-all";
+                } else {
+                    tab.className = "case-tab p-3 rounded-xl border border-axiom-700 bg-axiom-850/60 text-gray-400 font-bold text-left hover:border-axiom-600 transition-all";
+                }
+            }
+
+            const c = caseStudies[idx];
+            document.getElementById('caseBadge').innerText = c.badge;
+            document.getElementById('caseTitle').innerText = c.title;
+            document.getElementById('caseSubtitle').innerText = c.subtitle;
+            document.getElementById('mEntry').innerText = c.entry;
+            document.getElementById('mSL').innerText = c.sl;
+            document.getElementById('mTP').innerText = c.tp;
+            document.getElementById('mRRR').innerText = c.rrr;
+
+            updateStepView();
+            playChime(520, 0.15, 'sine');
+        }
+
+        function updateStepView() {
+            const c = caseStudies[currentCaseIdx];
+            const s = c.steps[currentStepIdx];
+
+            document.getElementById('stepTag').innerText = s.tag;
+            document.getElementById('narrativeText').innerText = s.narrative;
+            document.getElementById('psychText').innerText = s.psych;
+
+            drawCaseChart();
+        }
+
+        function nextStep() {
+            initAudio();
+            const c = caseStudies[currentCaseIdx];
+            if (currentStepIdx < c.steps.length - 1) {
+                currentStepIdx++;
+                updateStepView();
+                playChime(c.steps[currentStepIdx].freq, 0.2, 'triangle');
+            } else {
+                playChime(900, 0.3, 'sine');
+            }
+        }
+
+        function prevStep() {
+            initAudio();
+            if (currentStepIdx > 0) {
+                currentStepIdx--;
+                updateStepView();
+                playChime(400, 0.15, 'sine');
+            }
+        }
+
+        function autoPlay() {
+            initAudio();
+            currentStepIdx = 0;
+            updateStepView();
+            playChime(440, 0.1, 'sine');
+
+            const timer = setInterval(() => {
+                if (currentStepIdx < caseStudies[currentCaseIdx].steps.length - 1) {
+                    nextStep();
+                } else {
+                    clearInterval(timer);
+                }
+            }, 1800);
+        }
+
+        function drawCaseChart() {
+            const c = caseStudies[currentCaseIdx];
+            const maxCandles = c.steps[currentStepIdx].candleCount;
+            const candlesToDraw = c.candles.slice(0, maxCandles);
+
+            ctx.clearRect(0, 0, csCanvas.width, csCanvas.height);
+
+            // Background Grid
+            ctx.strokeStyle = '#161b22';
+            ctx.lineWidth = 1;
+            for(let x=0; x<csCanvas.width; x+=50) {
+                ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,csCanvas.height); ctx.stroke();
+            }
+            for(let y=0; y<csCanvas.height; y+=40) {
+                ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(csCanvas.width,y); ctx.stroke();
+            }
+
+            // Min and Max prices for dynamic scaling
+            let minP = Infinity, maxP = -Infinity;
+            c.candles.forEach(cd => {
+                if(cd.l < minP) minP = cd.l;
+                if(cd.h > maxP) maxP = cd.h;
+            });
+            c.levels.forEach(lv => {
+                if(lv.price < minP) minP = lv.price;
+                if(lv.price > maxP) maxP = lv.price;
+            });
+
+            const pad = (maxP - minP) * 0.12;
+            minP -= pad;
+            maxP += pad;
+
+            function getY(val) {
+                return csCanvas.height - 40 - ((val - minP) / (maxP - minP)) * (csCanvas.height - 80);
+            }
+
+            // Draw Institutional Levels
+            c.levels.forEach(lv => {
+                const y = getY(lv.price);
+                ctx.strokeStyle = lv.color;
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash(lv.dash);
+                ctx.beginPath();
+                ctx.moveTo(60, y);
+                ctx.lineTo(csCanvas.width - 40, y);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                ctx.fillStyle = lv.color;
+                ctx.font = '10px JetBrains Mono';
+                ctx.fillText(`${lv.label} [${lv.price}]`, 70, y - 6);
+            });
+
+            // Draw Candles
+            const startX = 90;
+            const stepX = 48;
+
+            candlesToDraw.forEach((cd, i) => {
+                const x = startX + i * stepX;
+                const openY = getY(cd.o);
+                const closeY = getY(cd.c);
+                const highY = getY(cd.h);
+                const lowY = getY(cd.l);
+
+                // Wick
+                ctx.strokeStyle = cd.color;
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(x, highY);
+                ctx.lineTo(x, lowY);
+                ctx.stroke();
+
+                // Body
+                ctx.fillStyle = cd.color;
+                const topY = Math.min(openY, closeY);
+                const bHeight = Math.max(Math.abs(openY - closeY), 4);
+                ctx.fillRect(x - 12, topY, 24, bHeight);
+
+                // Candle index number
+                ctx.fillStyle = '#6e7681';
+                ctx.font = '9px JetBrains Mono';
+                ctx.fillText(`${i+1}`, x - 3, csCanvas.height - 12);
+            });
+        }
+
+        // Initialize on Load
+        window.addEventListener('load', () => {
+            switchCase(0);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="hi" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 6 Extension: SMT Divergence Case Studies | The Axiom Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        axiom: {
+                            900: '#07090e',
+                            850: '#0d1117',
+                            800: '#161b22',
+                            700: '#21262d',
+                            600: '#30363d',
+                            accent: '#38bdf8',
+                            emerald: '#10b981',
+                            rose: '#f43f5e',
+                            amber: '#f59e0b',
+                            violet: '#8b5cf6'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #07090e;
+            color: #e6edf3;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(139, 92, 246, 0.05) 0%, transparent 45%),
+                radial-gradient(circle at 90% 80%, rgba(56, 189, 248, 0.05) 0%, transparent 45%);
+        }
+        .hud-glass {
+            background: rgba(13, 17, 23, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(48, 54, 61, 0.6);
+        }
+        .canvas-container {
+            position: relative;
+            box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.9);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #07090e; }
+        ::-webkit-scrollbar-thumb { background: #21262d; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #8b5cf6; }
+    </style>
+</head>
+<body class="font-sans antialiased selection:bg-axiom-violet selection:text-axiom-900 pb-24">
+
+    <!-- Top Navigation HUD -->
+    <header class="sticky top-0 z-50 hud-glass border-b border-axiom-700/80 px-6 py-3.5 flex items-center justify-between">
+        <div class="flex items-center space-x-4">
+            <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-axiom-violet via-axiom-rose to-axiom-accent flex items-center justify-center shadow-lg shadow-axiom-violet/20">
+                <span class="font-mono font-black text-axiom-900 text-base">SMT</span>
+            </div>
+            <div>
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-mono font-semibold tracking-wider uppercase text-axiom-violet">The Axiom Lab</span>
+                    <span class="text-xs text-axiom-600">/</span>
+                    <span class="text-xs font-mono text-gray-400">Chapter 6 Extension</span>
+                </div>
+                <h1 class="text-sm font-bold tracking-tight text-white flex items-center gap-2">
+                    SMT Divergence Real-Market Case Studies
+                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-mono bg-axiom-violet/20 text-axiom-violet border border-axiom-violet/30">REPLAY LAB</span>
+                </h1>
+            </div>
+        </div>
+
+        <div class="flex items-center space-x-3">
+            <button id="audioToggleBtn" onclick="toggleAudio()" class="px-3 py-1.5 rounded-md text-xs font-mono bg-axiom-800 hover:bg-axiom-700 border border-axiom-600 flex items-center gap-2 transition-all">
+                <span id="audioIcon" class="w-2 h-2 rounded-full bg-axiom-rose"></span>
+                <span id="audioText">Audio: Muted</span>
+            </button>
+            <a href="chapter6.html" class="px-3 py-1.5 rounded-md text-xs font-mono bg-axiom-800 hover:bg-axiom-700 border border-axiom-600 transition-all text-gray-300 hover:text-white">
+                ← Chapter 6 Core
+            </a>
+            <a href="chapter7.html" class="px-3 py-1.5 rounded-md text-xs font-mono bg-axiom-emerald/20 text-axiom-emerald border border-axiom-emerald/40 hover:bg-axiom-emerald/30 transition-all font-bold">
+                Chapter 7 →
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+
+        <!-- Selector Tabs -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 font-mono text-xs">
+            <button onclick="switchCase(0)" id="cTab0" class="p-3.5 rounded-xl border border-axiom-violet bg-axiom-violet/10 text-axiom-violet font-bold text-left transition-all">
+                <div class="text-[10px] text-gray-400">CASE STUDY 01</div>
+                <div class="truncate text-white text-sm mt-0.5">Nifty 50 vs BankNifty</div>
+                <div class="text-[11px] text-axiom-rose mt-1">Bearish SMT • BSL Sweep Crack</div>
+            </button>
+            <button onclick="switchCase(1)" id="cTab1" class="p-3.5 rounded-xl border border-axiom-700 bg-axiom-850/70 text-gray-400 font-bold text-left hover:border-axiom-600 transition-all">
+                <div class="text-[10px] text-gray-500">CASE STUDY 02</div>
+                <div class="truncate text-gray-200 text-sm mt-0.5">EUR/USD vs USDX (DXY)</div>
+                <div class="text-[11px] text-axiom-emerald mt-1">Inverse SMT • Dollar Liquidity</div>
+            </button>
+            <button onclick="switchCase(2)" id="cTab2" class="p-3.5 rounded-xl border border-axiom-700 bg-axiom-850/70 text-gray-400 font-bold text-left hover:border-axiom-600 transition-all">
+                <div class="text-[10px] text-gray-500">CASE STUDY 03</div>
+                <div class="truncate text-gray-200 text-sm mt-0.5">BTC vs ETH Crypto SMT</div>
+                <div class="text-[11px] text-axiom-accent mt-1">Bullish SMT • SSL Failure Accumulation</div>
+            </button>
+        </div>
+
+        <!-- Stage Card -->
+        <section class="hud-glass rounded-2xl p-6 border border-axiom-700 space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-axiom-700/80 pb-4">
+                <div>
+                    <span id="cBadge" class="px-2.5 py-0.5 rounded text-[10px] font-mono bg-axiom-rose/20 text-axiom-rose border border-axiom-rose/40 font-bold">NSE INDEX DIVERGENCE</span>
+                    <h3 id="cTitle" class="text-xl font-bold text-white mt-1">Nifty sweeps 24,900 High while BankNifty prints Lower High</h3>
+                    <p id="cSubtitle" class="text-xs text-gray-400 mt-0.5">कमजोर इंडेक्स (BankNifty) को शॉर्ट करके 1:6.5 RRR का बड़ा ड्रॉप हासिल करना</p>
+                </div>
+                <div class="flex items-center gap-2 font-mono text-xs">
+                    <button onclick="prevStep()" class="px-3 py-2 rounded-lg bg-axiom-800 hover:bg-axiom-700 border border-axiom-600 text-gray-200">
+                        ← Prev Phase
+                    </button>
+                    <button onclick="nextStep()" class="px-4 py-2 rounded-lg bg-axiom-violet text-white font-bold hover:brightness-110 shadow-lg shadow-axiom-violet/20">
+                        Next Phase →
+                    </button>
+                    <button onclick="autoPlay()" id="playBtn" class="px-3 py-2 rounded-lg bg-axiom-800 hover:bg-axiom-700 border border-axiom-600 text-gray-200">
+                        ▶ Replay
+                    </button>
+                </div>
+            </div>
+
+            <!-- Synchronized Dual Canvases -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Asset A -->
+                <div class="bg-axiom-900 rounded-xl border border-axiom-700 p-4 canvas-container relative">
+                    <div class="flex justify-between items-center mb-2 font-mono text-xs">
+                        <span id="lblAssetA" class="text-axiom-accent font-bold">ASSET A: NIFTY 50 (Aggressive Sweeper)</span>
+                        <span id="statusA" class="px-2 py-0.5 rounded bg-axiom-850 text-gray-300 text-[10px] border border-axiom-700">Higher High</span>
+                    </div>
+                    <canvas id="cCanvasA" width="480" height="280" class="w-full h-auto block rounded"></canvas>
+                </div>
+
+                <!-- Asset B -->
+                <div class="bg-axiom-900 rounded-xl border border-axiom-700 p-4 canvas-container relative">
+                    <div class="flex justify-between items-center mb-2 font-mono text-xs">
+                        <span id="lblAssetB" class="text-axiom-rose font-bold">ASSET B: BANKNIFTY (Reluctant Seller)</span>
+                        <span id="statusB" class="px-2 py-0.5 rounded bg-axiom-850 text-axiom-rose text-[10px] border border-axiom-rose/40">Lower High (Crack)</span>
+                    </div>
+                    <canvas id="cCanvasB" width="480" height="280" class="w-full h-auto block rounded"></canvas>
+                </div>
+            </div>
+
+            <!-- Trade Diagnostic Breakdown -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono text-xs">
+                <div class="bg-axiom-900/80 p-4 rounded-xl border border-axiom-700 space-y-3">
+                    <div class="text-gray-400 font-bold uppercase tracking-wider text-[11px]">Execution Blueprint</div>
+                    <div class="space-y-2 text-[11px]">
+                        <div class="flex justify-between pb-1 border-b border-axiom-800">
+                            <span class="text-gray-400">Chosen Asset:</span>
+                            <span id="mChosen" class="text-axiom-rose font-bold">BankNifty (Weaker Asset)</span>
+                        </div>
+                        <div class="flex justify-between pb-1 border-b border-axiom-800">
+                            <span class="text-gray-400">Entry Level:</span>
+                            <span id="mEntry" class="text-white font-bold">51,450 (1m FVG Retest)</span>
+                        </div>
+                        <div class="flex justify-between pb-1 border-b border-axiom-800">
+                            <span class="text-gray-400">Stop-Loss (SL):</span>
+                            <span id="mSL" class="text-axiom-rose font-bold">51,520 (70 pts)</span>
+                        </div>
+                        <div class="flex justify-between pb-1 border-b border-axiom-800">
+                            <span class="text-gray-400">Target (TP):</span>
+                            <span id="mTP" class="text-axiom-emerald font-bold">50,990 (460 pts)</span>
+                        </div>
+                        <div class="flex justify-between pb-1 border-b border-axiom-800">
+                            <span class="text-axiom-violet font-bold">Risk-to-Reward:</span>
+                            <span id="mRRR" class="text-axiom-violet font-bold">1 : 6.57</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-axiom-900/80 p-4 rounded-xl border border-axiom-700 space-y-2 lg:col-span-2 flex flex-col justify-between">
+                    <div>
+                        <div class="text-gray-400 font-bold uppercase tracking-wider text-[11px] mb-1">Phase Narrative & Institutional Mechanics</div>
+                        <p id="narrativeTxt" class="text-gray-300 leading-relaxed text-[11px]">
+                            सुबह 10:15 बजे Nifty ने 24,900 के पिछले हाई को विक से स्वीप किया, जबकि BankNifty अपने 51,500 के हाई से 60 पॉइंट नीचे ही मुड़ गया। यह प्रमाणित करता है कि असली लिक्विडिटी डंप हो रही है।
+                        </p>
+                    </div>
+                    <div class="p-3 bg-axiom-850 rounded border border-axiom-violet/30 text-axiom-violet text-[11px]">
+                        <strong class="text-white">The Golden Rule:</strong> हमेशा उस एसेट को शॉर्ट करें जो नया हाई बनाने में <em>विफल</em> रहा (BankNifty), क्योंकि वह सेलिंग प्रेशर के कारण सबसे पहले और सबसे तेज गिरता है!
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        let audioCtx = null;
+        let audioMuted = true;
+
+        function initAudio() {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+
+        function toggleAudio() {
+            initAudio();
+            audioMuted = !audioMuted;
+            const icon = document.getElementById('audioIcon');
+            const txt = document.getElementById('audioText');
+            if (audioMuted) {
+                icon.className = 'w-2 h-2 rounded-full bg-axiom-rose';
+                txt.innerText = 'Audio: Muted';
+            } else {
+                icon.className = 'w-2 h-2 rounded-full bg-axiom-emerald animate-pulse';
+                txt.innerText = 'Audio: Active';
+                playChime(660, 0.1, 'sine');
+            }
+        }
+
+        function playChime(freq, dur, type='sine') {
+            if (audioMuted || !audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + dur);
+            } catch(e){}
+        }
+
+        const cases = [
+            {
+                badge: "NSE INDEX SMT • NIFTY VS BANKNIFTY",
+                title: "Nifty sweeps 24,900 High while BankNifty prints Lower High",
+                subtitle: "कमजोर इंडेक्स (BankNifty) को शॉर्ट करके 1:6.5 RRR का बड़ा संस्थागत फॉल पकड़ना",
+                assetALabel: "ASSET A: NIFTY 50 (Aggressive Sweeper)",
+                assetBLabel: "ASSET B: BANKNIFTY (Reluctant / Weak)",
+                chosen: "BankNifty (Weaker Asset)",
+                entry: "51,450 (1m FVG Retest)",
+                sl: "51,520 (70 pts)",
+                tp: "50,990 (460 pts)",
+                rrr: "1 : 6.57",
+                phases: [
+                    {
+                        narrative: "Phase 1: दोनों इंडेक्स सुबह से ऊपर चढ़ रहे हैं। Nifty 24,900 के पुराने हाई के पास पहुंचता है और BankNifty 51,500 के पास।",
+                        count: 4,
+                        freq: 440
+                    },
+                    {
+                        narrative: "Phase 2 (The SMT Crack): Nifty ने 24,900 के ऊपर स्पाइक लगाकर नया Higher High बनाया, लेकिन BankNifty 51,440 पर ही रुककर Lower High बनाता है!",
+                        count: 7,
+                        freq: 280
+                    },
+                    {
+                        narrative: "Phase 3: BankNifty 1-मिनट पर तेज डिस्प्लेसमेंट के साथ CHoCH देता है और 51,450 पर एक बेयरिश FVG छोड़ता है। हमारा शॉर्ट लिमिट ऑर्डर ट्रिगर होता है।",
+                        count: 10,
+                        freq: 660
+                    },
+                    {
+                        narrative: "Phase 4: भारी फॉल! BankNifty 50,990 के सपोर्ट तक क्रैश करता है। 70 अंक का रिस्क, 460 अंक का रिवॉर्ड (1:6.57 RRR)।",
+                        count: 14,
+                        freq: 880
+                    }
+                ],
+                candlesA: [
+                    {o:24820, h:24870, l:24810, c:24860, color:'#10b981'},
+                    {o:24860, h:24890, l:24840, c:24885, color:'#10b981'},
+                    {o:24885, h:24895, l:24850, c:24860, color:'#f43f5e'},
+                    {o:24860, h:24880, l:24830, c:24850, color:'#f43f5e'},
+                    // Sweep
+                    {o:24850, h:24925, l:24845, c:24915, color:'#10b981'}, // High 24925 (Higher High)
+                    {o:24915, h:24920, l:24860, c:24870, color:'#f43f5e'},
+                    {o:24870, h:24880, l:24820, c:24830, color:'#f43f5e'},
+                    // Drop
+                    {o:24830, h:24850, l:24800, c:24810, color:'#f43f5e'},
+                    {o:24810, h:24830, l:24760, c:24770, color:'#f43f5e'},
+                    {o:24770, h:24790, l:24720, c:24730, color:'#f43f5e'},
+                    {o:24730, h:24740, l:24680, c:24690, color:'#f43f5e'},
+                    {o:24690, h:24710, l:24650, c:24660, color:'#f43f5e'},
+                    {o:24660, h:24680, l:24620, c:24630, color:'#f43f5e'},
+                    {o:24630, h:24640, l:24590, c:24600, color:'#f43f5e'}
+                ],
+                candlesB: [
+                    {o:51300, h:51480, l:51280, c:51470, color:'#10b981'}, // High 51480
+                    {o:51470, h:51490, l:51390, c:51410, color:'#f43f5e'},
+                    {o:51410, h:51450, l:51350, c:51370, color:'#f43f5e'},
+                    {o:51370, h:51420, l:51340, c:51390, color:'#10b981'},
+                    // Failed High (Lower High)
+                    {o:51390, h:51445, l:51370, c:51430, color:'#10b981'}, // Lower High 51445
+                    {o:51430, h:51440, l:51310, c:51320, color:'#f43f5e'},
+                    {o:51320, h:51340, l:51220, c:51230, color:'#f43f5e'},
+                    // Tap FVG & Crash
+                    {o:51230, h:51450, l:51220, c:51440, color:'#10b981'}, // Retest 51450
+                    {o:51440, h:51445, l:51190, c:51200, color:'#f43f5e'},
+                    {o:51200, h:51220, l:51050, c:51070, color:'#f43f5e'},
+                    {o:51070, h:51090, l:50980, c:50990, color:'#f43f5e'},
+                    {o:50990, h:51020, l:50880, c:50890, color:'#f43f5e'},
+                    {o:50890, h:50920, l:50780, c:50800, color:'#f43f5e'},
+                    {o:50800, h:50820, l:50700, c:50720, color:'#f43f5e'}
+                ]
+            },
+            {
+                badge: "FOREX MACRO SMT • EUR/USD VS DXY",
+                title: "EUR/USD Sweeps Low while US Dollar Index (DXY) Fails High",
+                subtitle: "Dollar की कमजोरी को पकड़कर EUR/USD में 1:5.8 RRR का बुलिश रिवर्सल ट्रेड",
+                assetALabel: "ASSET A: EUR/USD (Sweeps Sell-Side Liquidity)",
+                assetBLabel: "ASSET B: USD INDEX - DXY (Fails to sweep High)",
+                chosen: "EUR/USD (Long Setup)",
+                entry: "1.08200 (Discount FVG)",
+                sl: "1.07950 (-25 pips)",
+                tp: "1.09650 (+145 pips)",
+                rrr: "1 : 5.80",
+                phases: [
+                    {
+                        narrative: "Phase 1: EUR/USD और DXY एक दूसरे के विपरीत चलते हैं। EUR/USD गिर रहा है और DXY ऊपर जा रहा है।",
+                        count: 4,
+                        freq: 440
+                    },
+                    {
+                        narrative: "Phase 2 (Inverse SMT): EUR/USD ने 1.08000 का लो तोड़ दिया (Lower Low), लेकिन DXY अपने पुराने हाई को नहीं तोड़ पाया (Lower High on Dollar)! डॉलर में दम नहीं है।",
+                        count: 7,
+                        freq: 554
+                    },
+                    {
+                        narrative: "Phase 3: EUR/USD तुरंत ऊपर पलटता है और 15m CHoCH देता है। 1.08200 के डिस्काउंट FVG पर लिमिट बाय एक्जीक्यूट।",
+                        count: 10,
+                        freq: 660
+                    },
+                    {
+                        narrative: "Phase 4: डॉलर क्रैश होता है और EUR/USD 1.09650 के वीकली हाई तक रॉकेट बन जाता है। 1:5.8 RRR बुक।",
+                        count: 14,
+                        freq: 880
+                    }
+                ],
+                candlesA: [
+                    {o:1.0860, h:1.0870, l:1.0840, c:1.0845, color:'#f43f5e'},
+                    {o:1.0845, h:1.0850, l:1.0820, c:1.0825, color:'#f43f5e'}, // Low 1
+                    {o:1.0825, h:1.0840, l:1.0820, c:1.0835, color:'#10b981'},
+                    {o:1.0835, h:1.0840, l:1.0815, c:1.0820, color:'#f43f5e'},
+                    // Sweep
+                    {o:1.0820, h:1.0825, l:1.0795, c:1.0805, color:'#f43f5e'}, // Sweep low 1.0795
+                    {o:1.0805, h:1.0835, l:1.0800, c:1.0830, color:'#10b981'},
+                    {o:1.0830, h:1.0860, l:1.0825, c:1.0855, color:'#10b981'},
+                    // Expansion
+                    {o:1.0855, h:1.0860, l:1.0820, c:1.0825, color:'#f43f5e'}, // Tap 1.0820
+                    {o:1.0825, h:1.0870, l:1.0822, c:1.0865, color:'#10b981'},
+                    {o:1.0865, h:1.0910, l:1.0860, c:1.0905, color:'#10b981'},
+                    {o:1.0905, h:1.0940, l:1.0900, c:1.0935, color:'#10b981'},
+                    {o:1.0935, h:1.0960, l:1.0930, c:1.0955, color:'#10b981'},
+                    {o:1.0955, h:1.0970, l:1.0950, c:1.0965, color:'#10b981'},
+                    {o:1.0965, h:1.0975, l:1.0960, c:1.0970, color:'#10b981'}
+                ],
+                candlesB: [
+                    {o:104.2, h:104.5, l:104.1, c:104.4, color:'#10b981'},
+                    {o:104.4, h:104.8, l:104.3, c:104.7, color:'#10b981'}, // High 1
+                    {o:104.7, h:104.75, l:104.5, c:104.55, color:'#f43f5e'},
+                    {o:104.55, h:104.65, l:104.4, c:104.6, color:'#10b981'},
+                    // Failed High
+                    {o:104.6, h:104.72, l:104.4, c:104.5, color:'#f43f5e'}, // Fails to beat 104.8
+                    {o:104.5, h:104.55, l:104.2, c:104.25, color:'#f43f5e'},
+                    {o:104.25, h:104.3, l:103.9, c:103.95, color:'#f43f5e'},
+                    // Fall
+                    {o:103.95, h:104.1, l:103.8, c:103.85, color:'#f43f5e'},
+                    {o:103.85, h:103.9, l:103.5, c:103.55, color:'#f43f5e'},
+                    {o:103.55, h:103.6, l:103.2, c:103.25, color:'#f43f5e'},
+                    {o:103.25, h:103.3, l:102.9, c:102.95, color:'#f43f5e'},
+                    {o:102.95, h:103.0, l:102.7, c:102.75, color:'#f43f5e'},
+                    {o:102.75, h:102.8, l:102.5, c:102.55, color:'#f43f5e'},
+                    {o:102.55, h:102.6, l:102.4, c:102.45, color:'#f43f5e'}
+                ]
+            },
+            {
+                badge: "CRYPTO SMT • BITCOIN VS ETHEREUM",
+                title: "Bitcoin Sweeps $62,000 Low while Ethereum holds Higher Low",
+                subtitle: "ETH की संस्थागत मजबूती को भांपकर 1:7.2 RRR का आक्रामक लॉन्ग ट्रेड",
+                assetALabel: "ASSET A: BITCOIN (Sweeps Weekend SSL)",
+                assetBLabel: "ASSET B: ETHEREUM (Strong Accumulation)",
+                chosen: "Ethereum (Stronger Leader)",
+                entry: "$2,420 (Unmitigated 15m OB)",
+                sl: "$2,385 (-$35)",
+                tp: "$2,675 (+$255)",
+                rrr: "1 : 7.28",
+                phases: [
+                    {
+                        narrative: "Phase 1: सोमवार सुबह एशिया ओपन में दोनों क्रिप्टो एसेट्स में तेज सेलिंग आती है।",
+                        count: 4,
+                        freq: 440
+                    },
+                    {
+                        narrative: "Phase 2 (Bullish SMT): BTC ने $62,000 का लो तोड़कर स्टॉप्स खाए, लेकिन ETH ने अपना पिछला लो $2,400 तोड़ने से साफ इनकार कर दिया (Higher Low)।",
+                        count: 7,
+                        freq: 554
+                    },
+                    {
+                        narrative: "Phase 3: ETH में स्मार्ट मनी का बड़ा इनफ्लो आता है। 15-मिनट पर CHoCH + FVG बनता है। $2,420 पर लॉन्ग लिमिट एग्जीक्यूट।",
+                        count: 10,
+                        freq: 660
+                    },
+                    {
+                        narrative: "Phase 4: एक्सपेंशन! ETH शॉर्ट-कवरिंग के साथ $2,675 के BSL टारगेट को हिट करता है। 1:7.28 RRR पूर्ण।",
+                        count: 14,
+                        freq: 880
+                    }
+                ],
+                candlesA: [
+                    {o:63200, h:63400, l:62800, c:62900, color:'#f43f5e'},
+                    {o:62900, h:63100, l:62400, c:62500, color:'#f43f5e'}, // Low 1
+                    {o:62500, h:62800, l:62450, c:62700, color:'#10b981'},
+                    {o:62700, h:62750, l:62300, c:62350, color:'#f43f5e'},
+                    // Sweep
+                    {o:62350, h:62400, l:61850, c:61950, color:'#f43f5e'}, // Sweep low 61850
+                    {o:61950, h:62600, l:61900, c:62500, color:'#10b981'},
+                    {o:62500, h:62900, l:62400, c:62850, color:'#10b981'},
+                    // Rise
+                    {o:62850, h:62900, l:62450, c:62500, color:'#f43f5e'},
+                    {o:62500, h:63200, l:62480, c:63150, color:'#10b981'},
+                    {o:63150, h:63800, l:63100, c:63750, color:'#10b981'},
+                    {o:63750, h:64200, l:63700, c:64150, color:'#10b981'},
+                    {o:64150, h:64600, l:64100, c:64550, color:'#10b981'},
+                    {o:64550, h:64900, l:64500, c:64850, color:'#10b981'},
+                    {o:64850, h:65100, l:64800, c:65050, color:'#10b981'}
+                ],
+                candlesB: [
+                    {o:2480, h:2490, l:2420, c:2430, color:'#f43f5e'},
+                    {o:2430, h:2440, l:2400, c:2410, color:'#f43f5e'}, // Low 1 at 2400
+                    {o:2410, h:2430, l:2405, c:2425, color:'#10b981'},
+                    {o:2425, h:2430, l:2410, c:2415, color:'#f43f5e'},
+                    // Stronger Higher Low!
+                    {o:2415, h:2425, l:2408, c:2420, color:'#10b981'}, // Higher Low 2408
+                    {o:2420, h:2460, l:2418, c:2455, color:'#10b981'},
+                    {o:2455, h:2490, l:2450, c:2485, color:'#10b981'},
+                    // Retest OB
+                    {o:2485, h:2490, l:2420, c:2425, color:'#f43f5e'}, // Tap 2420
+                    {o:2425, h:2480, l:2422, c:2475, color:'#10b981'},
+                    {o:2475, h:2530, l:2470, c:2525, color:'#10b981'},
+                    {o:2525, h:2580, l:2520, c:2575, color:'#10b981'},
+                    {o:2575, h:2620, l:2570, c:2615, color:'#10b981'},
+                    {o:2615, h:2655, l:2610, c:2650, color:'#10b981'},
+                    {o:2650, h:2680, l:2645, c:2675, color:'#10b981'}
+                ]
+            }
+        ];
+
+        let currentCIdx = 0;
+        let currentPIdx = 0;
+        const cA = document.getElementById('cCanvasA');
+        const ctxA = cA.getContext('2d');
+        const cB = document.getElementById('cCanvasB');
+        const ctxB = cB.getContext('2d');
+
+        function switchCase(idx) {
+            initAudio();
+            currentCIdx = idx;
+            currentPIdx = 0;
+
+            for(let i=0; i<3; i++) {
+                const tab = document.getElementById(`cTab${i}`);
+                if (i === idx) {
+                    tab.className = "p-3.5 rounded-xl border border-axiom-violet bg-axiom-violet/10 text-axiom-violet font-bold text-left transition-all";
+                } else {
+                    tab.className = "p-3.5 rounded-xl border border-axiom-700 bg-axiom-850/70 text-gray-400 font-bold text-left hover:border-axiom-600 transition-all";
+                }
+            }
+
+            const c = cases[idx];
+            document.getElementById('cBadge').innerText = c.badge;
+            document.getElementById('cTitle').innerText = c.title;
+            document.getElementById('cSubtitle').innerText = c.subtitle;
+            document.getElementById('lblAssetA').innerText = c.assetALabel;
+            document.getElementById('lblAssetB').innerText = c.assetBLabel;
+            document.getElementById('mChosen').innerText = c.chosen;
+            document.getElementById('mEntry').innerText = c.entry;
+            document.getElementById('mSL').innerText = c.sl;
+            document.getElementById('mTP').innerText = c.tp;
+            document.getElementById('mRRR').innerText = c.rrr;
+
+            updateCaseView();
+            playChime(520, 0.15, 'sine');
+        }
+
+        function updateCaseView() {
+            const c = cases[currentCIdx];
+            const p = c.phases[currentPIdx];
+            document.getElementById('narrativeTxt').innerText = p.narrative;
+            drawSynchronizedCanvases();
+        }
+
+        function nextStep() {
+            initAudio();
+            const c = cases[currentCIdx];
+            if (currentPIdx < c.phases.length - 1) {
+                currentPIdx++;
+                updateCaseView();
+                playChime(c.phases[currentPIdx].freq, 0.2, 'triangle');
+            }
+        }
+
+        function prevStep() {
+            initAudio();
+            if (currentPIdx > 0) {
+                currentPIdx--;
+                updateCaseView();
+                playChime(400, 0.15, 'sine');
+            }
+        }
+
+        function autoPlay() {
+            initAudio();
+            currentPIdx = 0;
+            updateCaseView();
+            playChime(440, 0.1, 'sine');
+            const timer = setInterval(() => {
+                if (currentPIdx < cases[currentCIdx].phases.length - 1) {
+                    nextStep();
+                } else {
+                    clearInterval(timer);
+                }
+            }, 1800);
+        }
+
+        function drawSynchronizedCanvases() {
+            const c = cases[currentCIdx];
+            const count = c.phases[currentPIdx].count;
+
+            drawChart(ctxA, cA, c.candlesA.slice(0, count));
+            drawChart(ctxB, cB, c.candlesB.slice(0, count));
+        }
+
+        function drawChart(ctx, cvs, candles) {
+            ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+            // Grid
+            ctx.strokeStyle = '#161b22';
+            ctx.lineWidth = 1;
+            for(let x=0; x<cvs.width; x+=40) {
+                ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,cvs.height); ctx.stroke();
+            }
+            for(let y=0; y<cvs.height; y+=35) {
+                ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(cvs.width,y); ctx.stroke();
+            }
+
+            if(candles.length === 0) return;
+
+            let minP = Infinity, maxP = -Infinity;
+            candles.forEach(cd => {
+                if(cd.l < minP) minP = cd.l;
+                if(cd.h > maxP) maxP = cd.h;
+            });
+            const pad = (maxP - minP) * 0.15 || 10;
+            minP -= pad; maxP += pad;
+
+            function getY(val) {
+                return cvs.height - 30 - ((val - minP) / (maxP - minP)) * (cvs.height - 60);
+            }
+
+            const startX = 40;
+            const stepX = (cvs.width - 60) / 14;
+
+            candles.forEach((cd, i) => {
+                const x = startX + i * stepX;
+                const oY = getY(cd.o);
+                const cY = getY(cd.c);
+                const hY = getY(cd.h);
+                const lY = getY(cd.l);
+
+                ctx.strokeStyle = cd.color;
+                ctx.lineWidth = 1.8;
+                ctx.beginPath(); ctx.moveTo(x, hY); ctx.lineTo(x, lY); ctx.stroke();
+
+                ctx.fillStyle = cd.color;
+                const top = Math.min(oY, cY);
+                const h = Math.max(Math.abs(oY - cY), 3);
+                ctx.fillRect(x - 7, top, 14, h);
+            });
+        }
+
+        window.addEventListener('load', () => {
+            switchCase(0);
+        });
+    </script>
+</body>
+</html>4
