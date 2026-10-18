@@ -57,12 +57,12 @@
 </head>
 <body class="font-sans antialiased selection:bg-axiom-accent selection:text-axiom-900 pb-24">
 
-    <!-- Header HUD with Larger Creator Profile & Name -->
+    <!-- Header HUD with Clickable Creator Profile -->
     <header class="sticky top-0 z-50 hud-glass border-b border-axiom-700/80 px-6 py-4 flex items-center justify-between">
         <div class="flex items-center space-x-4">
-            <!-- Enhanced Larger Profile Photo (64px) with Gradient Ring -->
-            <div class="relative group shrink-0">
-                <div class="w-16 h-16 rounded-full p-[2.5px] bg-gradient-to-tr from-axiom-accent via-axiom-violet to-axiom-emerald shadow-xl shadow-axiom-accent/25 flex items-center justify-center">
+            <!-- Clickable Profile Photo with Zoom Icon on Hover -->
+            <div class="relative group shrink-0 cursor-pointer" onclick="openPhotoModal()" title="Click to view full HD photo">
+                <div class="w-16 h-16 rounded-full p-[2.5px] bg-gradient-to-tr from-axiom-accent via-axiom-violet to-axiom-emerald shadow-xl shadow-axiom-accent/25 flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
                     <img 
                         src="profile.jpg" 
                         alt="Nilanshu Kumar" 
@@ -73,6 +73,12 @@
                     <div class="hidden w-full h-full rounded-full bg-axiom-900 items-center justify-center font-mono font-black text-axiom-accent text-base">
                         NK
                     </div>
+                </div>
+                <!-- Search/Zoom overlay badge on hover -->
+                <div class="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"></path>
+                    </svg>
                 </div>
                 <span class="absolute bottom-0.5 right-0.5 w-4 h-4 bg-axiom-emerald border-2 border-axiom-900 rounded-full shadow" title="Active Author"></span>
             </div>
@@ -347,5 +353,61 @@
         </section>
 
     </main>
+
+    <!-- Full-Screen HD Photo Lightbox Modal -->
+    <div id="photoModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/85 backdrop-blur-md p-4 transition-all duration-300" onclick="closePhotoModal(event)">
+        <div class="relative max-w-md w-full rounded-2xl p-1 bg-gradient-to-tr from-axiom-accent via-axiom-violet to-axiom-emerald shadow-2xl shadow-axiom-accent/30" onclick="event.stopPropagation()">
+            <!-- Close Button -->
+            <button onclick="closePhotoModal(event)" class="absolute -top-3 -right-3 w-9 h-9 rounded-full bg-axiom-900 border border-axiom-600 text-white font-mono text-base font-bold flex items-center justify-center hover:bg-axiom-rose hover:border-axiom-rose transition-colors shadow-lg z-10" title="Close (Esc)">
+                ✕
+            </button>
+
+            <!-- Image Container -->
+            <div class="rounded-[14px] overflow-hidden bg-axiom-950 flex flex-col">
+                <img 
+                    src="profile.jpg" 
+                    alt="Nilanshu Kumar Full HD" 
+                    class="w-full h-auto max-h-[75vh] object-cover block"
+                />
+                <!-- Creator Bio Caption inside Modal -->
+                <div class="p-4 bg-axiom-900 border-t border-axiom-800 flex flex-col gap-1 font-mono">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm font-extrabold text-white flex items-center gap-1.5">
+                            Nilanshu Kumar
+                            <svg class="w-4 h-4 text-axiom-accent inline" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                        </span>
+                        <span class="text-[10px] px-2 py-0.5 rounded bg-axiom-accent/20 text-axiom-accent border border-axiom-accent/30 font-bold">FOUNDER</span>
+                    </div>
+                    <span class="text-xs text-gray-300">Physics Teacher by Profession • Trader by Choice</span>
+                    <span class="text-[10px] text-axiom-accent mt-0.5">The Axiom Lab • Market Mechanics & Quantitative Modeling</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Logic Script -->
+    <script>
+        function openPhotoModal() {
+            const modal = document.getElementById('photoModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePhotoModal(e) {
+            if (e) e.stopPropagation();
+            const modal = document.getElementById('photoModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = '';
+        }
+
+        // Close on Escape key press
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closePhotoModal();
+        });
+    </script>
 </body>
 </html>
