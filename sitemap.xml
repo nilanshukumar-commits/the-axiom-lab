@@ -1,8 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Homepage -->
   <url>
     <loc>https://nilanshukumar-commits.github.io/the-axiom-lab/</loc>
     <lastmod>2026-10-22</lastmod>
     <priority>1.00</priority>
+  </url>
+
+  <!-- Chapters -->
+  <url>
+    <loc>https://nilanshukumar-commits.github.io/the-axiom-lab/chapter1.html</loc>
+    <lastmod>2026-10-22</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://nilanshukumar-commits.github.io/the-axiom-lab/chapter2.html</loc>
+    <lastmod>2026-10-22</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://nilanshukumar-commits.github.io/the-axiom-lab/chapter3.html</loc>
+    <lastmod>2026-10-22</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://nilanshukumar-commits.github.io/the-axiom-lab/chapter4.html</loc>
+    <lastmod>2026-10-22</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://nilanshukumar-commits.github.io/the-axiom-lab/chapter4_case_studies.html</loc>
+    <lastmod>2026-10-22</lastmod>
+    <priority>0.70</priority>
+  </url>
+  <url>
+    <loc>https://nilanshukumar-commits.github.io/the-axiom-lab/chapter5.html</loc>
+    <lastmod>2026-10-22</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://nilanshukumar-commits.github.io/the-axiom-lab/chapter6.html</loc>
+    <lastmod>2026-10-22</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://nilanshukumar-commits.github.io/the-axiom-lab/chapter6_case_studies.html</loc>
+    <lastmod>2026-10-22</lastmod>
+    <priority>0.70</priority>
+  </url>
+  <url>
+    <loc>https://nilanshukumar-commits.github.io/the-axiom-lab/chapter7.html</loc>
+    <lastmod>2026-10-22</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://nilanshukumar-commits.github.io/the-axiom-lab/chapter8.html</loc>
+    <lastmod>2026-10-22</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://nilanshukumar-commits.github.io/the-axiom-lab/chapter8_case_studies.html</loc>
+    <lastmod>2026-10-22</lastmod>
+    <priority>0.70</priority>
+  </url>
+  <url>
+    <loc>https://nilanshukumar-commits.github.io/the-axiom-lab/chapter9.html</loc>
+    <lastmod>2026-10-22</lastmod>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://nilanshukumar-commits.github.io/the-axiom-lab/chapter10.html</loc>
+    <lastmod>2026-10-22</lastmod>
+    <priority>0.80</priority>
   </url>
 </urlset>
